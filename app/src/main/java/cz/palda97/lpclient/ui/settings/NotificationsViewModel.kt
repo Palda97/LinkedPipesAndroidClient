@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.notifications
+package cz.palda97.lpclient.ui.settings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

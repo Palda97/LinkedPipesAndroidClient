@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.home
+package cz.palda97.lpclient.ui.executions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import cz.palda97.lpclient.R
 
-class HomeFragment : Fragment() {
+class ExecutionsFragment : Fragment() {
 
     private lateinit var homeViewModel: HomeViewModel
 

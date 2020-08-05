@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.dashboard
+package cz.palda97.lpclient.ui.pipelines
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

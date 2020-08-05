@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.notifications
+package cz.palda97.lpclient.ui.settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import cz.palda97.lpclient.R
 
-class NotificationsFragment : Fragment() {
+class SettingsFragment : Fragment() {
 
     private lateinit var notificationsViewModel: NotificationsViewModel
 

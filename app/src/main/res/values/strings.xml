@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">LinkedPipesAndroidClient</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_executions">Executions</string>
+    <string name="title_pipelines">Pipelines</string>
+    <string name="title_settings">Settings</string>
 </resources>

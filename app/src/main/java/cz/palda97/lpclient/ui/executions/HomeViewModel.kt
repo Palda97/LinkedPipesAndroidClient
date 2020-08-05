@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.home
+package cz.palda97.lpclient.ui.executions
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

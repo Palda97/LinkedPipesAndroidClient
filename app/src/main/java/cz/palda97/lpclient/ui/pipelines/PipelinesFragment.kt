@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.dashboard
+package cz.palda97.lpclient.ui.pipelines
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import cz.palda97.lpclient.R
 
-class DashboardFragment : Fragment() {
+class PipelinesFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 
