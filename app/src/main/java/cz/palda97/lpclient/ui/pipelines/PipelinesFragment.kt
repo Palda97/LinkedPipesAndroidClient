@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.dashboard
+package cz.palda97.lpclient.ui.pipelines
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import cz.palda97.lpclient.R
 
-class DashboardFragment : Fragment() {
+class PipelinesFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 
@@ -21,7 +21,7 @@ class DashboardFragment : Fragment() {
     ): View? {
         dashboardViewModel =
                 ViewModelProviders.of(this).get(DashboardViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        val root = inflater.inflate(R.layout.fragment_pipelines, container, false)
         val textView: TextView = root.findViewById(R.id.text_dashboard)
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
