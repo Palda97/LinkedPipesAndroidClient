@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.ui.executions
+package cz.palda97.lpclient.view.executions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,20 +12,19 @@ import cz.palda97.lpclient.R
 
 class ExecutionsFragment : Fragment() {
 
-    private lateinit var homeViewModel: HomeViewModel
+    //private lateinit var homeViewModel: HomeViewModel
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel::class.java)
+        //homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_executions, container, false)
         val textView: TextView = root.findViewById(R.id.text_home)
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
+        /*homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
-        })
+        })*/
         return root
     }
 }

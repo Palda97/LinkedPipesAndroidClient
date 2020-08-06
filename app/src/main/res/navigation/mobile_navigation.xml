@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_executions"
-        android:name="cz.palda97.lpclient.ui.executions.ExecutionsFragment"
+        android:name="cz.palda97.lpclient.view.executions.ExecutionsFragment"
         android:label="@string/title_executions"
         tools:layout="@layout/fragment_executions" />
 
     <fragment
         android:id="@+id/navigation_pipelines"
-        android:name="cz.palda97.lpclient.ui.pipelines.PipelinesFragment"
+        android:name="cz.palda97.lpclient.view.pipelines.PipelinesFragment"
         android:label="@string/title_pipelines"
         tools:layout="@layout/fragment_pipelines" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="cz.palda97.lpclient.ui.settings.SettingsFragment"
+        android:name="cz.palda97.lpclient.view.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>
