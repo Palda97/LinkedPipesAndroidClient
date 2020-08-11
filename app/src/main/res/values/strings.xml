@@ -4,4 +4,6 @@
     <string name="title_pipelines">Pipelines</string>
     <string name="title_settings">Settings</string>
     <string name="notifications">Notifications</string>
+    <string name="server_instances">Server instances</string>
+    <string name="loading">loading</string>
 </resources>
