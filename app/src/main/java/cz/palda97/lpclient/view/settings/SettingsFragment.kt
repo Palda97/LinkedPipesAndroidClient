@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.view.settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var viewModel: SettingsViewModel
+    private lateinit var serverRecyclerAdapter: ServerRecyclerAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,13 +29,42 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProviders.of(this).get(SettingsViewModel::class.java)
         setUpComponents()
+        setUpObservers()
         return root
     }
 
     private fun setUpComponents() {
-        binding.notificationSwitch.isChecked = viewModel.notifications
-        binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.notifications = isChecked
+        fun setUpNotificationSwitch() {
+            binding.notificationSwitch.isChecked = viewModel.notifications
+            binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.notifications = isChecked
+            }
         }
+        fun setUpServerRecycler() {
+            serverRecyclerAdapter = ServerRecyclerAdapter(
+                {viewModel.editServer(it)},
+                {viewModel.deleteServer(it)}
+            )
+            binding.insertServerInstancesHere.adapter = serverRecyclerAdapter
+        }
+        setUpNotificationSwitch()
+        setUpServerRecycler()
+    }
+
+    private fun setUpObservers() {
+        viewModel.liveServers.observe(viewLifecycleOwner, Observer {
+            if(it == null)
+                return@Observer
+            if(it.isOk) {
+                Log.d(TAG, "it.isOk")
+                serverRecyclerAdapter.updateServerList(it.mailContent!!)
+            }
+            binding.mail = it
+            binding.executePendingBindings()
+        })
+    }
+
+    companion object {
+        private const val TAG = "SettingsFragment"
     }
 }
