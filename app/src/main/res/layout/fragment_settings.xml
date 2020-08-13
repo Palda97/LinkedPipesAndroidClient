@@ -112,7 +112,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginHorizontal="@dimen/fab_margin"
             android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="72dp"
+            android:layout_marginBottom="@dimen/fab_margin_bottom"
             app:srcCompat="@drawable/ic_baseline_add_24" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
