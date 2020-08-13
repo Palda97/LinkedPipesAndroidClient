@@ -14,6 +14,7 @@
         <item name="colorPrimaryDark">@color/brand_orange_dark</item>
         <item name="colorPrimaryVariant">@color/idk</item>
         <item name="colorSecondary">@color/brand_blue</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
