@@ -101,6 +101,8 @@
 
                 </LinearLayout>
 
+                <include layout="@layout/bottom_padding" />
+
             </LinearLayout>
         </ScrollView>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
