@@ -1,16 +1,24 @@
 package cz.palda97.lpclient.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.repository.ServerRepository
-import cz.palda97.lpclient.model.repository.ServerRepositoryFake
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    val sharedPreferences = SharedPreferencesFactory.sharedPreferences(application)
+
+    private val sharedPreferences = SharedPreferencesFactory.sharedPreferences(application)
+    private val serverRepository: ServerRepository = Injector.serverRepository
+
+    init {
+        Log.d(TAG, "init")
+    }
 
     var notifications: Boolean
         get() = sharedPreferences.getBoolean(NOTIFICATIONS, false)
@@ -20,20 +28,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         TODO("delete server instance in settings viewmodel")
     }
 
-    fun saveServer(serverInstance: ServerInstance) {
-        TODO("save server instance in settings viewmodel")
-    }
-
     fun editServer(serverInstance: ServerInstance) {
-        TODO("edit server instance in settings viewmodel")
+        serverRepository.serverToEdit.value = serverInstance
     }
-
-    private val serverRepository: ServerRepository = ServerRepositoryFake()
 
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = serverRepository.liveServers
 
     companion object {
         private const val NOTIFICATIONS = "notifications"
+        private const val TAG = "SettingsViewModel"
     }
 }
