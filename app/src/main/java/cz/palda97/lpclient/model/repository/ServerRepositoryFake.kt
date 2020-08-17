@@ -17,4 +17,6 @@ class ServerRepositoryFake : ServerRepository() {
 
     override val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = _liveServers
+
+    override val serverToEdit: MutableLiveData<ServerInstance> = MutableLiveData(ServerInstance())
 }

@@ -6,4 +6,10 @@
     <string name="notifications">Notifications</string>
     <string name="server_instances">Server instances</string>
     <string name="loading">loading</string>
+    <string name="server_name">Server name</string>
+    <string name="active">Active</string>
+    <string name="server_address">Server address</string>
+    <string name="notes">Notes</string>
+    <string name="ping">Ping</string>
+    <string name="done">Done</string>
 </resources>

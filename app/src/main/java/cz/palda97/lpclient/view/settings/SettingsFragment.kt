@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.view.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.viewmodel.SettingsViewModel
 
 class SettingsFragment : Fragment() {
@@ -63,12 +65,17 @@ class SettingsFragment : Fragment() {
         fun setUpFAB() {
             fab = binding.fab
             fab.setOnClickListener {
-                viewModel.editServer(ServerInstance())
+                addServer()
             }
         }
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()
+    }
+
+    private fun addServer() {
+        viewModel.editServer(ServerInstance())
+        EditServerActivity.start(requireActivity())
     }
 
     companion object {
