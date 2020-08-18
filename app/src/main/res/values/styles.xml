@@ -1,5 +1,7 @@
 <resources>
 
+    <!-- Text Appearances -->
+
     <style name="ta_regular16_primary" parent="TextAppearance.MaterialComponents.Body1">
         <!-- Regular 16 100 %-->
     </style>
@@ -12,5 +14,7 @@
     <style name="ta_regular12_secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
         <!-- Regular 12 54 % -->
     </style>
+
+    <!-- Components -->
 
 </resources>
