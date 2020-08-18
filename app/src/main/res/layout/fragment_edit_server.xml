@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
         <!-- -->
     </data>
@@ -17,10 +18,10 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/edit_server_bottom_buttons"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,6 +33,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:hint="@string/server_name">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -45,6 +47,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:hint="@string/server_address">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -58,6 +61,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:hint="@string/notes">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -70,6 +74,8 @@
                     android:id="@+id/active_switch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/switch_horizontal_margin"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:checked="true"
                     android:text="@string/active" />
 
@@ -80,14 +86,13 @@
             android:id="@+id/edit_server_bottom_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <View
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="8dp"
                 android:background="?android:attr/listDivider" />
 
             <LinearLayout
@@ -99,13 +104,18 @@
                     android:id="@+id/ping"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/button_margin"
+                    android:layout_marginRight="@dimen/button_margin"
                     android:layout_weight="1"
+
                     android:text="@string/ping" />
 
                 <Button
                     android:id="@+id/save_server"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/button_margin"
+                    android:layout_marginTop="@dimen/button_margin"
                     android:layout_weight="1"
                     android:backgroundTint="?attr/colorSecondary"
                     android:text="@string/done" />

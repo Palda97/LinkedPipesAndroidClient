@@ -5,4 +5,8 @@
 
     <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="edit_server_input_components_vertical_margin">8dp</dimen>
+    <dimen name="switch_horizontal_margin">3dp</dimen>
+    <dimen name="button_margin">16dp</dimen>
+
 </resources>
