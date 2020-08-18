@@ -8,6 +8,8 @@ class MailPackage<content>(val mailContent: content?, private val status: Int, v
     val isError: Boolean
         get() = status == ERROR
 
+    constructor(mailContent: content) : this(mailContent, OK, "")
+
     companion object {
         const val LOADING = 0
         const val OK = 1
