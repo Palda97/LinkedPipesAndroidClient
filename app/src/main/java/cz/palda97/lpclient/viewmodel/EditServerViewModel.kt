@@ -10,6 +10,7 @@ import cz.palda97.lpclient.model.repository.ServerRepository
 class EditServerViewModel : ViewModel() {
 
     private val serverRepository = Injector.serverRepository
+    private val editServerRepository = Injector.editServerRepository
 
     init {
         Log.d(TAG, "init")
@@ -18,9 +19,16 @@ class EditServerViewModel : ViewModel() {
     val serverToEdit: LiveData<ServerInstance>
         get() = serverRepository.serverToEdit
 
-    fun saveServer(serverInstance: ServerInstance) {
-        TODO("save server instance in settings viewmodel")
+    fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
+        serverRepository.saveServer(serverInstance)
+        editServerRepository.forgetTmpServer()
     }
+
+    var tmpServerInstance: ServerInstance
+        get() = editServerRepository.tmpServerInstance
+        set(value) {
+            editServerRepository.tmpServerInstance = value
+        }
 
     companion object {
         private const val TAG = "EditServerViewModel"

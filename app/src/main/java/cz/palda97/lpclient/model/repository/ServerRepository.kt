@@ -8,4 +8,5 @@ import cz.palda97.lpclient.model.ServerInstance
 abstract class ServerRepository {
     abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
     abstract val serverToEdit: MutableLiveData<ServerInstance>
+    abstract fun saveServer(serverInstance: ServerInstance)
 }

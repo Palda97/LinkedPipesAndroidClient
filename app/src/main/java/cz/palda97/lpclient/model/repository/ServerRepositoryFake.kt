@@ -12,11 +12,14 @@ class ServerRepositoryFake : ServerRepository() {
         ServerInstance("Work server", "10.0.42.111"),
         ServerInstance("Test server", "192.168.1.11")
     )
-    private val mailPackage = MailPackage(serverList, MailPackage.OK, "")
+    private val mailPackage = MailPackage(serverList)
     private val _liveServers = MutableLiveData(mailPackage)
 
     override val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = _liveServers
 
     override val serverToEdit: MutableLiveData<ServerInstance> = MutableLiveData(ServerInstance())
+    override fun saveServer(serverInstance: ServerInstance) {
+        _liveServers.value = MailPackage(_liveServers.value!!.mailContent!! + serverInstance)
+    }
 }
