@@ -60,13 +60,19 @@
                     android:layout_marginStart="16dp"
                     android:text="@string/server_instances" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/insert_server_instances_here"
-                    android:nestedScrollingEnabled="false"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="@{mail.ok ? View.VISIBLE : View.GONE}"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    android:layout_height="wrap_content">
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/insert_server_instances_here"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="@{mail.ok ? View.VISIBLE : View.GONE}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -101,18 +107,15 @@
 
                 </LinearLayout>
 
-                <include layout="@layout/bottom_padding" />
-
             </LinearLayout>
         </ScrollView>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginHorizontal="@dimen/fab_margin"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin_bottom"
+            android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@drawable/ic_baseline_add_24" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
