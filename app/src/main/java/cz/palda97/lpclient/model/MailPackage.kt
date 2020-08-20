@@ -1,19 +1,27 @@
 package cz.palda97.lpclient.model
 
-class MailPackage<content>(val mailContent: content?, private val status: Int, val msg: String) {
+class MailPackage<content>(val mailContent: content?, private val status: Status, val msg: String) {
     val isLoading: Boolean
-        get() = status == LOADING
+        get() = status == Status.LOADING
     val isOk: Boolean
-        get() = status == OK && mailContent != null
+        get() = status == Status.OK && mailContent != null
     val isError: Boolean
-        get() = status == ERROR
+        get() = status == Status.ERROR
 
-    constructor(mailContent: content) : this(mailContent, OK, "")
+    constructor(mailContent: content) : this(mailContent, Status.OK, "")
 
     companion object {
-        const val LOADING = 0
-        const val OK = 1
-        const val ERROR = 2
-        fun <dummy> loadingPackage() = MailPackage<dummy>(null, LOADING,"")
+        fun <dummy> loadingPackage() = MailPackage<dummy>(null, Status.LOADING, "")
+        fun <dummy> brokenPackage(message: String = "") =
+            MailPackage<dummy>(null, Status.ERROR, message)
+
+        fun ok() = MailPackage(true)
+        fun error(message: String = "") = MailPackage(false, Status.ERROR, message)
+    }
+
+    enum class Status {
+        LOADING, OK, ERROR
     }
 }
+
+typealias StatusPackage = MailPackage<Boolean>
