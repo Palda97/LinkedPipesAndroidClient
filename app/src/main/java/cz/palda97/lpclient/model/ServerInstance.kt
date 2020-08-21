@@ -4,9 +4,24 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class ServerInstance(
+class ServerInstance(
     val name: String = "",
     @PrimaryKey(autoGenerate = false) val url: String = "",
     val active: Boolean = true,
     val description: String = ""
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ServerInstance
+
+        if (url != other.url) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return url.hashCode()
+    }
+}
