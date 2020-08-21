@@ -33,7 +33,7 @@ class ServerRepositoryFake : ServerRepository() {
         return MutableLiveData(MailPackage.brokenPackage())
     }
 
-    override fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>> {
+    /*override fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>> {
         val list = _liveServers.value!!.mailContent!!
         list.forEach {
             if (it.url == serverInstance.url)
@@ -42,5 +42,25 @@ class ServerRepositoryFake : ServerRepository() {
                 return MutableLiveData(MailPackage(MatchCases.NAME))
         }
         return MutableLiveData(MailPackage.brokenPackage())
+    }*/
+    override fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>> {
+        val live: MutableLiveData<MailPackage<MatchCases>> = MutableLiveData(MailPackage.loadingPackage())
+        val list = _liveServers.value!!.mailContent!!
+        val t = Thread {
+            Thread.sleep(2000)
+            list.forEach {
+                if (it.url == serverInstance.url) {
+                    live.postValue(MailPackage(MatchCases.URL))
+                    return@Thread
+                }
+                if (it.name == serverInstance.name) {
+                    live.postValue(MailPackage(MatchCases.NAME))
+                    return@Thread
+                }
+            }
+            live.postValue(MailPackage.brokenPackage())
+        }
+        t.start()
+        return live
     }
 }
