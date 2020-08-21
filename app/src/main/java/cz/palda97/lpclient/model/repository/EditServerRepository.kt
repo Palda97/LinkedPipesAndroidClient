@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.model.repository
 
+import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.model.ServerInstance
 
 class EditServerRepository {
@@ -9,4 +10,6 @@ class EditServerRepository {
     }
 
     var rewrite = true
+
+    val doneButtonEnable = MutableLiveData(true)
 }

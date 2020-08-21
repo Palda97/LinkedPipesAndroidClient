@@ -46,6 +46,9 @@ class EditServerFragment : Fragment() {
             doneButton.setOnClickListener {
                 saveServer()
             }
+            viewModel.doneButtonEnable.observe(viewLifecycleOwner, Observer {
+                it?.let { doneButton.isEnabled = it }
+            })
             viewModel.saveSuccessful.observe(viewLifecycleOwner, Observer {
                 val status = it ?: return@Observer
                 if (status == EditServerViewModel.SaveStatus.WAITING)

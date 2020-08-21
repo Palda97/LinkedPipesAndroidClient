@@ -46,11 +46,13 @@ class EditServerViewModel : ViewModel() {
         get() = _saveSuccessful
 
     fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
+        editServerRepository.doneButtonEnable.value = false
         val liveStatus: LiveData<SaveStatus> = if (!editServerRepository.rewrite) {
             Transformations.map(serverRepository.matchingUrlAndName(serverInstance)) {
                 if (it == null)
                     return@map null
                 if (it.isOk) {
+                    editServerRepository.doneButtonEnable.value = true
                     it.mailContent!!
                     when (it.mailContent) {
                         ServerRepository.MatchCases.URL -> return@map SaveStatus.URL
@@ -58,6 +60,7 @@ class EditServerViewModel : ViewModel() {
                     }
                 }
                 if (it.isError) {
+                    editServerRepository.doneButtonEnable.value = true
                     saveAndClean(serverInstance)
                     return@map SaveStatus.OK
                 }
@@ -69,6 +72,9 @@ class EditServerViewModel : ViewModel() {
         }
         _saveSuccessful.addSource(liveStatus) { _saveSuccessful.value = it }
     }
+
+    val doneButtonEnable: LiveData<Boolean>
+        get() = editServerRepository.doneButtonEnable
 
     var tmpServerInstance: ServerInstance
         get() = editServerRepository.tmpServerInstance
