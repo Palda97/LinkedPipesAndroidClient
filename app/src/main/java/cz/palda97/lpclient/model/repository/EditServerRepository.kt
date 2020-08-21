@@ -7,4 +7,6 @@ class EditServerRepository {
     fun forgetTmpServer() {
         tmpServerInstance = ServerInstance()
     }
+
+    var rewrite = true
 }

@@ -13,4 +13,6 @@
     <string name="notes">Notes</string>
     <string name="ping">Ping</string>
     <string name="done">Done</string>
+    <string name="save_status_name">Server instance with the same name already exists!</string>
+    <string name="save_status_url">Server instance with the same url already exists!</string>
 </resources>

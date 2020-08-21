@@ -7,9 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
+import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.viewmodel.EditServerViewModel
 
@@ -42,8 +45,28 @@ class EditServerFragment : Fragment() {
             doneButton = binding.saveServer
             doneButton.setOnClickListener {
                 saveServer()
-                requireActivity().finish()
             }
+            viewModel.saveSuccessful.observe(viewLifecycleOwner, Observer {
+                val status = it ?: return@Observer
+                if (status == EditServerViewModel.SaveStatus.WAITING)
+                    return@Observer
+                viewModel.resetSaveStatus()
+                if (status == EditServerViewModel.SaveStatus.OK) {
+                    done = true
+                    requireActivity().finish()
+                }
+                val messageForSnack: String = when (status) {
+                    EditServerViewModel.SaveStatus.NAME -> getString(R.string.save_status_name)
+                    EditServerViewModel.SaveStatus.URL -> getString(R.string.save_status_url)
+                    EditServerViewModel.SaveStatus.OK -> ""
+                    EditServerViewModel.SaveStatus.WAITING -> ""
+                }
+                if (messageForSnack.isEmpty())
+                    return@Observer
+                Snackbar.make(binding.root, messageForSnack, Snackbar.LENGTH_LONG)
+                    .setAnchorView(binding.editServerBottomButtons)
+                    .setAction("Action", null).show()
+            })
         }
         setUpDoneButton()
     }
@@ -51,7 +74,6 @@ class EditServerFragment : Fragment() {
     private fun saveServer() {
         saveTmpInstance()
         viewModel.saveServer()
-        done = true
     }
 
     private fun saveTmpInstance() {
