@@ -10,6 +10,7 @@ abstract class ServerRepository {
     abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
     abstract val serverToEdit: MutableLiveData<ServerInstance>
     abstract fun saveServer(serverInstance: ServerInstance)
+    abstract fun deleteAndCreate(delete: ServerInstance, create: ServerInstance)
     abstract fun findServerByUrl(url: String): LiveData<MailPackage<ServerInstance>>
     enum class MatchCases {
         URL, NAME

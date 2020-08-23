@@ -32,7 +32,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun editServer(serverInstance: ServerInstance) {
         editServerRepository.rewrite = serverInstance != ServerInstance()
-        editServerRepository.tmpServerInstance = serverInstance
+        editServerRepository.tmpServerInstance = ServerInstance(serverInstance)
+        serverRepository.serverToEdit.value = serverInstance
     }
 
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>

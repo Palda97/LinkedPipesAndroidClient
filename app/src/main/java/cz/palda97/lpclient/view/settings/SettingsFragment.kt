@@ -46,7 +46,7 @@ class SettingsFragment : Fragment() {
 
         fun setUpServerRecycler() {
             serverRecyclerAdapter = ServerRecyclerAdapter(
-                { viewModel.editServer(it) },
+                { editServer(it) },
                 { viewModel.deleteServer(it) }
             )
             binding.insertServerInstancesHere.adapter = serverRecyclerAdapter
@@ -76,6 +76,11 @@ class SettingsFragment : Fragment() {
 
     private fun addServer() {
         viewModel.editServer(ServerInstance())
+        EditServerActivity.start(requireActivity())
+    }
+
+    private fun editServer(serverInstance: ServerInstance) {
+        viewModel.editServer(serverInstance)
         EditServerActivity.start(requireActivity())
     }
 

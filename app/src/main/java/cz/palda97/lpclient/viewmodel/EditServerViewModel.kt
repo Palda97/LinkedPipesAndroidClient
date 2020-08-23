@@ -23,7 +23,10 @@ class EditServerViewModel : ViewModel() {
 
     private fun saveAndClean(serverInstance: ServerInstance) {
         editServerRepository.forgetTmpServer()
-        serverRepository.saveServer(serverInstance)
+        if (editServerRepository.rewrite)
+            serverRepository.deleteAndCreate(serverRepository.serverToEdit.value!!, serverInstance)
+        else
+            serverRepository.saveServer(serverInstance)
     }
 
     private val _saveSuccessful = MediatorLiveData<SaveStatus>()

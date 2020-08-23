@@ -27,6 +27,10 @@ class ServerRepositoryFake : ServerRepository() {
         _liveServers.value = MailPackage(getServerList + serverInstance)
     }
 
+    override fun deleteAndCreate(delete: ServerInstance, create: ServerInstance) {
+        _liveServers.value = MailPackage(getServerList - delete + create)
+    }
+
     override fun findServerByUrl(url: String): LiveData<MailPackage<ServerInstance>> {
         val list = getServerList
         list.forEach {
