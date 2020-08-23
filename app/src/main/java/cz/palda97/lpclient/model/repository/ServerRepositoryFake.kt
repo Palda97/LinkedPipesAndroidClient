@@ -19,13 +19,16 @@ class ServerRepositoryFake : ServerRepository() {
     override val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = _liveServers
 
+    private val getServerList
+        get() = _liveServers.value!!.mailContent!!
+
     override val serverToEdit: MutableLiveData<ServerInstance> = MutableLiveData(ServerInstance())
     override fun saveServer(serverInstance: ServerInstance) {
-        _liveServers.value = MailPackage(_liveServers.value!!.mailContent!! + serverInstance)
+        _liveServers.value = MailPackage(getServerList + serverInstance)
     }
 
     override fun findServerByUrl(url: String): LiveData<MailPackage<ServerInstance>> {
-        val list = _liveServers.value!!.mailContent!!
+        val list = getServerList
         list.forEach {
             if (it.url == url)
                 return MutableLiveData(MailPackage(it))
@@ -34,7 +37,7 @@ class ServerRepositoryFake : ServerRepository() {
     }
 
     /*override fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>> {
-        val list = _liveServers.value!!.mailContent!!
+        val list = getServerList
         list.forEach {
             if (it.url == serverInstance.url)
                 return MutableLiveData(MailPackage(MatchCases.URL))
@@ -46,7 +49,7 @@ class ServerRepositoryFake : ServerRepository() {
     override fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>> {
         val live: MutableLiveData<MailPackage<MatchCases>> =
             MutableLiveData(MailPackage.loadingPackage())
-        val list = _liveServers.value!!.mailContent!!
+        val list = getServerList
         val t = Thread {
             Thread.sleep(2000)
             list.forEach {
@@ -71,7 +74,7 @@ class ServerRepositoryFake : ServerRepository() {
     ): LiveData<MailPackage<MatchCases>> {
         val live: MutableLiveData<MailPackage<MatchCases>> =
             MutableLiveData(MailPackage.loadingPackage())
-        val list = _liveServers.value!!.mailContent!!
+        val list = getServerList
         val t = Thread {
             Thread.sleep(2000)
             list.forEach {
