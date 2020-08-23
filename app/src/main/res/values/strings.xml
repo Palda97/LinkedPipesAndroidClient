@@ -15,4 +15,6 @@
     <string name="done">Done</string>
     <string name="save_status_name">Server instance with the same name already exists!</string>
     <string name="save_status_url">Server instance with the same url already exists!</string>
+    <string name="save_status_empty_name">Name can\'t be empty!</string>
+    <string name="save_status_empty_url">Url can\'t be empty!</string>
 </resources>

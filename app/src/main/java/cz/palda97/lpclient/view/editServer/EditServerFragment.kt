@@ -63,6 +63,8 @@ class EditServerFragment : Fragment() {
                     EditServerViewModel.SaveStatus.URL -> getString(R.string.save_status_url)
                     EditServerViewModel.SaveStatus.OK -> ""
                     EditServerViewModel.SaveStatus.WAITING -> ""
+                    EditServerViewModel.SaveStatus.EMPTY_NAME -> getString(R.string.save_status_empty_name)
+                    EditServerViewModel.SaveStatus.EMPTY_URL -> getString(R.string.save_status_empty_url)
                 }
                 if (messageForSnack.isEmpty())
                     return@Observer

@@ -13,10 +13,6 @@ class EditServerViewModel : ViewModel() {
     private val serverRepository = Injector.serverRepository
     private val editServerRepository = Injector.editServerRepository
 
-    //private val _saveSuccessful = MutableLiveData<SaveStatus>(SaveStatus.WAITING)
-    //val saveSuccessful: LiveData<SaveStatus>
-    //    get() = _saveSuccessful
-
     fun resetSaveStatus() {
         _saveSuccessful.value = SaveStatus.WAITING
     }
@@ -24,17 +20,6 @@ class EditServerViewModel : ViewModel() {
     init {
         Log.d(TAG, "init")
     }
-
-    /*fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
-        //serverRepository.saveServer(serverInstance)
-        //editServerRepository.forgetTmpServer()
-        if (!editServerRepository.rewrite) {
-            TODO("learn how to transform observables")
-        }
-        editServerRepository.forgetTmpServer()
-        serverRepository.saveServer(serverInstance)
-        _saveSuccessful.value = SaveStatus.OK
-    }*/
 
     private fun saveAndClean(serverInstance: ServerInstance) {
         editServerRepository.forgetTmpServer()
@@ -46,31 +31,44 @@ class EditServerViewModel : ViewModel() {
         get() = _saveSuccessful
 
     fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
-        editServerRepository.doneButtonEnable.value = false
-        val liveStatus: LiveData<SaveStatus> = if (!editServerRepository.rewrite) {
-            Transformations.map(serverRepository.matchingUrlAndName(serverInstance)) {
-                if (it == null)
-                    return@map null
-                if (it.isOk) {
-                    editServerRepository.doneButtonEnable.value = true
-                    it.mailContent!!
-                    when (it.mailContent) {
-                        ServerRepository.MatchCases.URL -> return@map SaveStatus.URL
-                        ServerRepository.MatchCases.NAME -> return@map SaveStatus.NAME
-                    }
-                }
-                if (it.isError) {
-                    editServerRepository.doneButtonEnable.value = true
-                    saveAndClean(serverInstance)
-                    return@map SaveStatus.OK
-                }
-                return@map SaveStatus.WAITING
-            }
+        editServerRepository.doneButtonEnable.value =
+            serverInstance.name.isEmpty() || serverInstance.url.isEmpty()
+        val liveStatus: LiveData<SaveStatus> = if (serverInstance.name.isEmpty()) {
+            MutableLiveData(SaveStatus.EMPTY_NAME)
+        } else if (serverInstance.url.isEmpty()) {
+            MutableLiveData(SaveStatus.EMPTY_URL)
         } else {
-            saveAndClean(serverInstance)
-            MutableLiveData(SaveStatus.OK)
+            matchingInstance(serverInstance)
         }
         _saveSuccessful.addSource(liveStatus) { _saveSuccessful.value = it }
+    }
+
+    private fun matchingInstance(
+        serverInstance: ServerInstance
+    ): LiveData<SaveStatus> = Transformations.map(
+        if (serverRepository.serverToEdit.value!! == ServerInstance()) serverRepository.matchingUrlAndName(
+            serverInstance
+        ) else serverRepository.matchingUrlExcept(
+            serverInstance,
+            serverRepository.serverToEdit.value!!
+        )
+    ) {
+        if (it == null)
+            return@map SaveStatus.WAITING
+        if (!it.isLoading)
+            editServerRepository.doneButtonEnable.value = true
+        if (it.isOk) {
+            it.mailContent!!
+            when (it.mailContent) {
+                ServerRepository.MatchCases.URL -> return@map SaveStatus.URL
+                ServerRepository.MatchCases.NAME -> return@map SaveStatus.NAME
+            }
+        }
+        if (it.isError) {
+            saveAndClean(serverInstance)
+            return@map SaveStatus.OK
+        }
+        return@map SaveStatus.WAITING
     }
 
     val doneButtonEnable: LiveData<Boolean>
@@ -87,6 +85,6 @@ class EditServerViewModel : ViewModel() {
     }
 
     enum class SaveStatus {
-        NAME, URL, OK, WAITING
+        NAME, URL, OK, WAITING, EMPTY_NAME, EMPTY_URL
     }
 }

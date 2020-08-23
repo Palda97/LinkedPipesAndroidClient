@@ -16,4 +16,5 @@ abstract class ServerRepository {
     }
 
     abstract fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>>
+    abstract fun matchingUrlExcept(serverInstance: ServerInstance, except: ServerInstance): LiveData<MailPackage<MatchCases>>
 }
