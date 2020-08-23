@@ -24,4 +24,11 @@ class ServerInstance(
     override fun hashCode(): Int {
         return url.hashCode()
     }
+
+    constructor (serverInstance: ServerInstance) : this(
+        serverInstance.name,
+        serverInstance.url,
+        serverInstance.active,
+        serverInstance.description
+    )
 }
