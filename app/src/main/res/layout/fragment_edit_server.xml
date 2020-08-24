@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp"
-        tools:context=".view.editServer.EditServerFragment">
+        tools:context=".view.editserver.EditServerFragment">
 
         <ScrollView
             android:layout_width="match_parent"

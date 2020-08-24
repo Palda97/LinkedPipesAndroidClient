@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.view.editServer
+package cz.palda97.lpclient.view.editserver
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,9 +12,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
-import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.ServerInstance
-import cz.palda97.lpclient.viewmodel.EditServerViewModel
+import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 
 class EditServerFragment : Fragment() {
 

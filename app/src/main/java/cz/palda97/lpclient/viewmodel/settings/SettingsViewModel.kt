@@ -1,10 +1,9 @@
-package cz.palda97.lpclient.viewmodel
+package cz.palda97.lpclient.viewmodel.settings
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.ServerInstance

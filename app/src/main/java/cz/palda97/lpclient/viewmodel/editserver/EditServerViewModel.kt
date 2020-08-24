@@ -1,11 +1,9 @@
-package cz.palda97.lpclient.viewmodel
+package cz.palda97.lpclient.viewmodel.editserver
 
 import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
-import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.ServerInstance
-import cz.palda97.lpclient.model.StatusPackage
 import cz.palda97.lpclient.model.repository.ServerRepository
 
 class EditServerViewModel : ViewModel() {
@@ -14,7 +12,8 @@ class EditServerViewModel : ViewModel() {
     private val editServerRepository = Injector.editServerRepository
 
     fun resetSaveStatus() {
-        _saveSuccessful.value = SaveStatus.WAITING
+        _saveSuccessful.value =
+            SaveStatus.WAITING
     }
 
     init {
@@ -34,12 +33,10 @@ class EditServerViewModel : ViewModel() {
         get() = _saveSuccessful
 
     fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
-        editServerRepository.doneButtonEnable.value =
-            serverInstance.name.isEmpty() || serverInstance.url.isEmpty()
-        val liveStatus: LiveData<SaveStatus> = if (serverInstance.name.isEmpty()) {
-            MutableLiveData(SaveStatus.EMPTY_NAME)
-        } else if (serverInstance.url.isEmpty()) {
-            MutableLiveData(SaveStatus.EMPTY_URL)
+        val attributeCheck = ServerInstanceAttributeCheck(serverInstance)
+        editServerRepository.doneButtonEnable.value = !attributeCheck.isNameAndUrlOk
+        val liveStatus: LiveData<SaveStatus> = if (!attributeCheck.isNameAndUrlOk) {
+            attributeCheck.liveData
         } else {
             matchingInstance(serverInstance)
         }

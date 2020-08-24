@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.view.editServer.EditServerFragment
+import cz.palda97.lpclient.view.editserver.EditServerFragment
 
 class EditServerActivity : AppCompatActivity() {
 

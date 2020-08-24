@@ -55,7 +55,7 @@ class ServerRepositoryFake : ServerRepository() {
             MutableLiveData(MailPackage.loadingPackage())
         val list = getServerList
         val t = Thread {
-            Thread.sleep(2000)
+            Thread.sleep(DB_DELAY)
             list.forEach {
                 if (it.url == serverInstance.url) {
                     live.postValue(MailPackage(MatchCases.URL))
@@ -80,7 +80,7 @@ class ServerRepositoryFake : ServerRepository() {
             MutableLiveData(MailPackage.loadingPackage())
         val list = getServerList
         val t = Thread {
-            Thread.sleep(2000)
+            Thread.sleep(DB_DELAY)
             list.forEach {
                 if (it.url == serverInstance.url && it.url != except.url) {
                     live.postValue(MailPackage(MatchCases.URL))
@@ -95,5 +95,9 @@ class ServerRepositoryFake : ServerRepository() {
         }
         t.start()
         return live
+    }
+
+    companion object {
+        private const val DB_DELAY: Long = 500
     }
 }

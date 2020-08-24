@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.view.settings
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +14,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
-import cz.palda97.lpclient.viewmodel.SettingsViewModel
+import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 class SettingsFragment : Fragment() {
 
