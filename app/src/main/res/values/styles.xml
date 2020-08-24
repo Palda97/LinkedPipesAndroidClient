@@ -17,4 +17,9 @@
 
     <!-- Components -->
 
+    <style name="do_not_auto_focus_child_components">
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
 </resources>
