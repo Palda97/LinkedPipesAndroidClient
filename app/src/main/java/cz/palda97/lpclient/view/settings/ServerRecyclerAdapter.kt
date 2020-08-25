@@ -35,7 +35,7 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
                 override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                     val newIssue = newServerList[newItemPosition]
                     val oldIssue = serverList!![oldItemPosition]
-                    return newIssue.url == oldIssue.url
+                    return newIssue.url == oldIssue.url && newIssue.name == oldIssue.name
                 }
             })
             serverList = newServerList

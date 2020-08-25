@@ -53,9 +53,14 @@ class SettingsFragment : Fragment() {
                 if (it == null)
                     return@Observer
                 if (it.isOk) {
+                    it.mailContent!!
                     Log.d(TAG, "it.isOk")
-                    Log.d(TAG, "item count: ${it.mailContent!!.size}")
-                    serverRecyclerAdapter.updateServerList(it.mailContent!!)
+                    Log.d(TAG, "item count: ${it.mailContent.size}")
+
+                    it.mailContent.forEach {
+                        Log.d(TAG, "name: ${it.name}\nurl: ${it.url}")
+                    }
+                    serverRecyclerAdapter.updateServerList(it.mailContent)
                 }
                 binding.mail = it
                 binding.executePendingBindings()
