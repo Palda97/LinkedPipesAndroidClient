@@ -61,6 +61,7 @@ class SettingsFragment : Fragment() {
                         Log.d(TAG, "name: ${it.name}\nurl: ${it.url}")
                     }
                     serverRecyclerAdapter.updateServerList(it.mailContent)
+                    binding.noInstances = it.mailContent.isEmpty()
                 }
                 binding.mail = it
                 binding.executePendingBindings()

@@ -9,6 +9,10 @@
         <variable
             name="mail"
             type="cz.palda97.lpclient.model.MailPackage" />
+
+        <variable
+            name="noInstances"
+            type="Boolean" />
         <!-- -->
     </data>
 
@@ -63,7 +67,8 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:visibility="@{mail.ok ? View.VISIBLE : View.GONE}">
 
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -71,8 +76,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
-                        android:visibility="@{mail.ok ? View.VISIBLE : View.GONE}"
+                        android:visibility="@{noInstances ? View.GONE : View.VISIBLE}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:visibility="@{noInstances ? View.VISIBLE : View.GONE}"
+                        android:text="@string/no_server_instances" />
                 </RelativeLayout>
 
                 <LinearLayout

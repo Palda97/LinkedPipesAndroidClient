@@ -17,4 +17,5 @@
     <string name="save_status_url">Server instance with the same url already exists!</string>
     <string name="save_status_empty_name">Name can\'t be empty!</string>
     <string name="save_status_empty_url">Url can\'t be empty!</string>
+    <string name="no_server_instances">There are no server instances.</string>
 </resources>
