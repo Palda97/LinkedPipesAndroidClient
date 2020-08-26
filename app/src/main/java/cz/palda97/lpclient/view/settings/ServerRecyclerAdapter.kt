@@ -29,13 +29,16 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
                 }
 
                 override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return serverList!![oldItemPosition].url == newServerList[newItemPosition].url
+                    //return serverList!![oldItemPosition].url == newServerList[newItemPosition].url
+                    val oldItem = serverList!![oldItemPosition]
+                    val newItem = newServerList[newItemPosition]
+                    return oldItem == newItem
                 }
 
                 override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    val newIssue = newServerList[newItemPosition]
-                    val oldIssue = serverList!![oldItemPosition]
-                    return newIssue.url == oldIssue.url && newIssue.name == oldIssue.name
+                    val newItem = newServerList[newItemPosition]
+                    val oldItem = serverList!![oldItemPosition]
+                    return newItem.url == oldItem.url && newItem.name == oldItem.name
                 }
             })
             serverList = newServerList
