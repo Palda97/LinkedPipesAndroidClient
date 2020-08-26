@@ -32,13 +32,23 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtonDeleteAllInstances()
+        tmpButtons()
         return root
     }
 
-    private fun tmpButtonDeleteAllInstances() {
+    private fun tmpButtons() {
         binding.tmpButtonDeleteAllInstances.setOnClickListener {
             viewModel.deleteAllInstances()
+        }
+        binding.tmpButtonAddSomeInstances.setOnClickListener {
+            val list = listOf(
+                ServerInstance("Home server", "192.168.1.10"),
+                ServerInstance("Work server", "10.0.42.111"),
+                ServerInstance("Test server", "192.168.1.11")
+            )
+            list.forEach {
+                viewModel.forceSaveServer(it)
+            }
         }
     }
 

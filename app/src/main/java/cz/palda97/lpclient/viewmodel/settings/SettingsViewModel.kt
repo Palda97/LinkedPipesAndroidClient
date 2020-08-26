@@ -42,6 +42,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         serverRepository.deleteAll()
     }
 
+    fun forceSaveServer(serverInstance: ServerInstance) {
+        serverRepository.saveServer(serverInstance)
+    }
+
     companion object {
         private const val NOTIFICATIONS = "notifications"
         private const val TAG = "SettingsViewModel"

@@ -21,6 +21,7 @@ class EditServerViewModel : ViewModel() {
     }
 
     private fun saveAndClean(serverInstance: ServerInstance) {
+        Log.d(TAG, "saveAndClean(${serverInstance.name})")
         editServerRepository.forgetTmpServer()
         if (editServerRepository.rewrite)
             serverRepository.deleteAndCreate(serverRepository.serverToEdit.value!!, serverInstance)
@@ -35,6 +36,7 @@ class EditServerViewModel : ViewModel() {
     fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
         val attributeCheck = ServerInstanceAttributeCheck(serverInstance)
         editServerRepository.doneButtonEnable.value = !attributeCheck.isNameAndUrlOk
+        l("saveServer(${serverInstance.name}) - isNameAndUrlOk = ${attributeCheck.isNameAndUrlOk}")
         val liveStatus: LiveData<SaveStatus> = if (!attributeCheck.isNameAndUrlOk) {
             attributeCheck.liveData
         } else {
@@ -46,7 +48,7 @@ class EditServerViewModel : ViewModel() {
     private fun matchingInstance(
         serverInstance: ServerInstance
     ): LiveData<SaveStatus> = Transformations.map(
-        if (serverRepository.serverToEdit.value!! == ServerInstance()) serverRepository.matchingUrlAndName(
+        if (serverRepository.serverToEdit.value == null || serverRepository.serverToEdit.value == ServerInstance()) serverRepository.matchingUrlAndName(
             serverInstance
         ) else serverRepository.matchingUrlExcept(
             serverInstance,
@@ -55,6 +57,7 @@ class EditServerViewModel : ViewModel() {
     ) {
         if (it == null)
             return@map SaveStatus.WAITING
+        Log.d(TAG, "Match arrived: ${it.mailContent!!.name}")
         if (!it.isLoading)
             editServerRepository.doneButtonEnable.value = true
         if (it.isOk) {
@@ -82,6 +85,9 @@ class EditServerViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "EditServerViewModel"
+        private fun l(msg: String) {
+            Log.d(TAG, msg)
+        }
     }
 
     enum class SaveStatus {
