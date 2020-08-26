@@ -61,4 +61,10 @@ class ServerRepositoryImp(private val serverInstanceDao: ServerInstanceDao) : Se
         }.start()
         return live
     }
+
+    override fun deleteAll() {
+        Thread {
+            serverInstanceDao.deleteAll()
+        }.start()
+    }
 }

@@ -32,7 +32,14 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
+        tmpButtonDeleteAllInstances()
         return root
+    }
+
+    private fun tmpButtonDeleteAllInstances() {
+        binding.tmpButtonDeleteAllInstances.setOnClickListener {
+            viewModel.deleteAllInstances()
+        }
     }
 
     private fun setUpComponents() {

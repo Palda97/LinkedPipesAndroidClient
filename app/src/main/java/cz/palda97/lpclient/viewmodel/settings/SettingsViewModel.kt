@@ -38,6 +38,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = serverRepository.liveServers
 
+    fun deleteAllInstances() {
+        serverRepository.deleteAll()
+    }
+
     companion object {
         private const val NOTIFICATIONS = "notifications"
         private const val TAG = "SettingsViewModel"

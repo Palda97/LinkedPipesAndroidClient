@@ -19,8 +19,11 @@ class ServerRepositoryFake : ServerRepository() {
     override val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = _liveServers
 
-    private val getServerList
+    private var getServerList
         get() = _liveServers.value!!.mailContent!!
+        set(value) {
+            _liveServers.value = MailPackage(value)
+        }
 
     override val serverToEdit: MutableLiveData<ServerInstance> = MutableLiveData(ServerInstance())
     override fun saveServer(serverInstance: ServerInstance) {
@@ -95,6 +98,10 @@ class ServerRepositoryFake : ServerRepository() {
         }
         t.start()
         return live
+    }
+
+    override fun deleteAll() {
+        getServerList = emptyList()
     }
 
     companion object {

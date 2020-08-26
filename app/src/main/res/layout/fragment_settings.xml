@@ -51,6 +51,13 @@
                     android:checked="false"
                     android:text="@string/notifications" />
 
+                <Button
+                    android:id="@+id/tmp_button_delete_all_instances"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="tmp button - delete all instances" />
+
                 <View
                     android:id="@+id/divider"
                     android:layout_width="match_parent"
