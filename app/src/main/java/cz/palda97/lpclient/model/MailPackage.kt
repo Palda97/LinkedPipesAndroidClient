@@ -1,6 +1,6 @@
 package cz.palda97.lpclient.model
 
-class MailPackage<content>(val mailContent: content?, private val status: Status, val msg: String) {
+class MailPackage<content>(val mailContent: content?, val status: Status, val msg: String) {
     val isLoading: Boolean
         get() = status == Status.LOADING
     val isOk: Boolean
