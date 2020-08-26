@@ -57,7 +57,7 @@ class EditServerViewModel : ViewModel() {
     ) {
         if (it == null)
             return@map SaveStatus.WAITING
-        Log.d(TAG, "Match arrived: ${it.mailContent!!.name}")
+        Log.d(TAG, "Match arrived: ${if(it.isOk) it.mailContent!! else it.status}")
         if (!it.isLoading)
             editServerRepository.doneButtonEnable.value = true
         if (it.isOk) {
