@@ -47,7 +47,7 @@
                     android:id="@+id/notification_switch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
+                    android:layout_margin="11dp"
                     android:checked="false"
                     android:text="@string/notifications" />
 
@@ -100,9 +100,9 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:visibility="@{mail.loading ? View.VISIBLE : View.GONE}">
-                    <!-- <ProgressBar
+                    <ProgressBar
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" /> -->
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"

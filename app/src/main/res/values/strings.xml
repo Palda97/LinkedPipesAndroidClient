@@ -6,7 +6,7 @@
     <string name="notifications">Notifications</string>
     <string name="server_instances">Server instances</string>
     <string name="server_instance">Server instance</string>
-    <string name="loading">loading</string>
+    <string name="loading">loading…</string>
     <string name="server_name">Server name</string>
     <string name="active">Active</string>
     <string name="server_address">Server address</string>
