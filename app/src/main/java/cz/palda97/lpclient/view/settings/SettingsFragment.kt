@@ -75,7 +75,9 @@ class SettingsFragment : Fragment() {
                     Log.d(TAG, "item count: ${it.mailContent.size}")
 
                     it.mailContent.forEach {
-                        Log.d(TAG, "name: ${it.name}\nurl: ${it.url}")
+                        with(it){
+                            Log.d(TAG, "name: $name\nurl: $url\nid: $id")
+                        }
                     }
                     serverRecyclerAdapter.updateServerList(it.mailContent)
                     binding.noInstances = it.mailContent.isEmpty()
@@ -97,7 +99,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun addServer() {
-        viewModel.editServer(ServerInstance())
+        viewModel.addServer()
         EditServerActivity.start(requireActivity())
     }
 

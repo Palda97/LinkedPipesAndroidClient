@@ -45,31 +45,31 @@ class EditServerFragment : Fragment() {
             doneButton.setOnClickListener {
                 saveServer()
             }
-            viewModel.doneButtonEnable.observe(viewLifecycleOwner, Observer {
-                it?.let { doneButton.isEnabled = it }
-            })
             viewModel.saveSuccessful.observe(viewLifecycleOwner, Observer {
                 val status = it ?: return@Observer
                 if (status == EditServerViewModel.SaveStatus.WAITING)
                     return@Observer
-                viewModel.resetSaveStatus()
-                if (status == EditServerViewModel.SaveStatus.OK) {
-                    done = true
-                    requireActivity().finish()
+                run {
+                    if (status == EditServerViewModel.SaveStatus.OK) {
+                        done = true
+                        requireActivity().finish()
+                    }
+                    val messageForSnack: String = when (status) {
+                        EditServerViewModel.SaveStatus.NAME -> getString(R.string.save_status_name)
+                        EditServerViewModel.SaveStatus.URL -> getString(R.string.save_status_url)
+                        EditServerViewModel.SaveStatus.OK -> ""
+                        EditServerViewModel.SaveStatus.WAITING -> ""
+                        EditServerViewModel.SaveStatus.EMPTY_NAME -> getString(R.string.save_status_empty_name)
+                        EditServerViewModel.SaveStatus.EMPTY_URL -> getString(R.string.save_status_empty_url)
+                        EditServerViewModel.SaveStatus.WORKING -> ""
+                    }
+                    if (messageForSnack.isEmpty())
+                        return@Observer
+                    Snackbar.make(binding.root, messageForSnack, Snackbar.LENGTH_LONG)
+                        .setAnchorView(binding.editServerBottomButtons)
+                        .setAction("Action", null).show()
                 }
-                val messageForSnack: String = when (status) {
-                    EditServerViewModel.SaveStatus.NAME -> getString(R.string.save_status_name)
-                    EditServerViewModel.SaveStatus.URL -> getString(R.string.save_status_url)
-                    EditServerViewModel.SaveStatus.OK -> ""
-                    EditServerViewModel.SaveStatus.WAITING -> ""
-                    EditServerViewModel.SaveStatus.EMPTY_NAME -> getString(R.string.save_status_empty_name)
-                    EditServerViewModel.SaveStatus.EMPTY_URL -> getString(R.string.save_status_empty_url)
-                }
-                if (messageForSnack.isEmpty())
-                    return@Observer
-                Snackbar.make(binding.root, messageForSnack, Snackbar.LENGTH_LONG)
-                    .setAnchorView(binding.editServerBottomButtons)
-                    .setAction("Action", null).show()
+                viewModel.resetStatus()
             })
         }
         setUpDoneButton()
@@ -86,17 +86,21 @@ class EditServerFragment : Fragment() {
         val notes: String = binding.notes.editText!!.text.toString()
         val active: Boolean = binding.activeSwitch.isChecked
         val tmpInstance = ServerInstance(name, url, active, notes)
-        viewModel.tmpServerInstance = tmpInstance
+        viewModel.tmpServer = tmpInstance
     }
 
-    override fun onPause() {
+    /*override fun onPause() {
         if (!done)
             saveTmpInstance()
+        super.onPause()
+    }*/
+    override fun onPause() {
+        saveTmpInstance()
         super.onPause()
     }
 
     override fun onResume() {
-        val tmpInstance = viewModel.tmpServerInstance
+        val tmpInstance = viewModel.tmpServer
         binding.name.editText!!.setText(tmpInstance.name)
         binding.url.editText!!.setText(tmpInstance.url)
         binding.notes.editText!!.setText(tmpInstance.description)
