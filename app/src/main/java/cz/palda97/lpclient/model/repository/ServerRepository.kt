@@ -7,17 +7,13 @@ import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.model.StatusPackage
 
 abstract class ServerRepository {
-    abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
-    abstract val serverToEdit: MutableLiveData<ServerInstance>
-    abstract fun saveServer(serverInstance: ServerInstance)
-    abstract fun deleteAndCreate(delete: ServerInstance, create: ServerInstance)
-    abstract fun findServerByUrl(url: String): LiveData<MailPackage<ServerInstance>>
+    abstract suspend fun insertServer(serverInstance: ServerInstance)
     enum class MatchCases {
-        URL, NAME
+        NO_MATCH, URL, NAME
     }
-
-    abstract fun matchingUrlAndName(serverInstance: ServerInstance): LiveData<MailPackage<MatchCases>>
-    abstract fun matchingUrlExcept(serverInstance: ServerInstance, except: ServerInstance): LiveData<MailPackage<MatchCases>>
-
-    abstract fun deleteAll()
+    abstract suspend fun matchUrlOrNameExcept(serverInstance: ServerInstance, except: ServerInstance): MatchCases
+    suspend fun matchUrlOrName(serverInstance: ServerInstance) = matchUrlOrNameExcept(serverInstance, ServerInstance())
+    abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
+    abstract suspend fun deleteAll()
+    abstract suspend fun deleteServer(serverInstance: ServerInstance)
 }

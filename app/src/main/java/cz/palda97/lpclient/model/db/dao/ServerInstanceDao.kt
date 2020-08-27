@@ -10,17 +10,17 @@ abstract class ServerInstanceDao {
     abstract fun serverList(): LiveData<List<ServerInstance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertServer(server: ServerInstance)
+    abstract suspend fun insertServer(server: ServerInstance)
 
     @Delete
-    abstract fun deleteServer(server: ServerInstance)
+    abstract suspend fun deleteServer(server: ServerInstance)
 
     @Query("delete from serverinstance")
-    abstract fun deleteAll()
+    abstract suspend fun deleteAll()
 
     @Query("select * from serverinstance where active = 1 order by name asc")
     abstract fun activeServersOnly(): LiveData<List<ServerInstance>>
 
     @Query("select * from serverinstance where (url = :matchUrl and url != :exceptUrl) or (name = :matchName and name != :exceptName)")
-    abstract fun matchExcept(matchUrl: String, matchName: String, exceptUrl: String = "", exceptName: String = ""): List<ServerInstance>
+    abstract suspend fun matchExcept(matchUrl: String, matchName: String, exceptUrl: String = "", exceptName: String = ""): List<ServerInstance>
 }

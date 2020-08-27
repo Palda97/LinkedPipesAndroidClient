@@ -5,92 +5,73 @@ import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.model.repository.ServerRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class EditServerViewModel : ViewModel() {
 
     private val serverRepository = Injector.serverRepository
     private val editServerRepository = Injector.editServerRepository
 
-    fun resetSaveStatus() {
-        _saveSuccessful.value =
-            SaveStatus.WAITING
-    }
+    private val dbScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
     init {
-        Log.d(TAG, "init")
+        l("init")
     }
 
-    private fun saveAndClean(serverInstance: ServerInstance) {
-        Log.d(TAG, "saveAndClean(${serverInstance.name})")
-        editServerRepository.forgetTmpServer()
-        if (editServerRepository.rewrite)
-            serverRepository.deleteAndCreate(serverRepository.serverToEdit.value!!, serverInstance)
-        else
-            serverRepository.saveServer(serverInstance)
-    }
+    /*private val _doneButtonEnable = MutableLiveData<Boolean>(true)
+    val doneButtonEnable: LiveData<Boolean>
+        get() = _doneButtonEnable*/
 
-    private val _saveSuccessful = MediatorLiveData<SaveStatus>()
+    private val _saveSuccessful = MutableLiveData<SaveStatus>(SaveStatus.WAITING)
     val saveSuccessful: LiveData<SaveStatus>
         get() = _saveSuccessful
 
-    fun saveServer(serverInstance: ServerInstance = tmpServerInstance) {
-        val attributeCheck = ServerInstanceAttributeCheck(serverInstance)
-        editServerRepository.doneButtonEnable.value = !attributeCheck.isNameAndUrlOk
-        l("saveServer(${serverInstance.name}) - isNameAndUrlOk = ${attributeCheck.isNameAndUrlOk}")
-        val liveStatus: LiveData<SaveStatus> = if (!attributeCheck.isNameAndUrlOk) {
-            attributeCheck.liveData
-        } else {
-            matchingInstance(serverInstance)
-        }
-        _saveSuccessful.addSource(liveStatus) { _saveSuccessful.value = it }
-    }
-
-    private fun matchingInstance(
-        serverInstance: ServerInstance
-    ): LiveData<SaveStatus> = Transformations.map(
-        if (serverRepository.serverToEdit.value == null || serverRepository.serverToEdit.value == ServerInstance()) serverRepository.matchingUrlAndName(
-            serverInstance
-        ) else serverRepository.matchingUrlExcept(
-            serverInstance,
-            serverRepository.serverToEdit.value!!
-        )
-    ) {
-        if (it == null)
-            return@map SaveStatus.WAITING
-        Log.d(TAG, "Match arrived: ${if(it.isOk) it.mailContent!! else it.status}")
-        if (!it.isLoading)
-            editServerRepository.doneButtonEnable.value = true
-        if (it.isOk) {
-            it.mailContent!!
-            when (it.mailContent) {
-                ServerRepository.MatchCases.URL -> return@map SaveStatus.URL
-                ServerRepository.MatchCases.NAME -> return@map SaveStatus.NAME
-            }
-        }
-        if (it.isError) {
-            saveAndClean(serverInstance)
-            return@map SaveStatus.OK
-        }
-        return@map SaveStatus.WAITING
-    }
-
-    val doneButtonEnable: LiveData<Boolean>
-        get() = editServerRepository.doneButtonEnable
-
-    var tmpServerInstance: ServerInstance
-        get() = editServerRepository.tmpServerInstance
+    var tmpServer: ServerInstance
+        get() = editServerRepository.tmpServer
         set(value) {
-            editServerRepository.tmpServerInstance = value
+            editServerRepository.tmpServer = value
         }
+
+    private suspend fun savingRoutine(serverInstance: ServerInstance) {
+        val match =
+            serverRepository.matchUrlOrNameExcept(serverInstance, editServerRepository.serverToEdit)
+        _saveSuccessful.postValue(
+            when (match) {
+                ServerRepository.MatchCases.NO_MATCH -> {
+                    serverRepository.insertServer(serverInstance.apply {
+                        id = editServerRepository.serverToEdit.id
+                    })
+                    SaveStatus.OK
+                }
+                ServerRepository.MatchCases.URL -> SaveStatus.URL
+                ServerRepository.MatchCases.NAME -> SaveStatus.NAME
+            }
+        )
+    }
+
+    fun saveServer(serverInstance: ServerInstance = tmpServer) {
+        val status = ServerInstanceAttributeCheck(serverInstance).status
+        _saveSuccessful.value = status
+        if (status != SaveStatus.WORKING)
+            return
+        dbScope.launch {
+            savingRoutine(serverInstance)
+        }
+    }
+
+    fun resetStatus() {
+        _saveSuccessful.value = SaveStatus.WAITING
+    }
 
     companion object {
         private const val TAG = "EditServerViewModel"
-        private fun l(msg: String) {
-            Log.d(TAG, msg)
-        }
+        private fun l(msg: String) = Log.d(TAG, msg)
     }
 
     enum class SaveStatus {
-        NAME, URL, OK, WAITING, EMPTY_NAME, EMPTY_URL
+        NAME, URL, OK, WAITING, EMPTY_NAME, EMPTY_URL, WORKING
     }
 }
