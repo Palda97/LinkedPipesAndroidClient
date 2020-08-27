@@ -6,29 +6,27 @@ import androidx.room.PrimaryKey
 @Entity
 class ServerInstance(
     val name: String = "",
-    @PrimaryKey(autoGenerate = false) val url: String = "",
+    val url: String = "",
     val active: Boolean = true,
     val description: String = ""
 ) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as ServerInstance
 
-        if (url != other.url) return false
+        if (id != other.id) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return url.hashCode()
+        return id.hashCode()
     }
 
-    constructor (serverInstance: ServerInstance) : this(
-        serverInstance.name,
-        serverInstance.url,
-        serverInstance.active,
-        serverInstance.description
-    )
+
 }
