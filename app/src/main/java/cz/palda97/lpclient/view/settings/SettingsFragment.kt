@@ -9,7 +9,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
@@ -75,7 +79,7 @@ class SettingsFragment : Fragment() {
                     Log.d(TAG, "item count: ${it.mailContent.size}")
 
                     it.mailContent.forEach {
-                        with(it){
+                        with(it) {
                             Log.d(TAG, "name: $name\nurl: $url\nid: $id")
                         }
                     }
@@ -85,6 +89,23 @@ class SettingsFragment : Fragment() {
                 binding.mail = it
                 binding.executePendingBindings()
             })
+            val itemTouchHelper =
+                ItemTouchHelper(object : SimpleCallback(0, ItemTouchHelper.LEFT) {
+                    override fun onMove(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
+                    ): Boolean {
+                        return false
+                    }
+
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        serverRecyclerAdapter.serverList?.let {
+                            deleteServer(it[viewHolder.adapterPosition])
+                        }
+                    }
+                })
+            itemTouchHelper.attachToRecyclerView(binding.insertServerInstancesHere)
         }
 
         fun setUpFAB() {
@@ -108,7 +129,23 @@ class SettingsFragment : Fragment() {
         EditServerActivity.start(requireActivity())
     }
 
+    private fun deleteServer(serverInstance: ServerInstance) {
+        l("deleting ${serverInstance.name}")
+        Snackbar.make(binding.root, "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}", Snackbar.LENGTH_LONG)
+            .setAction(getString(R.string.undo), View.OnClickListener {
+                undoLastDeleteServer()
+            })
+            .show()
+        viewModel.deleteServer(serverInstance)
+    }
+
+    private fun undoLastDeleteServer() {
+        l("undoing server deletion")
+        viewModel.undoLastDeleteServer()
+    }
+
     companion object {
         private const val TAG = "SettingsFragment"
+        private fun l(msg: String) = Log.d(TAG, msg)
     }
 }

@@ -23,6 +23,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
+    private var lastDeletedServer: ServerInstance = ServerInstance()
+
     init {
         l("init")
     }
@@ -44,9 +46,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun deleteServer(serverInstance: ServerInstance) {
+        lastDeletedServer = serverInstance
         dbScope.launch {
             serverRepository.deleteServer(serverInstance)
         }
+    }
+
+    fun undoLastDeleteServer() {
+        forceSaveServer(lastDeletedServer)
     }
 
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>
