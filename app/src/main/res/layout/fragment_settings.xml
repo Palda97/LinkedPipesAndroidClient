@@ -51,19 +51,27 @@
                     android:checked="false"
                     android:text="@string/notifications" />
 
-                <Button
-                    android:id="@+id/tmp_button_delete_all_instances"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:text="tmp button - delete all instances" />
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/tmp_button_add_some_instances"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:text="tmp button - add some instances" />
+                    <Button
+                        android:id="@+id/tmp_button_delete_all_instances"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="8dp"
+                        android:text="tmp button - delete all instances" />
+
+                    <Button
+                        android:id="@+id/tmp_button_add_some_instances"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="8dp"
+                        android:text="tmp button - add some instances" />
+                </LinearLayout>
 
                 <View
                     android:id="@+id/divider"
