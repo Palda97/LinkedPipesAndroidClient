@@ -9,4 +9,7 @@
     <dimen name="switch_horizontal_margin">3dp</dimen>
     <dimen name="button_margin">16dp</dimen>
 
+    <dimen name="list_item_horizontal_padding">16dp</dimen>
+    <dimen name="list_item_top_padding">11dp</dimen>
+
 </resources>
