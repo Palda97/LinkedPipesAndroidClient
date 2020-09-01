@@ -1,10 +1,12 @@
 package cz.palda97.lpclient.view.settings
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -20,6 +22,8 @@ import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
+
 
 class SettingsFragment : Fragment() {
 
@@ -104,6 +108,44 @@ class SettingsFragment : Fragment() {
                         serverRecyclerAdapter.serverList?.let {
                             deleteServer(it[viewHolder.adapterPosition])
                         }
+                    }
+
+                    override fun onChildDraw(
+                        c: Canvas,
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        dX: Float,
+                        dY: Float,
+                        actionState: Int,
+                        isCurrentlyActive: Boolean
+                    ) {
+                        RecyclerViewSwipeDecorator.Builder(
+                            c,
+                            recyclerView,
+                            viewHolder,
+                            dX,
+                            dY,
+                            actionState,
+                            isCurrentlyActive
+                        )
+                            .addBackgroundColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.delete_gesture_background
+                                )
+                            )
+                            .addActionIcon(R.drawable.ic_baseline_delete_24)
+                            .create()
+                            .decorate()
+                        super.onChildDraw(
+                            c,
+                            recyclerView,
+                            viewHolder,
+                            dX,
+                            dY,
+                            actionState,
+                            isCurrentlyActive
+                        )
                     }
                 })
             itemTouchHelper.attachToRecyclerView(binding.insertServerInstancesHere)

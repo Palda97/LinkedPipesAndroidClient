@@ -11,4 +11,9 @@
     <color name="black_secondary">#8a000000</color>
 
     <color name="idk">#E91E63</color>
+    
+    <color name="brand_red">#f2001d</color>
+    
+    <color name="execution_failed">#D95555</color>
+    <color name="delete_gesture_background">@color/execution_failed</color>
 </resources>
