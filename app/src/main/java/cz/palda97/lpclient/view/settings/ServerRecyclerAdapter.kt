@@ -71,11 +71,7 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
         }
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
+    /*override fun getItemId(position: Int): Long {
+        return serverList?.get(position)?.id ?: -1
+    }*/
 }
