@@ -1,14 +1,17 @@
 package cz.palda97.lpclient.view.settings
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +22,8 @@ import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
+
 
 class SettingsFragment : Fragment() {
 
@@ -104,8 +109,52 @@ class SettingsFragment : Fragment() {
                             deleteServer(it[viewHolder.adapterPosition])
                         }
                     }
+
+                    override fun onChildDraw(
+                        c: Canvas,
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        dX: Float,
+                        dY: Float,
+                        actionState: Int,
+                        isCurrentlyActive: Boolean
+                    ) {
+                        RecyclerViewSwipeDecorator.Builder(
+                            c,
+                            recyclerView,
+                            viewHolder,
+                            dX,
+                            dY,
+                            actionState,
+                            isCurrentlyActive
+                        )
+                            .addBackgroundColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.delete_gesture_background
+                                )
+                            )
+                            .addActionIcon(R.drawable.ic_baseline_delete_24)
+                            .create()
+                            .decorate()
+                        super.onChildDraw(
+                            c,
+                            recyclerView,
+                            viewHolder,
+                            dX,
+                            dY,
+                            actionState,
+                            isCurrentlyActive
+                        )
+                    }
                 })
             itemTouchHelper.attachToRecyclerView(binding.insertServerInstancesHere)
+            binding.insertServerInstancesHere.addItemDecoration(
+                DividerItemDecoration(
+                    requireContext(),
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
 
         fun setUpFAB() {
@@ -131,7 +180,11 @@ class SettingsFragment : Fragment() {
 
     private fun deleteServer(serverInstance: ServerInstance) {
         l("deleting ${serverInstance.name}")
-        Snackbar.make(binding.root, "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}", Snackbar.LENGTH_LONG)
+        Snackbar.make(
+            binding.root,
+            "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}",
+            Snackbar.LENGTH_LONG
+        )
             .setAction(getString(R.string.undo), View.OnClickListener {
                 undoLastDeleteServer()
             })
