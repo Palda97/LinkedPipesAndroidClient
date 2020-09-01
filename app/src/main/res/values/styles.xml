@@ -1,4 +1,25 @@
 <resources>
 
+    <!-- Text Appearances -->
+
+    <style name="ta_regular16_primary" parent="TextAppearance.MaterialComponents.Body1">
+        <!-- Regular 16 100 %-->
+    </style>
+
+    <style name="ta_regular14_secondary" parent="TextAppearance.MaterialComponents.Body2">
+        <!-- Regular 14 54 % -->
+        <item name="android:textColor">@color/black_secondary</item>
+    </style>
+
+    <style name="ta_regular12_secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
+        <!-- Regular 12 54 % -->
+    </style>
+
+    <!-- Components -->
+
+    <style name="do_not_auto_focus_child_components">
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:focusable">true</item>
+    </style>
 
 </resources>

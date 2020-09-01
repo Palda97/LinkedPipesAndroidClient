@@ -8,5 +8,7 @@
     <color name="brand_orange_dark">#E56B00</color>
     <color name="brand_blue">#4B92F3</color>
 
+    <color name="black_secondary">#8a000000</color>
+
     <color name="idk">#E91E63</color>
 </resources>
