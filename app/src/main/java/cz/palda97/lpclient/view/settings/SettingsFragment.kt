@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.RecyclerView
@@ -106,6 +107,12 @@ class SettingsFragment : Fragment() {
                     }
                 })
             itemTouchHelper.attachToRecyclerView(binding.insertServerInstancesHere)
+            binding.insertServerInstancesHere.addItemDecoration(
+                DividerItemDecoration(
+                    requireContext(),
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
 
         fun setUpFAB() {
@@ -131,7 +138,11 @@ class SettingsFragment : Fragment() {
 
     private fun deleteServer(serverInstance: ServerInstance) {
         l("deleting ${serverInstance.name}")
-        Snackbar.make(binding.root, "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}", Snackbar.LENGTH_LONG)
+        Snackbar.make(
+            binding.root,
+            "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}",
+            Snackbar.LENGTH_LONG
+        )
             .setAction(getString(R.string.undo), View.OnClickListener {
                 undoLastDeleteServer()
             })
