@@ -34,4 +34,6 @@ class ServerRepositoryImp(private val serverInstanceDao: ServerInstanceDao) : Se
     override suspend fun deleteServer(serverInstance: ServerInstance) {
         serverInstanceDao.deleteServer(serverInstance)
     }
+
+    override var serverToFilter: ServerInstance? = null
 }

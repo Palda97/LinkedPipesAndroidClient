@@ -16,4 +16,5 @@ abstract class ServerRepository {
     abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
     abstract suspend fun deleteAll()
     abstract suspend fun deleteServer(serverInstance: ServerInstance)
+    abstract var serverToFilter: ServerInstance?
 }
