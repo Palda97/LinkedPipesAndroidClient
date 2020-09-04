@@ -28,5 +28,8 @@ class ServerInstance(
         return id.hashCode()
     }
 
+    override fun toString(): String {
+        return "ServerInstance(name='$name', url='$url', active=$active, description='$description', id=$id)"
+    }
 
 }
