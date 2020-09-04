@@ -20,4 +20,6 @@ object Injector {
     val editServerRepository: EditServerRepository by lazy {
         EditServerRepository()
     }
+
+    fun tag(companion: Any): String = companion::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]
 }
