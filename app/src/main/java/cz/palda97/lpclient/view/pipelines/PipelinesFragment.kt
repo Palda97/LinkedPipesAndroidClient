@@ -1,19 +1,158 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
+import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.view.settings.SettingsFragment
+import cz.palda97.lpclient.viewmodel.pipelines.PipelineView
+import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
+import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import kotlinx.android.synthetic.main.fragment_settings.view.*
 
 class PipelinesFragment : Fragment() {
+
+    private lateinit var binding: FragmentPipelinesBinding
+    private lateinit var fab: FloatingActionButton
+    private lateinit var refreshFab: FloatingActionButton
+    private lateinit var viewModel: PipelinesViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_pipelines, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_pipelines, container, false)
+        val root = binding.root
+        viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
+        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        setUpComponents()
+        tmpButtons()
+        return root
+    }
+
+    private fun tmpButtons() {
+        //
+    }
+
+    private fun setUpComponents() {
+        fun setUpFAB() {
+            fab = binding.fab
+            fab.setOnClickListener {
+                createPipeline()
+            }
+        }
+
+        fun setUpRefreshFAB() {
+            refreshFab = binding.fabRefresh
+            refreshFab.setOnClickListener {
+                refreshPipelines()
+            }
+        }
+
+        fun setUpDropDown() {
+            val adapter = ArrayAdapter<String>(requireContext(), R.layout.dropdown_item_text_view)
+            settingsViewModel.liveServers.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (!mail.isOk)
+                    return@Observer
+                mail.mailContent!!
+                adapter.clear()
+                adapter.add("")
+                adapter.addAll(mail.mailContent.map(ServerInstance::name))
+                mail.mailContent.forEach { l(it.toString()) }
+                divLog()
+                adapter.notifyDataSetChanged()
+                binding.serverInstanceDropDown.setAdapter(adapter)
+            })
+            binding.serverInstanceDropDown.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val server = settingsViewModel.findServerByName(s.toString())
+                    l("selected server: ${server?.name}")
+                    settingsViewModel.serverToFilter = server
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+            settingsViewModel.serverToFilter?.let {
+                binding.serverInstanceDropDown.setText(it.name)
+            }
+        }
+
+        fun setUpPipelineRecycler() {
+            val pipelineRecyclerAdapter = PipelineRecyclerAdapter(
+                { editPipeline(it) },
+                { launchPipeline(it) }
+            )
+            binding.insertPipelinesHere.adapter = pipelineRecyclerAdapter
+            viewModel.livePipelineViews.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (mail.isOk) {
+                    mail.mailContent!!
+                    l("it.isOk")
+                    l("item count: ${mail.mailContent.size}")
+                    mail.mailContent.forEach {
+                        with(it) {
+                            l(it.toString())
+                        }
+                    }
+                    pipelineRecyclerAdapter.updatePipelineList(mail.mailContent)
+                    binding.noInstances = mail.mailContent.isEmpty()
+                }
+                binding.mail = mail
+                binding.executePendingBindings()
+            })
+        }
+
+        setUpFAB()
+        setUpRefreshFAB()
+        setUpDropDown()
+        setUpPipelineRecycler()
+    }
+
+    private fun createPipeline() {
+        viewModel.idk()
+    }
+
+    private fun refreshPipelines() {
+        viewModel.refreshPipelines()
+    }
+
+    private fun editPipeline(pipelineView: PipelineView) {
+        TODO()
+    }
+
+    private fun launchPipeline(pipelineView: PipelineView) {
+        TODO()
+    }
+
+    companion object {
+        private const val TAG = "PipelinesFragment"
+        private fun l(msg: String) = Log.d(TAG, msg)
+        private fun divLog(dashCount: Int = 100) = Log.d(TAG, "-".repeat(dashCount))
     }
 }
