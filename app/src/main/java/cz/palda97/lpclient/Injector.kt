@@ -3,6 +3,7 @@ package cz.palda97.lpclient
 import android.content.Context
 import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.repository.EditServerRepository
+import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
 import cz.palda97.lpclient.model.repository.ServerRepositoryImp
 
@@ -19,6 +20,9 @@ object Injector {
     }
     val editServerRepository: EditServerRepository by lazy {
         EditServerRepository()
+    }
+    val pipelineRepository: PipelineRepository by lazy {
+        PipelineRepository()
     }
 
     fun tag(companion: Any): String = companion::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]
