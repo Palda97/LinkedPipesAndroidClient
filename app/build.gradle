@@ -76,4 +76,7 @@ dependencies {
 
     //RecyclerView Swipe Decorator
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 }
