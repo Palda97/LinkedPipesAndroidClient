@@ -17,6 +17,7 @@ class PipelineRecyclerAdapter(
     private val launchPipeline: (PipelineView) -> Unit
 ) : RecyclerView.Adapter<PipelineRecyclerAdapter.PipelineViewHolder>() {
     private var pipelineList: List<PipelineView>? = null
+    fun getPipelineList() = pipelineList
 
     init {
         //setHasStableIds(true)

@@ -21,6 +21,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
+import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
@@ -70,10 +71,7 @@ class SettingsFragment : Fragment() {
         }
 
         fun setUpServerRecycler() {
-            serverRecyclerAdapter = ServerRecyclerAdapter(
-                { editServer(it) },
-                { viewModel.deleteServer(it) }
-            )
+            serverRecyclerAdapter = ServerRecyclerAdapter { editServer(it) }
             binding.insertServerInstancesHere.adapter = serverRecyclerAdapter
             viewModel.liveServers.observe(viewLifecycleOwner, Observer {
                 if (it == null)
@@ -94,66 +92,11 @@ class SettingsFragment : Fragment() {
                 binding.mail = it
                 binding.executePendingBindings()
             })
-            val itemTouchHelper =
-                ItemTouchHelper(object : SimpleCallback(0, ItemTouchHelper.LEFT) {
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder
-                    ): Boolean {
-                        return false
-                    }
-
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        serverRecyclerAdapter.serverList?.let {
-                            deleteServer(it[viewHolder.adapterPosition])
-                        }
-                    }
-
-                    override fun onChildDraw(
-                        c: Canvas,
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        dX: Float,
-                        dY: Float,
-                        actionState: Int,
-                        isCurrentlyActive: Boolean
-                    ) {
-                        RecyclerViewSwipeDecorator.Builder(
-                            c,
-                            recyclerView,
-                            viewHolder,
-                            dX,
-                            dY,
-                            actionState,
-                            isCurrentlyActive
-                        )
-                            .addBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.delete_gesture_background
-                                )
-                            )
-                            .addActionIcon(R.drawable.ic_baseline_delete_24)
-                            .create()
-                            .decorate()
-                        super.onChildDraw(
-                            c,
-                            recyclerView,
-                            viewHolder,
-                            dX,
-                            dY,
-                            actionState,
-                            isCurrentlyActive
-                        )
-                    }
-                })
-            itemTouchHelper.attachToRecyclerView(binding.insertServerInstancesHere)
-            binding.insertServerInstancesHere.addItemDecoration(
-                DividerItemDecoration(
-                    requireContext(),
-                    DividerItemDecoration.VERTICAL
-                )
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertServerInstancesHere,
+                { serverRecyclerAdapter.getServerList() },
+                { deleteServer(it) },
+                requireContext()
             )
         }
 
@@ -185,6 +128,7 @@ class SettingsFragment : Fragment() {
             "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}",
             Snackbar.LENGTH_LONG
         )
+            .setAnchorView(fab)
             .setAction(getString(R.string.undo), View.OnClickListener {
                 undoLastDeleteServer()
             })

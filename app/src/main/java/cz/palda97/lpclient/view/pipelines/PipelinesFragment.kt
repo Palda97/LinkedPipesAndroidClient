@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.settings.SettingsFragment
 import cz.palda97.lpclient.viewmodel.pipelines.PipelineView
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
@@ -126,6 +127,12 @@ class PipelinesFragment : Fragment() {
                 binding.mail = mail
                 binding.executePendingBindings()
             })
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertPipelinesHere,
+                { pipelineRecyclerAdapter.getPipelineList() },
+                { deletePipeline(it) },
+                requireContext()
+            )
         }
 
         setUpFAB()
@@ -147,6 +154,10 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun launchPipeline(pipelineView: PipelineView) {
+        TODO()
+    }
+
+    private fun deletePipeline(pipelineView: PipelineView) {
         TODO()
     }
 
