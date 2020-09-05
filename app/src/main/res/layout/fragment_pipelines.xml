@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
 
         <import type="android.view.View" />
@@ -19,9 +20,9 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            style="@style/do_not_auto_focus_child_components"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            style="@style/do_not_auto_focus_child_components"
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
@@ -36,6 +37,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -64,8 +71,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:visibility="@{noInstances ? View.VISIBLE : View.GONE}"
-                            android:text="@string/no_server_instances" />
+                            android:text="@string/no_server_instances"
+                            android:visibility="@{noInstances ? View.VISIBLE : View.GONE}" />
                     </RelativeLayout>
                 </LinearLayout>
             </ScrollView>
@@ -80,12 +87,12 @@
             app:srcCompat="@drawable/ic_baseline_add_24" />
 
         <View
+            android:id="@+id/gap"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:id="@+id/gap"
-            app:layout_anchor="@id/fab"
             android:layout_gravity="bottom|start"
-            app:layout_anchorGravity="start"/>
+            app:layout_anchor="@id/fab"
+            app:layout_anchorGravity="start" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_refresh"
