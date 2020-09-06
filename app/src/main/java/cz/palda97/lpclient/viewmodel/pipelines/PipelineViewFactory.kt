@@ -1,14 +1,68 @@
 package cz.palda97.lpclient.viewmodel.pipelines
 
+import com.google.gson.Gson
+import cz.palda97.lpclient.model.Either
+import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
+import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
+import cz.palda97.lpclient.model.travelobjects.CommonFunctions.prepareSemiRootElement
+import cz.palda97.lpclient.model.travelobjects.LdConstants.PREF_LABEL
+import cz.palda97.lpclient.model.travelobjects.LdConstants.VALUE
+
 class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
 
-    constructor(serverName: String, string: String?): this(fromJson(serverName, string))
+    constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
 
     companion object {
-        fun fromJson(serverName: String, string: String?): List<PipelineView>? {
+        private fun fromJson(server: ServerInstance, string: String?): List<PipelineView>? {
             if (string == null)
                 return null
-            return listOf(PipelineView("pipeline xd", serverName, "10.10.2020"))
+            //val res = pipelineViewsFromJsonLd(JsonUtils.fromString(string), server)
+            val res = pipelineViewsFromJsonLd(Gson().fromJson(string, Any::class.java), server)
+            return when (res) {
+                is Either.Left -> null
+                is Either.Right -> res.value
+            }
+        }
+
+        private fun pipelineViewsFromJsonLd(
+            jsonObject: Any?,
+            server: ServerInstance
+        ): Either<String, List<PipelineView>> {
+            if (jsonObject == null)
+                return Either.Left("null pointer")
+            return when (jsonObject) {
+                is ArrayList<*> -> {
+                    if (jsonObject.size == 0)
+                        return Either.Left("size of the root arraylist is zero")
+                    val list = mutableListOf<PipelineView>()
+                    jsonObject.forEach {
+                        val pipelineRoot = prepareSemiRootElement(it)
+                            ?: return Either.Left("pipelineRoot is weird")
+                        if (pipelineRoot.size != 1)
+                            return Either.Left("pipelineRoot.size != 1")
+                        val pipelineRootMap =
+                            pipelineRoot[0] as? Map<*, *> ?: return Either.Left(
+                                "pipelineRoot is not Map"
+                            )
+                        val pipelineView = parsePipelineView(pipelineRootMap, server) ?: return Either.Left(
+                            "pipelineView is null"
+                        )
+                        list.add(pipelineView)
+                    }
+                    return Either.Right(list)
+                }
+                else -> Either.Left("root element not arraylist")
+            }
+        }
+
+        private fun parsePipelineView(
+            map: Map<*, *>,
+            server: ServerInstance
+        ): PipelineView? {
+            val id = giveMeThatId(map) ?: return null
+            val prefLabel = giveMeThatString(map, PREF_LABEL, VALUE) ?: return null
+            return PipelineView(prefLabel, id, server)
         }
     }
 }
