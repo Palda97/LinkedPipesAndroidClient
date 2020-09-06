@@ -10,9 +10,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
 import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 
 class EditServerFragment : Fragment() {
@@ -36,6 +38,7 @@ class EditServerFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(EditServerViewModel::class.java)
         setUpComponents()
+        MainActivity.switchToFragment = R.id.navigation_settings
         return root
     }
 

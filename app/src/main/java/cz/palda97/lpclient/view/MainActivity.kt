@@ -1,11 +1,14 @@
 package cz.palda97.lpclient.view
 
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +27,23 @@ class MainActivity : AppCompatActivity() {
             R.id.navigation_settings
         ))*/
         //setupActionBarWithNavController(navController, appBarConfiguration)
+
+        setupNavigation(navView, navController)
+    }
+
+    private fun setupNavigation(navView: BottomNavigationView, navController: NavController) {
         navView.setupWithNavController(navController)
+        startWithTheRightFragment(navView)
+    }
+
+    private fun startWithTheRightFragment(navView: BottomNavigationView) {
+        switchToFragment?.let {
+            navView.selectedItemId = it
+        }
+        switchToFragment = null
+    }
+
+    companion object {
+        var switchToFragment: Int? = null
     }
 }
