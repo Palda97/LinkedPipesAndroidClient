@@ -76,7 +76,7 @@ class PipelineRepository {
             l(e.toString())
             null
         }
-        val list = PipelineViewFactory(serverInstance.name, text).pipelineList
+        val list = PipelineViewFactory(serverInstance, text).pipelineList
         return if (list == null)
             MailPackage.brokenPackage()
         else

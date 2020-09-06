@@ -1,15 +1,12 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ListItemServersBinding
-import cz.palda97.lpclient.databinding.ListItemTwoLineMetaBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.viewmodel.pipelines.PipelineView
 
 class PipelineRecyclerAdapter(
@@ -58,13 +55,13 @@ class PipelineRecyclerAdapter(
         }
     }
 
-    class PipelineViewHolder(val binding: ListItemTwoLineMetaBinding) :
+    class PipelineViewHolder(val binding: ListItemTwoLineBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PipelineViewHolder {
         val binding = DataBindingUtil
-            .inflate<ListItemTwoLineMetaBinding>(
-                LayoutInflater.from(parent.context), R.layout.list_item_two_line_meta,
+            .inflate<ListItemTwoLineBinding>(
+                LayoutInflater.from(parent.context), R.layout.list_item_two_line,
                 parent, false
             )
         return PipelineViewHolder(binding)
@@ -77,7 +74,8 @@ class PipelineRecyclerAdapter(
     override fun onBindViewHolder(holder: PipelineViewHolder, position: Int) {
         val pipelineView = pipelineList!![position]
 
-        holder.binding.pipeline = pipelineView
+        holder.binding.upperText = pipelineView.prefLabel
+        holder.binding.bottomText = pipelineView.server.name
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {

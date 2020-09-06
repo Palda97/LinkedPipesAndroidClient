@@ -6,7 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ListItemServersBinding
+import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.model.ServerInstance
 
 class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
@@ -53,13 +53,13 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
         }
     }
 
-    class ServerViewHolder(val binding: ListItemServersBinding) :
+    class ServerViewHolder(val binding: ListItemTwoLineBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerViewHolder {
         val binding = DataBindingUtil
-            .inflate<ListItemServersBinding>(
-                LayoutInflater.from(parent.context), R.layout.list_item_servers,
+            .inflate<ListItemTwoLineBinding>(
+                LayoutInflater.from(parent.context), R.layout.list_item_two_line,
                 parent, false
             )
         return ServerViewHolder(binding)
@@ -72,7 +72,8 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
         val serverInstance = serverList!![position]
 
-        holder.binding.server = serverInstance
+        holder.binding.upperText = serverInstance.name
+        holder.binding.bottomText = serverInstance.url
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {

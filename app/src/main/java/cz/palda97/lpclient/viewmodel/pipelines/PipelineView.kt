@@ -1,3 +1,5 @@
 package cz.palda97.lpclient.viewmodel.pipelines
 
-data class PipelineView(val name: String, val serverName: String, val date: String)
+import cz.palda97.lpclient.model.ServerInstance
+
+data class PipelineView(val prefLabel: String, val id: String, val server: ServerInstance)
