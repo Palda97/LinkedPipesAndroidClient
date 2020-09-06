@@ -83,6 +83,27 @@ class PipelineRepository {
             MailPackage(list)
     }
 
+    suspend fun deletePipeline(pipelineView: PipelineView) {
+        val pipelineRetrofit = try {
+            PipelineRetrofit.getInstance("${pipelineView.server.url}:8080/")
+        }catch (e: IllegalArgumentException){
+            l(e.toString())
+            return
+        }
+        val call = pipelineRetrofit.deletePipeline(pipelineView.id.split("/").last())
+        val text: String? = try {
+            val response = call.execute().body()
+            //response?.string() ?: "There is no ResponseBody"
+            response?.string().also {
+                l(it.toString())
+            }
+        } catch (e: IOException) {
+            l(e.toString())
+            null
+        }
+        //
+    }
+
     companion object {
         //private const val TAG = "PipelineRepository"
         //private val TAG = this::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]

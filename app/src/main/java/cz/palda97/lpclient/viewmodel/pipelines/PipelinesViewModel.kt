@@ -42,6 +42,12 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun deletePipeline(pipelineView: PipelineView) {
+        retrofitScope.launch {
+            pipelineRepository.deletePipeline(pipelineView)
+        }
+    }
+
     companion object {
         private const val TAG = "PipelinesViewModel"
         private fun l(msg: String) = Log.d(TAG, msg)

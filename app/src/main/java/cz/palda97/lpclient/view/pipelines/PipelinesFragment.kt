@@ -158,7 +158,7 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun deletePipeline(pipelineView: PipelineView) {
-        TODO()
+        viewModel.deletePipeline(pipelineView)
     }
 
     companion object {
