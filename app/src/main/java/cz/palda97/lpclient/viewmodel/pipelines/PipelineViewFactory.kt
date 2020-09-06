@@ -37,18 +37,13 @@ class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
                         return Either.Left("size of the root arraylist is zero")
                     val list = mutableListOf<PipelineView>()
                     jsonObject.forEach {
-                        val pipelineRoot = prepareSemiRootElement(it)
-                            ?: return Either.Left("pipelineRoot is weird")
-                        if (pipelineRoot.size != 1)
-                            return Either.Left("pipelineRoot.size != 1")
-                        val pipelineRootMap =
-                            pipelineRoot[0] as? Map<*, *> ?: return Either.Left(
-                                "pipelineRoot is not Map"
+                        val res = parsePipelineView(it, server)
+                        if (res is Either.Right)
+                            list.add(res.value)
+                        else
+                            return Either.Left(
+                                "pipelineView is null"
                             )
-                        val pipelineView = parsePipelineView(pipelineRootMap, server) ?: return Either.Left(
-                            "pipelineView is null"
-                        )
-                        list.add(pipelineView)
                     }
                     return Either.Right(list)
                 }
@@ -57,6 +52,25 @@ class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
         }
 
         private fun parsePipelineView(
+            jsonObject: Any?,
+            server: ServerInstance
+        ): Either<String, PipelineView> {
+            val pipelineRoot = prepareSemiRootElement(jsonObject)
+                ?: return Either.Left("pipelineRoot is weird")
+            if (pipelineRoot.size != 1)
+                return Either.Left("pipelineRoot.size != 1")
+            val pipelineRootMap =
+                pipelineRoot[0] as? Map<*, *> ?: return Either.Left(
+                    "pipelineRoot is not Map"
+                )
+            val pipelineView =
+                makePipelineView(pipelineRootMap, server) ?: return Either.Left(
+                    "pipelineView is null"
+                )
+            return Either.Right(pipelineView)
+        }
+
+        private fun makePipelineView(
             map: Map<*, *>,
             server: ServerInstance
         ): PipelineView? {
