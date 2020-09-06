@@ -3,9 +3,9 @@
 
     <data>
 
-        <variable
+        <!-- <variable
             name="pipeline"
-            type="cz.palda97.lpclient.viewmodel.pipelines.PipelineView" />
+            type="cz.palda97.lpclient.viewmodel.pipelines.PipelineView" /> -->
     </data>
 
     <LinearLayout
@@ -24,14 +24,14 @@
                 android:id="@+id/first_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{pipeline.prefLabel}"
+                android:text="yikes"
                 android:textAppearance="@style/ta_regular16_primary" />
 
             <TextView
                 android:id="@+id/second_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{pipeline.server.name}"
+                android:text="yikes"
                 android:textAppearance="@style/ta_regular14_secondary" />
 
         </LinearLayout>
@@ -46,7 +46,7 @@
                 android:id="@+id/meta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{pipeline.id}"
+                android:text="yikes"
                 android:textAppearance="@style/ta_regular12_secondary" />
         </LinearLayout>
 

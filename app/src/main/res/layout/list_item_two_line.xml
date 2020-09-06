@@ -4,8 +4,11 @@
     <data>
 
         <variable
-            name="server"
-            type="cz.palda97.lpclient.model.ServerInstance" />
+            name="upperText"
+            type="String" />
+        <variable
+            name="bottomText"
+            type="String" />
     </data>
 
     <LinearLayout
@@ -16,17 +19,19 @@
         android:paddingTop="@dimen/list_item_top_padding">
 
         <TextView
-            android:id="@+id/server_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{server.name}"
+            android:text="@{upperText}"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textAppearance="@style/ta_regular16_primary" />
 
         <TextView
-            android:id="@+id/server_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{server.url}"
+            android:text="@{bottomText}"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textAppearance="@style/ta_regular14_secondary" />
 
     </LinearLayout>
