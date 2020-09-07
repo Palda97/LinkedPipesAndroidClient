@@ -50,7 +50,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             l("switchMap")
             liveData(Dispatchers.Default) {
                 emit(MailPackage.loadingPackage())
-                delay(100)
+                //delay(2000)
                 val mail = pipelineViewTransform(it)
                 emit(mail)
                 l("switchMap end")
