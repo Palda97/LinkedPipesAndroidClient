@@ -5,7 +5,7 @@
 
         <!-- <variable
             name="pipeline"
-            type="cz.palda97.lpclient.viewmodel.pipelines.PipelineView" /> -->
+            type="cz.palda97.lpclient.model.PipelineView" /> -->
     </data>
 
     <LinearLayout

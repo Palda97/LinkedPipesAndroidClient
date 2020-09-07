@@ -22,7 +22,8 @@ object Injector {
         EditServerRepository()
     }
     val pipelineRepository: PipelineRepository by lazy {
-        PipelineRepository()
+        val db = AppDatabase.getInstance(context)
+        PipelineRepository(db.pipelineViewDao(), db.serverDao())
     }
 
     fun tag(companion: Any): String = companion::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]

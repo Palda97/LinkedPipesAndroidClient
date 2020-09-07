@@ -1,53 +1,62 @@
-package cz.palda97.lpclient.viewmodel.pipelines
+package cz.palda97.lpclient.model
 
 import com.google.gson.Gson
-import cz.palda97.lpclient.model.Either
-import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.prepareSemiRootElement
 import cz.palda97.lpclient.model.travelobjects.LdConstants.PREF_LABEL
 import cz.palda97.lpclient.model.travelobjects.LdConstants.VALUE
 
-class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
+class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPipelineViews>) {
 
-    constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
+    constructor(server: ServerInstance, string: String?) : this(
+        fromJson(
+            server,
+            string
+        )
+    )
 
     companion object {
-        private fun fromJson(server: ServerInstance, string: String?): List<PipelineView>? {
+        private fun fromJson(
+            server: ServerInstance,
+            string: String?
+        ): MailPackage<ServerWithPipelineViews> {
             if (string == null)
-                return null
+                return MailPackage.brokenPackage("string is null")
             //val res = pipelineViewsFromJsonLd(JsonUtils.fromString(string), server)
-            val res = pipelineViewsFromJsonLd(Gson().fromJson(string, Any::class.java), server)
-            return when (res) {
-                is Either.Left -> null
-                is Either.Right -> res.value
-            }
+            return pipelineViewsFromJsonLd(
+                Gson().fromJson(string, Any::class.java),
+                server
+            )
         }
 
         private fun pipelineViewsFromJsonLd(
             jsonObject: Any?,
             server: ServerInstance
-        ): Either<String, List<PipelineView>> {
+        ): MailPackage<ServerWithPipelineViews> {
             if (jsonObject == null)
-                return Either.Left("null pointer")
+                return MailPackage.brokenPackage("null pointer")
             return when (jsonObject) {
                 is ArrayList<*> -> {
                     if (jsonObject.size == 0)
-                        return Either.Left("size of the root arraylist is zero")
+                        return MailPackage.brokenPackage("size of the root arraylist is zero")
                     val list = mutableListOf<PipelineView>()
                     jsonObject.forEach {
-                        val res = parsePipelineView(it, server)
+                        val res =
+                            parsePipelineView(
+                                it,
+                                server
+                            )
                         if (res is Either.Right)
                             list.add(res.value)
                         else
-                            return Either.Left(
-                                "pipelineView is null"
+                            return MailPackage.brokenPackage(
+                                "some pipelineView is null"
                             )
                     }
-                    return Either.Right(list)
+                    return MailPackage(ServerWithPipelineViews(server, list))
                 }
-                else -> Either.Left("root element not arraylist")
+                else -> MailPackage.brokenPackage("root element not arraylist")
             }
         }
 
@@ -64,7 +73,10 @@ class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
                     "pipelineRoot is not Map"
                 )
             val pipelineView =
-                makePipelineView(pipelineRootMap, server) ?: return Either.Left(
+                makePipelineView(
+                    pipelineRootMap,
+                    server
+                ) ?: return Either.Left(
                     "pipelineView is null"
                 )
             return Either.Right(pipelineView)
@@ -76,7 +88,7 @@ class PipelineViewFactory(val pipelineList: List<PipelineView>?) {
         ): PipelineView? {
             val id = giveMeThatId(map) ?: return null
             val prefLabel = giveMeThatString(map, PREF_LABEL, VALUE) ?: return null
-            return PipelineView(prefLabel, id, server)
+            return PipelineView(prefLabel, id, server.id)
         }
     }
 }

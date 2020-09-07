@@ -7,7 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.viewmodel.pipelines.PipelineView
+import cz.palda97.lpclient.model.PipelineView
+import cz.palda97.lpclient.model.ServerWithPipelineViews
 
 class PipelineRecyclerAdapter(
     private val editPipeline: (PipelineView) -> Unit,
@@ -75,7 +76,7 @@ class PipelineRecyclerAdapter(
         val pipelineView = pipelineList!![position]
 
         holder.binding.upperText = pipelineView.prefLabel
-        holder.binding.bottomText = pipelineView.server.name
+        holder.binding.bottomText = pipelineView.serverName
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {

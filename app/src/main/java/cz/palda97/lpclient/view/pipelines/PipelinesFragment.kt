@@ -7,10 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -20,11 +17,9 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
-import cz.palda97.lpclient.view.settings.SettingsFragment
-import cz.palda97.lpclient.viewmodel.pipelines.PipelineView
+import cz.palda97.lpclient.model.PipelineView
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
-import kotlinx.android.synthetic.main.fragment_settings.view.*
 
 class PipelinesFragment : Fragment() {
 
@@ -142,7 +137,7 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun createPipeline() {
-        viewModel.idk()
+        TODO()
     }
 
     private fun refreshPipelines() {
