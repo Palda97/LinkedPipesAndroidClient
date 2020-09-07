@@ -63,6 +63,8 @@ class PipelineRepository(
             mail.mailContent!!
             deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
         }
+        if (mail.isError)
+            liveServersWithPipelineViews.postValue(mail)
     }
 
     suspend fun downAndCachePipelineViews(serverInstance: ServerInstance) {
@@ -71,6 +73,8 @@ class PipelineRepository(
             mail.mailContent!!
             deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList)
         }
+        if (mail.isError)
+            liveServersWithPipelineViews.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
     private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> {
