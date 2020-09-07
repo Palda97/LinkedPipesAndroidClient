@@ -29,7 +29,8 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginHorizontal="@dimen/dropdown_horizontal_margin"
+                android:layout_marginVertical="@dimen/dropdown_vertical_margin"
                 android:hint="@string/server_instance">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
