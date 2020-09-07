@@ -65,7 +65,7 @@ class PipelineRepository(
         }
     }
 
-    suspend fun onServerToFilterChange() {
+    fun onServerToFilterChange() {
         liveServersWithPipelineViews.postValue(pipelineViewsFilterTransformation(dbMirror.value))
     }
 

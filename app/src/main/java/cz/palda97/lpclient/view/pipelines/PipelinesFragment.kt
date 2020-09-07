@@ -81,7 +81,7 @@ class PipelinesFragment : Fragment() {
                 override fun afterTextChanged(s: Editable?) {
                     val server = settingsViewModel.findServerByName(s.toString())
                     l("selected server: ${server?.name}")
-                    settingsViewModel.serverToFilter = server
+                    viewModel.serverToFilter = server
                 }
 
                 override fun beforeTextChanged(
@@ -94,7 +94,7 @@ class PipelinesFragment : Fragment() {
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
-            settingsViewModel.serverToFilter?.let {
+            viewModel.serverToFilter?.let {
                 binding.serverInstanceDropDown.setText(it.name)
             }
         }

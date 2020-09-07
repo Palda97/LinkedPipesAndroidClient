@@ -9,6 +9,7 @@ import androidx.lifecycle.switchMap
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.PipelineView
+import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.model.ServerWithPipelineViews
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
@@ -99,6 +100,20 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 pipelineRepository.downAndCachePipelineViews(serverToFilter)
         }
     }
+
+    private fun onServerToFilterChange() {
+        pipelineRepository.onServerToFilterChange()
+    }
+
+    var serverToFilter: ServerInstance?
+        get() = serverRepository.serverToFilter
+        set(value) {
+            val changed = value != serverRepository.serverToFilter
+            serverRepository.serverToFilter = value
+            if (changed) {
+                onServerToFilterChange()
+            }
+        }
 
     fun deletePipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
