@@ -46,7 +46,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             return@map MailPackage.loadingPackage<List<PipelineView>>()
         }*/
     val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
-        pipelineRepository.livePipelineViews.switchMap {
+        pipelineRepository.liveServersWithPipelineViews.switchMap {
             l("switchMap")
             liveData(Dispatchers.Default) {
                 emit(MailPackage.loadingPackage())
