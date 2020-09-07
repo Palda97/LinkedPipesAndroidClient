@@ -23,29 +23,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    //private val _livePipelineViews: MutableLiveData<MailPackage<List<PipelineView>>> = MutableLiveData()
-    /*val livePipelineViews: LiveData<MailPackage<List<ServerWithPipelineViews>>>
-        get() = pipelineRepository.livePipelineViews*/
-    /*val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
-        Transformations.map(pipelineRepository.livePipelineViews) {
-            val mail = it ?: return@map MailPackage.loadingPackage<List<PipelineView>>()
-            if (mail.isOk) {
-                mail.mailContent!!
-                val list = mutableListOf<PipelineView>()
-                list.addAll(mail.mailContent.flatMap {
-                    it.pipelineViewList.apply {
-                        forEach { pipelineView ->
-                            pipelineView.serverName = it.server.name
-                        }
-                    }
-                })
-                return@map MailPackage(list.toList())
-            }
-            if (mail.isError)
-                return@map MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
-
-            return@map MailPackage.loadingPackage<List<PipelineView>>()
-        }*/
     val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
         pipelineRepository.liveServersWithPipelineViews.switchMap {
             l("switchMap")
@@ -79,17 +56,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
-
-    /*fun refreshPipelines() {
-        val serverToFilter = serverRepository.serverToFilter
-        retrofitScope.launch {
-            val pipelines = if (serverToFilter == null)
-                pipelineRepository.downloadPipelineViews(serverRepository.liveServers.value?.mailContent)
-            else
-                pipelineRepository.downloadPipelineViews(serverToFilter)
-            _livePipelineViews.postValue(pipelines)
-        }
-    }*/
 
     fun refreshPipelines() {
         val serverToFilter = serverRepository.serverToFilter

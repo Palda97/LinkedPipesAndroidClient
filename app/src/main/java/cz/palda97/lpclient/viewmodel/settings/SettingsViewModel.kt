@@ -72,12 +72,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         it.name == name
     }
 
-    /*var serverToFilter: ServerInstance?
-        get() = serverRepository.serverToFilter
-        set(value) {
-            serverRepository.serverToFilter = value
-        }*/
-
     companion object {
         private const val NOTIFICATIONS = "notifications"
         private const val TAG = "SettingsViewModel"

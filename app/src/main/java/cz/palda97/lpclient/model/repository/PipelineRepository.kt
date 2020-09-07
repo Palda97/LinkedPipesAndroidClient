@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.liveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
@@ -17,36 +16,6 @@ class PipelineRepository(
     private val serverInstanceDao: ServerInstanceDao
 ) {
 
-    /*fun idk() {
-        /*val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.2.52:8080/")
-            .build()
-        val pipelineRetrofit = retrofit.create(PipelineRetrofit::class.java)*/
-        val pipelineRetrofit = PipelineRetrofit.getInstance("http://192.168.1.52:8080/")
-        val call = pipelineRetrofit.pipelineList()
-        val text = try {
-            val response = call.execute().body()
-            response?.string() ?: "null xd"
-        } catch (e: IOException) {
-            e.toString()
-        }
-        l(text)
-    }
-
-    fun downloadPipelines(serverList: List<ServerInstance>) = serverList.forEach(::downloadPipelines)
-    fun downloadPipelines(serverInstance: ServerInstance) {
-        val pipelineRetrofit = PipelineRetrofit.getInstance(serverInstance.url)
-        val call = pipelineRetrofit.pipelineList()
-        val text = try {
-            val response = call.execute().body()
-            response?.string() ?: "There is no ResponseBody"
-        } catch (e: IOException) {
-            e.toString()
-        }
-        l(text)
-    }*/
-
-    //------------------------------------------------------------------------------------------------------------------------
     private val dbMirror = serverInstanceDao.serverListWithPipelineViews()
 
     val liveServersWithPipelineViews: MediatorLiveData<MailPackage<List<ServerWithPipelineViews>>> =
@@ -78,7 +47,6 @@ class PipelineRepository(
             ?: return MailPackage.brokenPackage<List<ServerWithPipelineViews>>("ServerWithPipelineViews not fund: ${serverToFilter.name}")
         return MailPackage(listOf(serverWithPipelineViews))
     }
-    //------------------------------------------------------------------------------------------------------------------------
 
     suspend fun insertPipelineViews(list: List<PipelineView>) {
         pipelineViewDao.insertList(list)
