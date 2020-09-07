@@ -26,5 +26,7 @@ object Injector {
         PipelineRepository(db.pipelineViewDao(), db.serverDao())
     }
 
-    fun tag(companion: Any): String = companion::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]
+    //fun tag(companion: Any): String = companion::class.java.declaringClass?.canonicalName.toString().split(".").reversed()[0]
+    fun tag(companion: Any): String =
+        companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
 }
