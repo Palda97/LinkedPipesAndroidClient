@@ -111,16 +111,13 @@ class PipelinesFragment : Fragment() {
                     mail.mailContent!!
                     l("it.isOk")
                     l("item count: ${mail.mailContent.size}")
-                    mail.mailContent.forEach {
-                        with(it) {
-                            l(it.toString())
-                        }
-                    }
+                    //mail.mailContent.forEach { l(it.toString()) }
                     pipelineRecyclerAdapter.updatePipelineList(mail.mailContent)
                     binding.noInstances = mail.mailContent.isEmpty()
                 }
                 binding.mail = mail
                 binding.executePendingBindings()
+                l("livePipelineViews.observe ends")
             })
             RecyclerViewCosmetics.makeItAllWork(
                 binding.insertPipelinesHere,
@@ -128,6 +125,7 @@ class PipelinesFragment : Fragment() {
                 { deletePipeline(it) },
                 requireContext()
             )
+            l("setUpPipelineRecycler ends")
         }
 
         setUpFAB()

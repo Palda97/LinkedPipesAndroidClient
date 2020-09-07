@@ -1,14 +1,15 @@
 package cz.palda97.lpclient.view.pipelines
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.model.PipelineView
-import cz.palda97.lpclient.model.ServerWithPipelineViews
 
 class PipelineRecyclerAdapter(
     private val editPipeline: (PipelineView) -> Unit,
@@ -24,8 +25,11 @@ class PipelineRecyclerAdapter(
     fun updatePipelineList(newPipelineList: List<PipelineView>) {
         if (pipelineList == null) {
             pipelineList = newPipelineList
+            l("before notifyItemRangeInserted")
             notifyItemRangeInserted(0, newPipelineList.size)
+            l("after notifyItemRangeInserted")
         } else {
+            l("updatePipelineList start")
             val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
                 override fun getOldListSize(): Int {
                     return pipelineList!!.size
@@ -53,6 +57,7 @@ class PipelineRecyclerAdapter(
             })
             pipelineList = newPipelineList
             result.dispatchUpdatesTo(this)
+            l("updatePipelineList ends")
         }
     }
 
@@ -92,4 +97,9 @@ class PipelineRecyclerAdapter(
     /*override fun getItemId(position: Int): Long {
         return serverList?.get(position)?.id ?: -1
     }*/
+
+    companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
+    }
 }
