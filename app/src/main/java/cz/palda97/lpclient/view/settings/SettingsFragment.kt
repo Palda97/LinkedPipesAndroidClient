@@ -1,29 +1,23 @@
 package cz.palda97.lpclient.view.settings
 
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
+import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 
 class SettingsFragment : Fragment() {
@@ -139,6 +133,11 @@ class SettingsFragment : Fragment() {
     private fun undoLastDeleteServer() {
         l("undoing server deletion")
         viewModel.undoLastDeleteServer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        MainActivity.switchToFragment = null
     }
 
     companion object {
