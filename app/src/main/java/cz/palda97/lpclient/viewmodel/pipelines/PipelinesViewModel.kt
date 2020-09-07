@@ -43,7 +43,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 mail.mailContent!!
                 val list = mutableListOf<PipelineView>()
                 list.addAll(mail.mailContent.flatMap {
-                    it.pipelineViewList.apply {
+                    it.pipelineViewList.filter { !it.deleted }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
@@ -61,7 +61,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         val serverToFilter = serverRepository.serverToFilter
         retrofitScope.launch {
             if (serverToFilter == null)
-                pipelineRepository.downAndCachePipelineViews(serverRepository.liveServers.value?.mailContent)
+                pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
             else
                 pipelineRepository.downAndCachePipelineViews(serverToFilter)
         }
@@ -81,9 +81,21 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
 
+    enum class DeleteStatus {
+        SERVER_ID_NOT_FOUND, NO_CONNECT, PIPELINE_NOT_FOUND, OK, INTERNAL_ERROR, WAITING, DELAY
+    }
+
+    //private val _
+
+    private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
+        when(pipelineRepository.deletePipeline(pipelineView)){
+            //
+        }
+    }
+
     fun deletePipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
-            pipelineRepository.deletePipeline(pipelineView)
+            deletePipelineRoutine(pipelineView)
         }
     }
 

@@ -12,7 +12,7 @@ import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 /**
  * Application database implemented with Room
  */
-@Database(entities = [ServerInstance::class, PipelineView::class], version = 3, exportSchema = true)
+@Database(entities = [ServerInstance::class, PipelineView::class], version = 4, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun serverDao(): ServerInstanceDao

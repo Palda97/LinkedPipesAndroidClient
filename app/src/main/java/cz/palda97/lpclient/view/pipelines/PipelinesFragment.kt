@@ -64,13 +64,13 @@ class PipelinesFragment : Fragment() {
 
         fun setUpDropDown() {
             val adapter = ArrayAdapter<String>(requireContext(), R.layout.dropdown_item_text_view)
-            settingsViewModel.liveServers.observe(viewLifecycleOwner, Observer {
+            settingsViewModel.activeLiveServers.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (!mail.isOk)
                     return@Observer
                 mail.mailContent!!
                 adapter.clear()
-                adapter.add("")
+                //adapter.add("")
                 adapter.addAll(mail.mailContent.map(ServerInstance::name))
                 mail.mailContent.forEach { l(it.toString()) }
                 divLog()

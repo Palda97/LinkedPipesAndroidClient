@@ -59,6 +59,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = serverRepository.liveServers
 
+    val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>>
+        get() = serverRepository.activeLiveServers
+
     fun editServer(serverInstance: ServerInstance) {
         editServerRepository.serverToEdit = serverInstance
         editServerRepository.tmpServer = serverInstance

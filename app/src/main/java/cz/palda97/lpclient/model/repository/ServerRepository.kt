@@ -12,6 +12,7 @@ abstract class ServerRepository {
     abstract suspend fun matchUrlOrNameExcept(serverInstance: ServerInstance, except: ServerInstance): MatchCases
     suspend fun matchUrlOrName(serverInstance: ServerInstance) = matchUrlOrNameExcept(serverInstance, ServerInstance())
     abstract val liveServers: LiveData<MailPackage<List<ServerInstance>>>
+    abstract val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>>
     abstract suspend fun deleteAll()
     abstract suspend fun deleteServer(serverInstance: ServerInstance)
     abstract var serverToFilter: ServerInstance?

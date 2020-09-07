@@ -10,13 +10,14 @@ import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import java.io.IOException
+import java.util.*
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
     private val serverInstanceDao: ServerInstanceDao
 ) {
 
-    private val dbMirror = serverInstanceDao.serverListWithPipelineViews()
+    private val dbMirror = serverInstanceDao.activeServerListWithPipelineViews()
 
     val liveServersWithPipelineViews: MediatorLiveData<MailPackage<List<ServerWithPipelineViews>>> =
         MediatorLiveData()
@@ -52,11 +53,15 @@ class PipelineRepository(
         pipelineViewDao.insertList(list)
     }
 
+    private suspend fun deleteAndInsertPipelineViews(list: List<PipelineView>) {
+        pipelineViewDao.deleteAndInsertPipelineViews(list)
+    }
+
     suspend fun downAndCachePipelineViews(serverList: List<ServerInstance>?) {
         val mail = downloadPipelineViews(serverList)
         if (mail.isOk) {
             mail.mailContent!!
-            insertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
+            deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
         }
     }
 
@@ -64,7 +69,7 @@ class PipelineRepository(
         val mail = downloadPipelineViews(serverInstance)
         if (mail.isOk) {
             mail.mailContent!!
-            insertPipelineViews(mail.mailContent.pipelineViewList)
+            deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList)
         }
     }
 
@@ -85,9 +90,9 @@ class PipelineRepository(
     private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         //val pipelineRetrofit = PipelineRetrofit.getInstance("${serverInstance.url}:8080/")
         val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance("${serverInstance.url}:8080/")
+            PipelineRetrofit.getInstance("${serverInstance.url}$FRONTEND_PORT")
         } catch (e: IllegalArgumentException) {
-            l(e.toString())
+            l("downloadPipelineViews ${e.toString()}")
             return MailPackage.brokenPackage(e.toString())
         }
         val call = pipelineRetrofit.pipelineList()
@@ -95,10 +100,10 @@ class PipelineRepository(
             val response = call.execute().body()
             //response?.string() ?: "There is no ResponseBody"
             response?.string().also {
-                l(it.toString())
+                l("downloadPipelineViews ${it.toString()}")
             }
         } catch (e: IOException) {
-            l(e.toString())
+            l("downloadPipelineViews ${e.toString()}")
             null
         }
         return PipelineViewFactory(
@@ -107,30 +112,50 @@ class PipelineRepository(
         ).serverWithPipelineViews
     }
 
-    suspend fun deletePipeline(pipelineView: PipelineView) {
-        /*val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance("${pipelineView.server.url}:8080/")
+    enum class DeleteCode {
+        SERVER_ID_NOT_FOUND, NO_CONNECT, PIPELINE_NOT_FOUND, OK, INTERNAL_ERROR
+    }
+
+    suspend fun deletePipeline(pipelineView: PipelineView): DeleteCode {
+        val server = serverInstanceDao.findById(pipelineView.serverId) ?: return DeleteCode.SERVER_ID_NOT_FOUND
+        val pipelineRetrofit = try {
+            PipelineRetrofit.getInstance("${server.url}$FRONTEND_PORT")
         } catch (e: IllegalArgumentException) {
-            l(e.toString())
-            return
+            l("deletePipeline ${e.toString()}")
+            return DeleteCode.NO_CONNECT
         }
         val call = pipelineRetrofit.deletePipeline(pipelineView.id.split("/").last())
         val text: String? = try {
             val response = call.execute().body()
             //response?.string() ?: "There is no ResponseBody"
-            response?.string().also {
-                l(it.toString())
-            }
+            response?.string()
         } catch (e: IOException) {
-            l(e.toString())
+            l("deletePipeline ${e.toString()}")
             null
         }
-        //
-        */
+        if(text == null){ //Pipeline was already deleted
+            l("deletePipeline text is null")
+            deleteRoutine(pipelineView)
+            return DeleteCode.PIPELINE_NOT_FOUND
+        }
+        l(text)
+        if(text.isEmpty()) {//Deletion was successful
+            l("text isEmpty")
+            deleteRoutine(pipelineView)
+            return DeleteCode.OK
+        }
+        return DeleteCode.INTERNAL_ERROR
     }
+
+    private suspend fun deleteRoutine(pipelineView: PipelineView) {
+        pipelineViewDao.deletePipelineView(pipelineView)
+    }
+
+    val waitingForDeletion: Queue<PipelineView> = LinkedList<PipelineView>()
 
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
+        private const val FRONTEND_PORT = ":8080/"
     }
 }

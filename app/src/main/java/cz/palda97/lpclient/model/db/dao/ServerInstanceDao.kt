@@ -8,7 +8,7 @@ import cz.palda97.lpclient.model.ServerWithPipelineViews
 @Dao
 abstract class ServerInstanceDao {
 
-    @Query("select * from serverinstance order by name asc")
+    @Query("select * from serverinstance order by id asc")
     abstract fun serverList(): LiveData<List<ServerInstance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -20,7 +20,7 @@ abstract class ServerInstanceDao {
     @Query("delete from serverinstance")
     abstract suspend fun deleteAll()
 
-    @Query("select * from serverinstance where active = 1 order by name asc")
+    @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServersOnly(): LiveData<List<ServerInstance>>
 
     @Query("select * from serverinstance where (url = :matchUrl and url != :exceptUrl) or (name = :matchName and name != :exceptName)")
@@ -34,4 +34,11 @@ abstract class ServerInstanceDao {
     @Transaction
     @Query("select * from serverinstance")
     abstract fun serverListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
+
+    @Transaction
+    @Query("select * from serverinstance where active = 1")
+    abstract fun activeServerListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
+
+    @Query("select * from serverinstance where id = :id")
+    abstract fun findById(id: Long): ServerInstance?
 }
