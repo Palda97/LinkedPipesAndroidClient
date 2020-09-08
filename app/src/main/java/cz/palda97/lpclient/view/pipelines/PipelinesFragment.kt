@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.model.ServerInstance
@@ -139,7 +140,7 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun refreshPipelines() {
-        viewModel.refreshPipelines()
+        viewModel.refreshButton()
     }
 
     private fun editPipeline(pipelineView: PipelineView) {
@@ -152,6 +153,17 @@ class PipelinesFragment : Fragment() {
 
     private fun deletePipeline(pipelineView: PipelineView) {
         viewModel.deletePipeline(pipelineView)
+        l("deleting ${pipelineView.prefLabel}")
+        Snackbar.make(
+            binding.root,
+            "${pipelineView.prefLabel} ${getString(R.string.has_been_deleted)}",
+            Snackbar.LENGTH_LONG
+        )
+            .setAnchorView(fab)
+            .setAction(getString(R.string.undo)) {
+                viewModel.cancelDeletion(pipelineView)
+            }
+            .show()
     }
 
     companion object {
