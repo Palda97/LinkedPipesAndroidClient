@@ -22,6 +22,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
+    private val dbScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
     val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
         pipelineRepository.liveServersWithPipelineViews.switchMap {
@@ -98,8 +100,13 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     //private val _
 
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
-        when(pipelineRepository.deletePipeline(pipelineView)){
-            //
+        pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
+        l("${pipelineView.prefLabel} marked for deletion")
+        //TODO(somehow let the view know)
+        delay(DELETE_DELAY)
+        val pipe = pipelineRepository.findPipelineViewById(pipelineView.id) ?: return
+        if (pipe.deleted) {
+            pipelineRepository.deletePipeline(pipelineView)
         }
     }
 
@@ -109,8 +116,16 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun cancelDeletion(pipelineView: PipelineView) {
+        dbScope.launch {
+            pipelineRepository.insertPipelineView(pipelineView.apply { deleted = false })
+        }
+    }
+
     companion object {
         private const val TAG = "PipelinesViewModel"
         private fun l(msg: String) = Log.d(TAG, msg)
+
+        private const val DELETE_DELAY: Long = 5000L
     }
 }
