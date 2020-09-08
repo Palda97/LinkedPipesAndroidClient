@@ -10,7 +10,6 @@ import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import java.io.IOException
-import java.util.*
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
@@ -49,8 +48,8 @@ class PipelineRepository(
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
-    suspend fun insertPipelineViews(list: List<PipelineView>) {
-        pipelineViewDao.insertList(list)
+    suspend fun insertPipelineView(pipelineView: PipelineView) {
+        pipelineViewDao.insert(pipelineView)
     }
 
     private suspend fun deleteAndInsertPipelineViews(list: List<PipelineView>) {
@@ -120,8 +119,19 @@ class PipelineRepository(
         SERVER_ID_NOT_FOUND, NO_CONNECT, PIPELINE_NOT_FOUND, OK, INTERNAL_ERROR
     }
 
+    suspend fun cleanDb() {
+        val list = pipelineViewDao.selectDeleted()
+        list.forEach {
+            if (deletePipeline(it) != DeleteCode.OK)
+                insertPipelineView(it.apply {
+                    deleted = false
+                })
+        }
+    }
+
     suspend fun deletePipeline(pipelineView: PipelineView): DeleteCode {
-        val server = serverInstanceDao.findById(pipelineView.serverId) ?: return DeleteCode.SERVER_ID_NOT_FOUND
+        val server = serverInstanceDao.findById(pipelineView.serverId)
+            ?: return DeleteCode.SERVER_ID_NOT_FOUND
         val pipelineRetrofit = try {
             PipelineRetrofit.getInstance("${server.url}$FRONTEND_PORT")
         } catch (e: IllegalArgumentException) {
@@ -137,13 +147,13 @@ class PipelineRepository(
             l("deletePipeline ${e.toString()}")
             null
         }
-        if(text == null){ //Pipeline was already deleted
+        if (text == null) { //Pipeline was already deleted
             l("deletePipeline text is null")
             deleteRoutine(pipelineView)
             return DeleteCode.PIPELINE_NOT_FOUND
         }
         l(text)
-        if(text.isEmpty()) {//Deletion was successful
+        if (text.isEmpty()) {//Deletion was successful
             l("text isEmpty")
             deleteRoutine(pipelineView)
             return DeleteCode.OK
@@ -155,7 +165,8 @@ class PipelineRepository(
         pipelineViewDao.deletePipelineView(pipelineView)
     }
 
-    val waitingForDeletion: Queue<PipelineView> = LinkedList<PipelineView>()
+    suspend fun findPipelineViewById(id: String): PipelineView? =
+        pipelineViewDao.findPipelineViewById(id)
 
     companion object {
         private val TAG = Injector.tag(this)
