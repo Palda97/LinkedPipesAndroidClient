@@ -48,6 +48,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                             pipelineView.serverName = it.server.name
                         }
                     }
+                }.sortedBy {
+                    it.id
                 })
                 l("pipelineViewTransform before ok return")
                 return@withContext MailPackage(list.toList())
@@ -57,13 +59,21 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
 
-    fun refreshPipelines() {
+    private suspend fun downloadPipelineViews() {
         val serverToFilter = serverRepository.serverToFilter
+        if (serverToFilter == null)
+            pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
+        else
+            pipelineRepository.downAndCachePipelineViews(serverToFilter)
+    }
+
+    private suspend fun downloadAllPipelineViews() {
+        pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
+    }
+
+    fun refreshButton() {
         retrofitScope.launch {
-            if (serverToFilter == null)
-                pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
-            else
-                pipelineRepository.downAndCachePipelineViews(serverToFilter)
+            downloadAllPipelineViews()
         }
     }
 
