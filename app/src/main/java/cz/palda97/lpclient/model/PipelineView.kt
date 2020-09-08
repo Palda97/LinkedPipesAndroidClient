@@ -14,4 +14,7 @@ data class PipelineView(
     var serverName: String = ""
 
     var deleted: Boolean = false
+
+    val idNumber: String
+        get() = id.split("/").last()
 }
