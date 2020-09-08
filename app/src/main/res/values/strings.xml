@@ -18,6 +18,6 @@
     <string name="save_status_empty_name">Name can\'t be empty!</string>
     <string name="save_status_empty_url">Url can\'t be empty!</string>
     <string name="no_server_instances">There are no server instances.</string>
-    <string name="server_has_been_deleted">has been deleted</string>
+    <string name="has_been_deleted">has been deleted</string>
     <string name="undo">UNDO</string>
 </resources>

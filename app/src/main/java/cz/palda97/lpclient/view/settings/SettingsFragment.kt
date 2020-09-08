@@ -119,7 +119,7 @@ class SettingsFragment : Fragment() {
         l("deleting ${serverInstance.name}")
         Snackbar.make(
             binding.root,
-            "${serverInstance.name} ${getString(R.string.server_has_been_deleted)}",
+            "${serverInstance.name} ${getString(R.string.has_been_deleted)}",
             Snackbar.LENGTH_LONG
         )
             .setAnchorView(fab)
