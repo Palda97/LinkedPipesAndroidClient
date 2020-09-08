@@ -12,7 +12,7 @@
     <string name="server_address">Server address</string>
     <string name="notes">Notes</string>
     <string name="ping">Ping</string>
-    <string name="done">Done</string>
+    <string name="done">Save</string>
     <string name="save_status_name">Server instance with the same name already exists!</string>
     <string name="save_status_url">Server instance with the same url already exists!</string>
     <string name="save_status_empty_name">Name can\'t be empty!</string>
