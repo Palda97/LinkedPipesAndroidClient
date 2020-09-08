@@ -10,9 +10,6 @@ import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import okhttp3.ResponseBody
-import retrofit2.Call
-import java.io.IOException
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
@@ -102,24 +99,17 @@ class PipelineRepository(
     }
 
     private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
-        //val pipelineRetrofit = PipelineRetrofit.getInstance("${serverInstance.url}:8080/")
-        val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance(mixAddressWithPort(serverInstance.url))
-        } catch (e: IllegalArgumentException) {
-            l("downloadPipelineViews ${e.toString()}")
-            return MailPackage.brokenPackage(e.toString())
+        val pipelineRetrofit = when (val res = getPipelineRetrofit(serverInstance)) {
+            is Either.Left -> {
+                return when (res.value) {
+                    StatusCode.NO_CONNECT -> MailPackage.brokenPackage(StatusCode.NO_CONNECT.name)
+                    else -> MailPackage.brokenPackage(StatusCode.INTERNAL_ERROR.name)
+                }
+            }
+            is Either.Right -> res.value
         }
         val call = pipelineRetrofit.pipelineList()
-        val text: String? = try {
-            val response = call.execute().body()
-            //response?.string() ?: "There is no ResponseBody"
-            response?.string().also {
-                //l("downloadPipelineViews ${it.toString()}")
-            }
-        } catch (e: IOException) {
-            l("downloadPipelineViews ${e.toString()}")
-            null
-        }
+        val text = RetrofitHelper.getStringFromCall(call)
         return PipelineViewFactory(
             serverInstance,
             text
@@ -143,13 +133,16 @@ class PipelineRepository(
     suspend fun getPipelineRetrofit(pipelineView: PipelineView): Either<StatusCode, PipelineRetrofit> {
         val server = serverInstanceDao.findById(pipelineView.serverId)
             ?: return Either.Left(StatusCode.SERVER_ID_NOT_FOUND)
-        return try {
+        return getPipelineRetrofit(server)
+    }
+
+    suspend fun getPipelineRetrofit(server: ServerInstance): Either<StatusCode, PipelineRetrofit> =
+        try {
             Either.Right(PipelineRetrofit.getInstance(mixAddressWithPort(server.url)))
         } catch (e: IllegalArgumentException) {
             l("deletePipeline ${e.toString()}")
             Either.Left(StatusCode.NO_CONNECT)
         }
-    }
 
     suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
@@ -157,25 +150,18 @@ class PipelineRepository(
             is Either.Right -> res.value
         }
         val call = pipelineRetrofit.deletePipeline(pipelineView.idNumber)
-        val text: String? = try {
-            val response = call.execute().body()
-            //response?.string() ?: "There is no ResponseBody"
-            response?.string()
-        } catch (e: IOException) {
-            l("deletePipeline ${e.toString()}")
-            null
-        }
+        val text = RetrofitHelper.getStringFromCall(call)
         if (text == null) { //Pipeline was already deleted
             l("deletePipeline text is null")
             deleteRoutine(pipelineView)
             return StatusCode.NULL_RESPONSE
         }
-        l(text)
         if (text.isEmpty()) {//Deletion was successful
             l("text isEmpty")
             deleteRoutine(pipelineView)
             return StatusCode.OK
         }
+        l("deletePipeline internall error - text = $text")
         return StatusCode.INTERNAL_ERROR
     }
 
@@ -192,7 +178,8 @@ class PipelineRepository(
             is Either.Right -> res.value
         }
         val call = pipelineRetrofit.getPipeline(pipelineView.idNumber)
-        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
+        val text =
+            RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
         return Either.Right(text)
     }
 
