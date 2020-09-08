@@ -9,6 +9,7 @@ import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
+import kotlinx.coroutines.delay
 import java.io.IOException
 
 class PipelineRepository(
@@ -56,7 +57,15 @@ class PipelineRepository(
         pipelineViewDao.deleteAndInsertPipelineViews(list)
     }
 
-    suspend fun downAndCachePipelineViews(serverList: List<ServerInstance>?) {
+    suspend fun refreshPipelineViews(either: Either<ServerInstance, List<ServerInstance>?>) {
+        liveServersWithPipelineViews.postValue(MailPackage.loadingPackage())
+        when (either) {
+            is Either.Left -> downAndCachePipelineViews(either.value)
+            is Either.Right -> downAndCachePipelineViews(either.value)
+        }
+    }
+
+    private suspend fun downAndCachePipelineViews(serverList: List<ServerInstance>?) {
         val mail = downloadPipelineViews(serverList)
         if (mail.isOk) {
             mail.mailContent!!
@@ -66,7 +75,7 @@ class PipelineRepository(
             liveServersWithPipelineViews.postValue(mail)
     }
 
-    suspend fun downAndCachePipelineViews(serverInstance: ServerInstance) {
+    private suspend fun downAndCachePipelineViews(serverInstance: ServerInstance) {
         val mail = downloadPipelineViews(serverInstance)
         if (mail.isOk) {
             mail.mailContent!!

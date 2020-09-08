@@ -7,10 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import cz.palda97.lpclient.Injector
-import cz.palda97.lpclient.model.MailPackage
-import cz.palda97.lpclient.model.PipelineView
-import cz.palda97.lpclient.model.ServerInstance
-import cz.palda97.lpclient.model.ServerWithPipelineViews
+import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.*
@@ -61,16 +58,17 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
 
-    private suspend fun downloadPipelineViews() {
+    /*private suspend fun downloadPipelineViews() {
         val serverToFilter = serverRepository.serverToFilter
         if (serverToFilter == null)
             pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
         else
             pipelineRepository.downAndCachePipelineViews(serverToFilter)
-    }
+    }*/
 
     private suspend fun downloadAllPipelineViews() {
-        pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
+        //pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
+        pipelineRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
     }
 
     fun refreshButton() {
