@@ -102,7 +102,7 @@ class PipelineRepository(
     private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         //val pipelineRetrofit = PipelineRetrofit.getInstance("${serverInstance.url}:8080/")
         val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance("${serverInstance.url}$FRONTEND_PORT")
+            PipelineRetrofit.getInstance(mixAddressWithPort(serverInstance.url))
         } catch (e: IllegalArgumentException) {
             l("downloadPipelineViews ${e.toString()}")
             return MailPackage.brokenPackage(e.toString())
@@ -112,7 +112,7 @@ class PipelineRepository(
             val response = call.execute().body()
             //response?.string() ?: "There is no ResponseBody"
             response?.string().also {
-                l("downloadPipelineViews ${it.toString()}")
+                //l("downloadPipelineViews ${it.toString()}")
             }
         } catch (e: IOException) {
             l("downloadPipelineViews ${e.toString()}")
@@ -142,7 +142,7 @@ class PipelineRepository(
         val server = serverInstanceDao.findById(pipelineView.serverId)
             ?: return DeleteCode.SERVER_ID_NOT_FOUND
         val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance("${server.url}$FRONTEND_PORT")
+            PipelineRetrofit.getInstance(mixAddressWithPort(server.url))
         } catch (e: IllegalArgumentException) {
             l("deletePipeline ${e.toString()}")
             return DeleteCode.NO_CONNECT
@@ -180,6 +180,7 @@ class PipelineRepository(
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
-        private const val FRONTEND_PORT = ":8080/"
+        private const val FRONTEND_PORT: Int = 8080
+        private fun mixAddressWithPort(address: String) = "${address}:${FRONTEND_PORT}/"
     }
 }
