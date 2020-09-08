@@ -10,6 +10,7 @@ import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import java.io.IOException
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
@@ -178,8 +179,18 @@ class PipelineRepository(
             is Either.Right -> res.value
         }
         val call = pipelineRetrofit.getPipeline(pipelineView.idNumber)
-        val text =
-            RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
+        //val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
+        val text = try {
+            val executedCall = call.execute()
+            if (executedCall.code() == 404)
+                return Either.Left(StatusCode.NULL_RESPONSE)
+            val response = executedCall.body()
+            response?.string()
+        } catch (e: IOException) {
+            l("getStringFromCall ${e.toString()}")
+            null
+        }
+            ?: return Either.Left(StatusCode.INTERNAL_ERROR)
         return Either.Right(text)
     }
 

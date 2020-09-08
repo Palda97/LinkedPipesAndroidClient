@@ -2,10 +2,7 @@ package cz.palda97.lpclient.viewmodel.pipelines
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.network.RetrofitHelper
@@ -59,14 +56,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
 
-    /*private suspend fun downloadPipelineViews() {
-        val serverToFilter = serverRepository.serverToFilter
-        if (serverToFilter == null)
-            pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
-        else
-            pipelineRepository.downAndCachePipelineViews(serverToFilter)
-    }*/
-
     private suspend fun downloadAllPipelineViews() {
         //pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
         pipelineRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
@@ -92,16 +81,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
 
-    enum class DeleteStatus {
-        SERVER_ID_NOT_FOUND, NO_CONNECT, PIPELINE_NOT_FOUND, OK, INTERNAL_ERROR, WAITING, DELAY
-    }
-
-    //private val _
-
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
         pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
         l("${pipelineView.prefLabel} marked for deletion")
-        //TODO(somehow let the view know)
         delay(DELETE_DELAY)
         val pipe = pipelineRepository.findPipelineViewById(pipelineView.id) ?: return
         if (pipe.deleted) {
@@ -121,20 +103,52 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    enum class LaunchStatus {
+        PIPELINE_NOT_FOUND, SERVER_NOT_FOUND, CAN_NOT_CONNECT, INTERNAL_ERROR, SERVER_ERROR, WAITING, OK, PROTOCOL_PROBLEM
+    }
+
+    private val _launchStatus: MutableLiveData<LaunchStatus> = MutableLiveData(LaunchStatus.WAITING)
+    val launchStatus: LiveData<LaunchStatus>
+        get() = _launchStatus
+
+    fun resetLaunchStatus() {
+        _launchStatus.value = LaunchStatus.WAITING
+    }
+
+    private fun launchStatusCodeToLiveData(statusCode: PipelineRepository.StatusCode) {
+        _launchStatus.postValue(
+            when (statusCode) {
+                PipelineRepository.StatusCode.SERVER_ID_NOT_FOUND -> LaunchStatus.SERVER_NOT_FOUND
+                PipelineRepository.StatusCode.NO_CONNECT -> LaunchStatus.PROTOCOL_PROBLEM
+                PipelineRepository.StatusCode.NULL_RESPONSE -> LaunchStatus.PIPELINE_NOT_FOUND
+                PipelineRepository.StatusCode.INTERNAL_ERROR -> LaunchStatus.CAN_NOT_CONNECT
+                else -> LaunchStatus.INTERNAL_ERROR
+            }
+        )
+    }
+
     private suspend fun launchPipelineRoutine(pipelineView: PipelineView) {
-        val pipelineString = when (val res = pipelineRepository.downloadPipelineString(pipelineView)) {
-            is Either.Left -> res.value.name
-            is Either.Right -> res.value
-        }
-        //val pipelineString = RetrofitHelper.tmp
-        val pipelineRetrofit = when (val res = pipelineRepository.getPipelineRetrofit(pipelineView)) {
-            is Either.Left -> return
-            is Either.Right -> res.value
-        }
+        val pipelineString =
+            when (val res = pipelineRepository.downloadPipelineString(pipelineView)) {
+                is Either.Left -> {
+                    launchStatusCodeToLiveData(res.value)
+                    return
+                }
+                is Either.Right -> res.value
+            }
+        val pipelineRetrofit =
+            when (val res = pipelineRepository.getPipelineRetrofit(pipelineView)) {
+                is Either.Left -> return
+                is Either.Right -> res.value
+            }
         val call = pipelineRetrofit.executePipeline(RetrofitHelper.stringToFormData(pipelineString))
-        val text = RetrofitHelper.getStringFromCall(call) ?: return// Either.Left(PipelineRepository.StatusCode.NULL_RESPONSE)
+        val text = RetrofitHelper.getStringFromCall(call)
+        if (text == null) {
+            _launchStatus.postValue(LaunchStatus.SERVER_ERROR)
+            return
+        }
         l(text)
-        //return Either.Right(text)
+        _launchStatus.postValue(LaunchStatus.OK)
     }
 
     fun launchPipeline(pipelineView: PipelineView) {

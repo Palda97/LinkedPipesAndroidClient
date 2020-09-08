@@ -130,10 +130,32 @@ class PipelinesFragment : Fragment() {
             l("setUpPipelineRecycler ends")
         }
 
+        fun setUpLaunchStatus() {
+            viewModel.launchStatus.observe(viewLifecycleOwner, Observer {
+                if (it == null || it == PipelinesViewModel.LaunchStatus.WAITING)
+                    return@Observer
+                viewModel.resetLaunchStatus()
+                val text: String = when (it) {
+                    PipelinesViewModel.LaunchStatus.PIPELINE_NOT_FOUND -> getString(R.string.pipeline_not_found)
+                    PipelinesViewModel.LaunchStatus.SERVER_NOT_FOUND -> getString(R.string.server_not_found)
+                    PipelinesViewModel.LaunchStatus.CAN_NOT_CONNECT -> getString(R.string.can_not_connect_to_server)
+                    PipelinesViewModel.LaunchStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
+                    PipelinesViewModel.LaunchStatus.SERVER_ERROR -> getString(R.string.server_side_error)
+                    PipelinesViewModel.LaunchStatus.WAITING -> ""
+                    PipelinesViewModel.LaunchStatus.OK -> getString(R.string.successfully_launched)
+                    PipelinesViewModel.LaunchStatus.PROTOCOL_PROBLEM -> getString(R.string.problem_with_protocol)
+                }
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                    .setAnchorView(fab)
+                    .show()
+            })
+        }
+
         setUpFAB()
         setUpRefreshFAB()
         setUpDropDown()
         setUpPipelineRecycler()
+        setUpLaunchStatus()
     }
 
     private fun createPipeline() {
@@ -151,7 +173,6 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun launchPipeline(pipelineView: PipelineView) {
-        Toast.makeText(requireContext(), "execution of ${pipelineView.prefLabel}", Toast.LENGTH_SHORT).show()
         viewModel.launchPipeline(pipelineView)
     }
 
