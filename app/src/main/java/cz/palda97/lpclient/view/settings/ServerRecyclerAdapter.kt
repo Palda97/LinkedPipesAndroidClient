@@ -77,7 +77,7 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {
-            editServer(serverInstance)
+            editServer(serverList!![holder.adapterPosition])
         }
     }
 
