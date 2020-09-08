@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -136,7 +137,8 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun createPipeline() {
-        TODO()
+        //TODO()
+        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
     }
 
     private fun refreshPipelines() {
@@ -144,11 +146,13 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun editPipeline(pipelineView: PipelineView) {
-        TODO()
+        //TODO()
+        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
     }
 
     private fun launchPipeline(pipelineView: PipelineView) {
-        TODO()
+        Toast.makeText(requireContext(), "execution of ${pipelineView.prefLabel}", Toast.LENGTH_SHORT).show()
+        viewModel.launchPipeline(pipelineView)
     }
 
     private fun deletePipeline(pipelineView: PipelineView) {

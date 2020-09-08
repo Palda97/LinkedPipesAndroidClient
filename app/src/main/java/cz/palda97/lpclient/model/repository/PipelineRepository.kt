@@ -9,7 +9,9 @@ import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
-import kotlinx.coroutines.delay
+import cz.palda97.lpclient.model.network.RetrofitHelper
+import okhttp3.ResponseBody
+import retrofit2.Call
 import java.io.IOException
 
 class PipelineRepository(
@@ -124,30 +126,37 @@ class PipelineRepository(
         ).serverWithPipelineViews
     }
 
-    enum class DeleteCode {
-        SERVER_ID_NOT_FOUND, NO_CONNECT, PIPELINE_NOT_FOUND, OK, INTERNAL_ERROR
+    enum class StatusCode {
+        SERVER_ID_NOT_FOUND, NO_CONNECT, NULL_RESPONSE, OK, INTERNAL_ERROR
     }
 
     suspend fun cleanDb() {
         val list = pipelineViewDao.selectDeleted()
         list.forEach {
-            if (deletePipeline(it) != DeleteCode.OK)
+            if (deletePipeline(it) != StatusCode.OK)
                 insertPipelineView(it.apply {
                     deleted = false
                 })
         }
     }
 
-    suspend fun deletePipeline(pipelineView: PipelineView): DeleteCode {
+    suspend fun getPipelineRetrofit(pipelineView: PipelineView): Either<StatusCode, PipelineRetrofit> {
         val server = serverInstanceDao.findById(pipelineView.serverId)
-            ?: return DeleteCode.SERVER_ID_NOT_FOUND
-        val pipelineRetrofit = try {
-            PipelineRetrofit.getInstance(mixAddressWithPort(server.url))
+            ?: return Either.Left(StatusCode.SERVER_ID_NOT_FOUND)
+        return try {
+            Either.Right(PipelineRetrofit.getInstance(mixAddressWithPort(server.url)))
         } catch (e: IllegalArgumentException) {
             l("deletePipeline ${e.toString()}")
-            return DeleteCode.NO_CONNECT
+            Either.Left(StatusCode.NO_CONNECT)
         }
-        val call = pipelineRetrofit.deletePipeline(pipelineView.id.split("/").last())
+    }
+
+    suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
+        val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
+            is Either.Left -> return res.value
+            is Either.Right -> res.value
+        }
+        val call = pipelineRetrofit.deletePipeline(pipelineView.idNumber)
         val text: String? = try {
             val response = call.execute().body()
             //response?.string() ?: "There is no ResponseBody"
@@ -159,15 +168,15 @@ class PipelineRepository(
         if (text == null) { //Pipeline was already deleted
             l("deletePipeline text is null")
             deleteRoutine(pipelineView)
-            return DeleteCode.PIPELINE_NOT_FOUND
+            return StatusCode.NULL_RESPONSE
         }
         l(text)
         if (text.isEmpty()) {//Deletion was successful
             l("text isEmpty")
             deleteRoutine(pipelineView)
-            return DeleteCode.OK
+            return StatusCode.OK
         }
-        return DeleteCode.INTERNAL_ERROR
+        return StatusCode.INTERNAL_ERROR
     }
 
     private suspend fun deleteRoutine(pipelineView: PipelineView) {
@@ -177,10 +186,20 @@ class PipelineRepository(
     suspend fun findPipelineViewById(id: String): PipelineView? =
         pipelineViewDao.findPipelineViewById(id)
 
+    suspend fun downloadPipelineString(pipelineView: PipelineView): Either<StatusCode, String> {
+        val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
+            is Either.Left -> return Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val call = pipelineRetrofit.getPipeline(pipelineView.idNumber)
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
+        return Either.Right(text)
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
-        private const val FRONTEND_PORT: Int = 8080
+        private const val FRONTEND_PORT: Short = 8080
         private fun mixAddressWithPort(address: String) = "${address}:${FRONTEND_PORT}/"
     }
 }

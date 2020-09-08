@@ -8,6 +8,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.*
@@ -117,6 +118,28 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     fun cancelDeletion(pipelineView: PipelineView) {
         dbScope.launch {
             pipelineRepository.insertPipelineView(pipelineView.apply { deleted = false })
+        }
+    }
+
+    private suspend fun launchPipelineRoutine(pipelineView: PipelineView) {
+        val pipelineString = when (val res = pipelineRepository.downloadPipelineString(pipelineView)) {
+            is Either.Left -> res.value.name
+            is Either.Right -> res.value
+        }
+        //val pipelineString = RetrofitHelper.tmp
+        val pipelineRetrofit = when (val res = pipelineRepository.getPipelineRetrofit(pipelineView)) {
+            is Either.Left -> return
+            is Either.Right -> res.value
+        }
+        val call = pipelineRetrofit.executePipeline(RetrofitHelper.stringToFormData(pipelineString))
+        val text = RetrofitHelper.getStringFromCall(call) ?: return// Either.Left(PipelineRepository.StatusCode.NULL_RESPONSE)
+        l(text)
+        //return Either.Right(text)
+    }
+
+    fun launchPipeline(pipelineView: PipelineView) {
+        retrofitScope.launch {
+            launchPipelineRoutine(pipelineView)
         }
     }
 
