@@ -9,6 +9,8 @@ import cz.palda97.lpclient.model.repository.ServerRepositoryImp
 
 object Injector {
     lateinit var context: Context
+    val isThereContext: Boolean
+        get() = this::context.isInitialized
     val serverRepository: ServerRepository by lazy {
         ServerRepositoryImp(AppDatabase.getInstance(context).serverDao())
     }
