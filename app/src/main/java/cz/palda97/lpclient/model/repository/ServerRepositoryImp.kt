@@ -26,6 +26,11 @@ class ServerRepositoryImp(private val serverInstanceDao: ServerInstanceDao) : Se
             return@map MailPackage.loadingPackage<List<ServerInstance>>()
         return@map MailPackage(it)
     }
+    override val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>> = Transformations.map(serverInstanceDao.activeServersOnly()) {
+        if (it == null)
+            return@map MailPackage.loadingPackage<List<ServerInstance>>()
+        return@map MailPackage(it)
+    }
 
     override suspend fun deleteAll() {
         serverInstanceDao.deleteAll()
@@ -34,4 +39,6 @@ class ServerRepositoryImp(private val serverInstanceDao: ServerInstanceDao) : Se
     override suspend fun deleteServer(serverInstance: ServerInstance) {
         serverInstanceDao.deleteServer(serverInstance)
     }
+
+    override var serverToFilter: ServerInstance? = null
 }

@@ -12,12 +12,19 @@
     <string name="server_address">Server address</string>
     <string name="notes">Notes</string>
     <string name="ping">Ping</string>
-    <string name="done">Done</string>
+    <string name="done">Save</string>
     <string name="save_status_name">Server instance with the same name already exists!</string>
     <string name="save_status_url">Server instance with the same url already exists!</string>
     <string name="save_status_empty_name">Name can\'t be empty!</string>
     <string name="save_status_empty_url">Url can\'t be empty!</string>
     <string name="no_server_instances">There are no server instances.</string>
-    <string name="server_has_been_deleted">has been deleted</string>
+    <string name="has_been_deleted">has been deleted</string>
     <string name="undo">UNDO</string>
+    <string name="pipeline_not_found">Pipeline not found!</string>
+    <string name="server_not_found">Server not found!</string>
+    <string name="can_not_connect_to_server">Can\'t connect to the server!</string>
+    <string name="internal_error">Internal error!</string>
+    <string name="server_side_error">Server side error!</string>
+    <string name="successfully_launched">Successfully launched.</string>
+    <string name="problem_with_protocol">Problem with protocol!</string>
 </resources>

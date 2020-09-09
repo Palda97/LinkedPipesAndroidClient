@@ -76,4 +76,17 @@ dependencies {
 
     //RecyclerView Swipe Decorator
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //LiveData
+    def lifecycle_version = "2.2.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    //That weird ssl handshake error
+    implementation 'org.conscrypt:conscrypt-android:2.2.1'
 }

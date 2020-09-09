@@ -6,15 +6,19 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ListItemServersBinding
+import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.model.ServerInstance
 
-class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, private val deleteServer: (ServerInstance) -> Unit): RecyclerView.Adapter<ServerRecyclerAdapter.ServerViewHolder>() {
-    var serverList: List<ServerInstance>? = null
+class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
+    RecyclerView.Adapter<ServerRecyclerAdapter.ServerViewHolder>() {
+    private var serverList: List<ServerInstance>? = null
+    fun getServerList(): List<ServerInstance>? = serverList
+
     init {
         //setHasStableIds(true)
     }
-    fun updateServerList(newServerList: List<ServerInstance>){
+
+    fun updateServerList(newServerList: List<ServerInstance>) {
         if (serverList == null) {
             serverList = newServerList
             notifyItemRangeInserted(0, newServerList.size)
@@ -35,7 +39,10 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
                     return oldItem == newItem
                 }
 
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ): Boolean {
                     val newItem = newServerList[newItemPosition]
                     val oldItem = serverList!![oldItemPosition]
                     return newItem.url == oldItem.url && newItem.name == oldItem.name
@@ -46,13 +53,15 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
         }
     }
 
-    class ServerViewHolder(val binding: ListItemServersBinding): RecyclerView.ViewHolder(binding.root)
+    class ServerViewHolder(val binding: ListItemTwoLineBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerViewHolder {
         val binding = DataBindingUtil
-            .inflate<ListItemServersBinding>(
-                LayoutInflater.from(parent.context), R.layout.list_item_servers,
-                parent, false)
+            .inflate<ListItemTwoLineBinding>(
+                LayoutInflater.from(parent.context), R.layout.list_item_two_line,
+                parent, false
+            )
         return ServerViewHolder(binding)
     }
 
@@ -63,11 +72,12 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit, pr
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
         val serverInstance = serverList!![position]
 
-        holder.binding.server = serverInstance
+        holder.binding.upperText = serverInstance.name
+        holder.binding.bottomText = serverInstance.url
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {
-            editServer(serverInstance)
+            editServer(serverList!![holder.adapterPosition])
         }
     }
 

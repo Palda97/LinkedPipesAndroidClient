@@ -59,6 +59,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val liveServers: LiveData<MailPackage<List<ServerInstance>>>
         get() = serverRepository.liveServers
 
+    val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>>
+        get() = serverRepository.activeLiveServers
+
     fun editServer(serverInstance: ServerInstance) {
         editServerRepository.serverToEdit = serverInstance
         editServerRepository.tmpServer = serverInstance
@@ -66,6 +69,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun addServer() {
         editServer(ServerInstance())
+    }
+
+    fun findServerByName(name: String?): ServerInstance? = liveServers.value?.mailContent?.find {
+        it.name == name
     }
 
     companion object {
