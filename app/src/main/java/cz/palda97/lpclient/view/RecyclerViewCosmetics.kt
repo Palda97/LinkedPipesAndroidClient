@@ -16,17 +16,28 @@ object RecyclerViewCosmetics {
      */
     fun <itemType> makeItAllWork(
         recyclerView: RecyclerView,
-        getList: () -> List<itemType>?,
+        adapterWithList: AdapterWithList<itemType>,
         deleteFunction: (itemType) -> Unit,
         context: Context
     ) {
         addSwipeToDeleteWithDecorations(
             recyclerView,
-            getList,
+            { adapterWithList.getList() },
             deleteFunction,
             context
         )
+        attachAdapter(
+            recyclerView,
+            adapterWithList.adapter
+        )
         addDividers(recyclerView, context)
+    }
+
+    fun attachAdapter(
+        recyclerView: RecyclerView,
+        adapter: RecyclerView.Adapter<*>
+    ) {
+        recyclerView.adapter = adapter
     }
 
     fun <itemType> addSwipeToDeleteWithDecorations(

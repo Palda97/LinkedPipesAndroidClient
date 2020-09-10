@@ -106,7 +106,12 @@ class PipelinesFragment : Fragment() {
                 { editPipeline(it) },
                 { launchPipeline(it) }
             )
-            binding.insertPipelinesHere.adapter = pipelineRecyclerAdapter
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertPipelinesHere,
+                pipelineRecyclerAdapter,
+                { deletePipeline(it) },
+                requireContext()
+            )
             viewModel.livePipelineViews.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (mail.isOk) {
@@ -121,14 +126,8 @@ class PipelinesFragment : Fragment() {
                 binding.executePendingBindings()
                 l("livePipelineViews.observe ends")
             })
-            RecyclerViewCosmetics.makeItAllWork(
-                binding.insertPipelinesHere,
-                { pipelineRecyclerAdapter.getPipelineList() },
-                { deletePipeline(it) },
-                requireContext()
-            )
-            l("setUpPipelineRecycler ends")
             binding.fastscroll.setRecyclerView(binding.insertPipelinesHere)
+            l("setUpPipelineRecycler ends")
         }
 
         fun setUpLaunchStatus() {
