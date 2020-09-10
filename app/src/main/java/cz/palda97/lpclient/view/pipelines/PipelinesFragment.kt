@@ -81,7 +81,7 @@ class PipelinesFragment : Fragment() {
             })
             binding.serverInstanceDropDown.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    val server = settingsViewModel.findServerByName(s.toString())
+                    val server = settingsViewModel.findActiveServerByName(s.toString())
                     l("selected server: ${server?.name}")
                     viewModel.serverToFilter = server
                 }
