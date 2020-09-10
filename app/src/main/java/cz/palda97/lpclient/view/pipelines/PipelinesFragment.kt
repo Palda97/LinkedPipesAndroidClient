@@ -128,6 +128,7 @@ class PipelinesFragment : Fragment() {
                 requireContext()
             )
             l("setUpPipelineRecycler ends")
+            binding.fastscroll.setRecyclerView(binding.insertPipelinesHere)
         }
 
         fun setUpLaunchStatus() {
