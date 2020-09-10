@@ -38,15 +38,18 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             val mail = it ?: return@withContext MailPackage.loadingPackage<List<PipelineView>>()
             if (mail.isOk) {
                 mail.mailContent!!
+                mail.mailContent.forEach {
+                    l("pipelineViewTransform - ${it.server.id} - ${it.server.name}")
+                }
                 val list = mutableListOf<PipelineView>()
                 list.addAll(mail.mailContent.flatMap {
                     it.pipelineViewList.filter { !it.deleted }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
+                    }.sortedByDescending {
+                        it.id
                     }
-                }.sortedBy {
-                    it.id
                 })
                 l("pipelineViewTransform before ok return")
                 return@withContext MailPackage(list.toList())

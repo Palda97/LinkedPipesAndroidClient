@@ -32,11 +32,11 @@ abstract class ServerInstanceDao {
     ): List<ServerInstance>
 
     @Transaction
-    @Query("select * from serverinstance")
+    @Query("select * from serverinstance order by id asc")
     abstract fun serverListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
 
     @Transaction
-    @Query("select * from serverinstance where active = 1")
+    @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServerListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
 
     @Query("select * from serverinstance where id = :id")
