@@ -81,7 +81,7 @@ class PipelinesFragment : Fragment() {
             })
             binding.serverInstanceDropDown.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    val server = settingsViewModel.findServerByName(s.toString())
+                    val server = settingsViewModel.findActiveServerByName(s.toString())
                     l("selected server: ${server?.name}")
                     viewModel.serverToFilter = server
                 }
@@ -106,7 +106,12 @@ class PipelinesFragment : Fragment() {
                 { editPipeline(it) },
                 { launchPipeline(it) }
             )
-            binding.insertPipelinesHere.adapter = pipelineRecyclerAdapter
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertPipelinesHere,
+                pipelineRecyclerAdapter,
+                { deletePipeline(it) },
+                requireContext()
+            )
             viewModel.livePipelineViews.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (mail.isOk) {
@@ -121,12 +126,7 @@ class PipelinesFragment : Fragment() {
                 binding.executePendingBindings()
                 l("livePipelineViews.observe ends")
             })
-            RecyclerViewCosmetics.makeItAllWork(
-                binding.insertPipelinesHere,
-                { pipelineRecyclerAdapter.getPipelineList() },
-                { deletePipeline(it) },
-                requireContext()
-            )
+            binding.fastscroll.setRecyclerView(binding.insertPipelinesHere)
             l("setUpPipelineRecycler ends")
         }
 

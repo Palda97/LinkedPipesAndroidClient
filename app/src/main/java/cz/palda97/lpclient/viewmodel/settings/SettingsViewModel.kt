@@ -71,7 +71,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         editServer(ServerInstance())
     }
 
-    fun findServerByName(name: String?): ServerInstance? = liveServers.value?.mailContent?.find {
+    fun findActiveServerByName(name: String?): ServerInstance? = activeLiveServers.value?.mailContent?.find {
         it.name == name
     }
 

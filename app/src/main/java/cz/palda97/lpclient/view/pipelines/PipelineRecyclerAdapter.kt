@@ -10,13 +10,14 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.model.PipelineView
+import cz.palda97.lpclient.view.AdapterWithList
 
 class PipelineRecyclerAdapter(
     private val editPipeline: (PipelineView) -> Unit,
     private val launchPipeline: (PipelineView) -> Unit
-) : RecyclerView.Adapter<PipelineRecyclerAdapter.PipelineViewHolder>() {
+) : RecyclerView.Adapter<PipelineRecyclerAdapter.PipelineViewHolder>(),
+    AdapterWithList<PipelineView> {
     private var pipelineList: List<PipelineView>? = null
-    fun getPipelineList() = pipelineList
 
     init {
         //setHasStableIds(true)
@@ -102,4 +103,7 @@ class PipelineRecyclerAdapter(
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
     }
+
+    override fun getList(): List<PipelineView>? = pipelineList
+    override val adapter: PipelineRecyclerAdapter = this
 }

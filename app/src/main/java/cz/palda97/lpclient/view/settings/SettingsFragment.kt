@@ -36,11 +36,11 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtons()
+        //tmpButtons()
         return root
     }
 
-    private fun tmpButtons() {
+    /*private fun tmpButtons() {
         binding.tmpButtonDeleteAllInstances.setOnClickListener {
             viewModel.deleteAllInstances()
         }
@@ -54,7 +54,7 @@ class SettingsFragment : Fragment() {
                 viewModel.forceSaveServer(it)
             }
         }
-    }
+    }*/
 
     private fun setUpComponents() {
         fun setUpNotificationSwitch() {
@@ -66,7 +66,12 @@ class SettingsFragment : Fragment() {
 
         fun setUpServerRecycler() {
             serverRecyclerAdapter = ServerRecyclerAdapter { editServer(it) }
-            binding.insertServerInstancesHere.adapter = serverRecyclerAdapter
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertServerInstancesHere,
+                serverRecyclerAdapter,
+                { deleteServer(it) },
+                requireContext()
+            )
             viewModel.liveServers.observe(viewLifecycleOwner, Observer {
                 if (it == null)
                     return@Observer
@@ -86,12 +91,6 @@ class SettingsFragment : Fragment() {
                 binding.mail = it
                 binding.executePendingBindings()
             })
-            RecyclerViewCosmetics.makeItAllWork(
-                binding.insertServerInstancesHere,
-                { serverRecyclerAdapter.getServerList() },
-                { deleteServer(it) },
-                requireContext()
-            )
         }
 
         fun setUpFAB() {
