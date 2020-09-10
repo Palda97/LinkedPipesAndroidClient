@@ -36,11 +36,11 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtons()
+        //tmpButtons()
         return root
     }
 
-    private fun tmpButtons() {
+    /*private fun tmpButtons() {
         binding.tmpButtonDeleteAllInstances.setOnClickListener {
             viewModel.deleteAllInstances()
         }
@@ -54,7 +54,7 @@ class SettingsFragment : Fragment() {
                 viewModel.forceSaveServer(it)
             }
         }
-    }
+    }*/
 
     private fun setUpComponents() {
         fun setUpNotificationSwitch() {
