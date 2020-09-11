@@ -41,12 +41,7 @@ class PipelinesFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
         settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtons()
         return root
-    }
-
-    private fun tmpButtons() {
-        //
     }
 
     private fun setUpComponents() {

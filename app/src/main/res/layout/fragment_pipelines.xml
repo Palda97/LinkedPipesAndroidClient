@@ -69,7 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="@string/no_server_instances"
+                    android:text="@string/no_pipelines"
                     android:visibility="@{noInstances ? View.VISIBLE : View.GONE}" />
             </RelativeLayout>
 
