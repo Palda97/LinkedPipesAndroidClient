@@ -20,15 +20,15 @@ object RecyclerViewCosmetics {
         deleteFunction: (itemType) -> Unit,
         context: Context
     ) {
+        attachAdapter(
+            recyclerView,
+            adapterWithList.adapter
+        )
         addSwipeToDeleteWithDecorations(
             recyclerView,
             { adapterWithList.getList() },
             deleteFunction,
             context
-        )
-        attachAdapter(
-            recyclerView,
-            adapterWithList.adapter
         )
         addDividers(recyclerView, context)
     }
