@@ -22,6 +22,7 @@ import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.model.PipelineView
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 
 class PipelinesFragment : Fragment() {
 
@@ -60,40 +61,13 @@ class PipelinesFragment : Fragment() {
         }
 
         fun setUpDropDown() {
-            val adapter = ArrayAdapter<String>(requireContext(), R.layout.dropdown_item_text_view)
-            settingsViewModel.activeLiveServers.observe(viewLifecycleOwner, Observer {
-                val mail = it ?: return@Observer
-                if (!mail.isOk)
-                    return@Observer
-                mail.mailContent!!
-                adapter.clear()
-                //adapter.add("")
-                adapter.addAll(mail.mailContent.map(ServerInstance::name))
-                mail.mailContent.forEach { l(it.toString()) }
-                divLog()
-                adapter.notifyDataSetChanged()
-                binding.serverInstanceDropDown.setAdapter(adapter)
-            })
-            binding.serverInstanceDropDown.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    val server = settingsViewModel.findActiveServerByName(s.toString())
-                    l("selected server: ${server?.name}")
-                    viewModel.serverToFilter = server
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
-            viewModel.serverToFilter?.let {
-                binding.serverInstanceDropDown.setText(it.name)
-            }
+            binding.serverInstanceDropDown.setUpWithServers(
+                requireContext(),
+                settingsViewModel,
+                viewLifecycleOwner,
+                { viewModel.setServerToFilterFun(it) },
+                viewModel.serverToFilter
+            )
         }
 
         fun setUpPipelineRecycler() {

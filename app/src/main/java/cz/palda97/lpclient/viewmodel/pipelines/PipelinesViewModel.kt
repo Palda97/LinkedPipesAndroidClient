@@ -76,13 +76,16 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     var serverToFilter: ServerInstance?
         get() = serverRepository.serverToFilter
-        set(value) {
+        private set(value) {
             val changed = value != serverRepository.serverToFilter
             serverRepository.serverToFilter = value
             if (changed) {
                 onServerToFilterChange()
             }
         }
+    fun setServerToFilterFun(serverInstance: ServerInstance?) {
+        serverToFilter = serverInstance
+    }
 
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
         pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
