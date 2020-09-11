@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LinkedPipesAndroidClient</string>
+    <string name="app_name">ETL Client</string>
     <string name="title_executions">Executions</string>
     <string name="title_pipelines">Pipelines</string>
     <string name="title_settings">Settings</string>
