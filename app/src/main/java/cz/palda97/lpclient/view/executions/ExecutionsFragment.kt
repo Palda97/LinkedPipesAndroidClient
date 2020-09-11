@@ -10,13 +10,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
+import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
+import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 class ExecutionsFragment : Fragment() {
 
     private lateinit var binding: FragmentExecutionsBinding
     private lateinit var viewModel: ExecutionsViewModel
     private lateinit var refreshFab: FloatingActionButton
+    private lateinit var settingsViewModel: SettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,6 +30,7 @@ class ExecutionsFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_executions, container, false)
         val root = binding.root
         viewModel = ViewModelProvider(this).get(ExecutionsViewModel::class.java)
+        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
         return root
     }
@@ -40,7 +44,18 @@ class ExecutionsFragment : Fragment() {
             }
         }
 
+        fun setUpDropDown() {
+            binding.serverInstanceDropDown.setUpWithServers(
+                requireContext(),
+                settingsViewModel,
+                viewLifecycleOwner,
+                { viewModel.setServerToFilterFun(it) },
+                viewModel.serverToFilter
+            )
+        }
+
         setUpRefreshFab()
+        setUpDropDown()
     }
 
     private fun refreshExecutions() {
