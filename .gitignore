@@ -108,3 +108,6 @@ lint/tmp/
 
 # DB schemas
 schemas/
+
+# Private tests
+/app/src/test/java/cz/palda97/lpclient/ignored/
