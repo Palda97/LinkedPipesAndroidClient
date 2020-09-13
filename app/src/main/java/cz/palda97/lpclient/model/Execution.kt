@@ -21,10 +21,9 @@ data class Execution(
     val serverId: Long
 ) {
     @Ignore
-    var pipelineName: String = ""
-
-    @Ignore
     var serverName: String = ""
+
+    var pipelineName: String = ""
 
     var deleted: Boolean = false
 

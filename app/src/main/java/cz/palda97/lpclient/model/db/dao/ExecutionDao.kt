@@ -9,5 +9,8 @@ import cz.palda97.lpclient.model.Execution
 abstract class ExecutionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertList(list: List<Execution>)
+    abstract suspend fun insert(list: List<Execution>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insert(list: Execution)
 }
