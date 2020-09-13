@@ -4,19 +4,24 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import cz.palda97.lpclient.model.Execution
 import cz.palda97.lpclient.model.PipelineView
 import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.db.dao.ExecutionDao
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 
 /**
  * Application database implemented with Room
  */
-@Database(entities = [ServerInstance::class, PipelineView::class], version = 4, exportSchema = true)
+@Database(entities = [ServerInstance::class, PipelineView::class, Execution::class], version = 4, exportSchema = true)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun serverDao(): ServerInstanceDao
     abstract fun pipelineViewDao(): PipelineViewDao
+    abstract fun executionDao(): ExecutionDao
 
     companion object {
 
