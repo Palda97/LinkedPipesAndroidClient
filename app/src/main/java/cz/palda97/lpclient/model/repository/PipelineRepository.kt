@@ -10,6 +10,7 @@ import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import kotlinx.coroutines.delay
 import java.io.IOException
 
 class PipelineRepository(
@@ -40,6 +41,7 @@ class PipelineRepository(
     }
 
     private fun pipelineViewsFilterTransformation(it: List<ServerWithPipelineViews>?): MailPackage<List<ServerWithPipelineViews>> {
+        l("pipelineViewsFilterTransformation start")
         if (it == null)
             return MailPackage.loadingPackage<List<ServerWithPipelineViews>>()
         val serverRepo = Injector.serverRepository
@@ -61,7 +63,11 @@ class PipelineRepository(
         liveServersWithPipelineViews.postValue(MailPackage.loadingPackage())
         when (either) {
             is Either.Left -> downAndCachePipelineViews(either.value)
-            is Either.Right -> downAndCachePipelineViews(either.value)
+            is Either.Right -> {
+                if (either.value == null || either.value.isEmpty())
+                    liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
+                downAndCachePipelineViews(either.value)
+            }
         }
     }
 

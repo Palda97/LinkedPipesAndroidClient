@@ -56,6 +56,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             }
             if (mail.isError)
                 return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
+            l("still loading")
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
 
