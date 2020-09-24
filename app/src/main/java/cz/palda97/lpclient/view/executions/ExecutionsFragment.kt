@@ -6,11 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
+import cz.palda97.lpclient.model.Execution
+import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
+import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
@@ -54,11 +58,48 @@ class ExecutionsFragment : Fragment() {
             )
         }
 
+        fun setUpExecutionRecycler() {
+            val executionRecycleAdapter = ExecutionRecycleAdapter(
+                { viewExecution(it) },
+                { launchExecution(it) }
+            )
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertExecutionsHere,
+                executionRecycleAdapter,
+                { deleteExecution(it) },
+                requireContext()
+            )
+            viewModel.liveExecutions.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (mail.isOk) {
+                    mail.mailContent!!
+                    executionRecycleAdapter.updateExecutionList(mail.mailContent)
+                    binding.noInstances = mail.mailContent.isEmpty()
+                }
+                binding.mail = mail
+                binding.executePendingBindings()
+            })
+            binding.fastscroll.setRecyclerView(binding.insertExecutionsHere)
+        }
+
         setUpRefreshFab()
         setUpDropDown()
+        setUpExecutionRecycler()
     }
 
     private fun refreshExecutions() {
         viewModel.refreshExecutionsButton()
+    }
+
+    private fun viewExecution(execution: ExecutionV) {
+        TODO()
+    }
+
+    private fun launchExecution(execution: ExecutionV) {
+        TODO()
+    }
+
+    private fun deleteExecution(execution: ExecutionV) {
+        TODO()
     }
 }
