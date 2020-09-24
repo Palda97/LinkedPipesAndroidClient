@@ -1,13 +1,10 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -17,7 +14,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
-import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.model.PipelineView
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShow
