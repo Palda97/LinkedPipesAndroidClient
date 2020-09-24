@@ -75,6 +75,8 @@ class PipelineRepository(
         val mail = downloadPipelineViews(serverList)
         if (mail.isOk) {
             mail.mailContent!!
+            if (mail.mailContent.flatMap { it.pipelineViewList }.isEmpty())
+                liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
             deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
         }
         if (mail.isError)
@@ -85,6 +87,8 @@ class PipelineRepository(
         val mail = downloadPipelineViews(serverInstance)
         if (mail.isOk) {
             mail.mailContent!!
+            if (mail.mailContent.pipelineViewList.isEmpty())
+                liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
             deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList)
         }
         if (mail.isError)
