@@ -20,7 +20,8 @@ object Injector {
         PipelineRepository(db.pipelineViewDao(), db.serverDao())
     }
     val executionRepository: ExecutionRepository by lazy {
-        ExecutionRepository(AppDatabase.getInstance(context).executionDao())
+        val db = AppDatabase.getInstance(context)
+        ExecutionRepository(db.executionDao(), db.serverDao())
     }
 
     fun tag(companion: Any): String =
