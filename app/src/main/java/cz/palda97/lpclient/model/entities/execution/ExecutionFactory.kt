@@ -68,11 +68,18 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
 
             val executionRootMap =
                 executionRoot[0] as? Map<*, *> ?: return Either.Left(
-                    "pipelineRoot is not Map"
+                    "executionRoot is not Map"
                 )
 
             if (CommonFunctions.giveMeThatType(executionRootMap) == LdConstants.TYPE_TOMBSTONE)
                 return Either.Left(LdConstants.TYPE_TOMBSTONE)
+
+            val pipelineRootMap =
+                executionRoot[1] as? Map<*, *> ?: return Either.Left(
+                    "pipelineRoot is not Map"
+                )
+
+            val pipeline = PipelineViewFactory.makePipelineView(pipelineRootMap, server) ?: return Either.Left("included pipeline is broken")
 
             return try {
                 val execution =
@@ -81,12 +88,17 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
                         server
                     )
                         ?: return Either.Left("execution is null")
-                Either.Right(execution)
+                Either.Right(execution.apply {
+                    pipelineName = pipeline.prefLabel
+                })
             }catch (e: NumberFormatException) {
                 Either.Left("number format exception")
             }
         }
 
+        /**
+         * Can throw number format exception!
+         */
         private fun makeExecution(
             map: Map<*, *>,
             server: ServerInstance

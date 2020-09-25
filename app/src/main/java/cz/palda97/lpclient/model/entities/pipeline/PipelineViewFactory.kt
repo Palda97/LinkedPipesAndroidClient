@@ -80,7 +80,7 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
             return Either.Right(pipelineView)
         }
 
-        private fun makePipelineView(
+        fun makePipelineView(
             map: Map<*, *>,
             server: ServerInstance
         ): PipelineView? {
