@@ -16,7 +16,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.model.entities.pipeline.PipelineView
-import cz.palda97.lpclient.view.FABCosmetics.hideOrShow
+import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
@@ -51,14 +51,12 @@ class PipelinesFragment : Fragment() {
         }
 
         fun setUpRefreshFAB() {
-            refreshFab = binding.fabRefresh
-            refreshFab.setOnClickListener {
-                refreshPipelines()
+            refreshFab = binding.fabRefresh.apply {
+                hideOrShowSub(viewModel.livePipelineViews, viewLifecycleOwner)
+                setOnClickListener {
+                    refreshPipelines()
+                }
             }
-            refreshFab.hideOrShow(viewModel.livePipelineViews.value)
-            viewModel.livePipelineViews.observe(viewLifecycleOwner, Observer {
-                refreshFab.hideOrShow(it)
-            })
         }
 
         fun setUpDropDown() {

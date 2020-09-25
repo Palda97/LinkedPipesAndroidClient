@@ -18,6 +18,7 @@ import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 
 class ExecutionsFragment : Fragment() {
 
@@ -43,6 +44,7 @@ class ExecutionsFragment : Fragment() {
     private fun setUpComponents() {
         fun setUpRefreshFab() {
             refreshFab = binding.fabRefresh.apply {
+                hideOrShowSub(viewModel.liveExecutions, viewLifecycleOwner)
                 setOnClickListener {
                     refreshExecutions()
                 }
