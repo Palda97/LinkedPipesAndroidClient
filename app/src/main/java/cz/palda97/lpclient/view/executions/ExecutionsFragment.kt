@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.view.executions
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
@@ -100,5 +102,10 @@ class ExecutionsFragment : Fragment() {
 
     private fun deleteExecution(execution: ExecutionV) {
         TODO()
+    }
+
+    companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
     }
 }
