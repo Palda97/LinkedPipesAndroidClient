@@ -2,36 +2,56 @@ package cz.palda97.lpclient.viewmodel.executions
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
-import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
+import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
+import kotlinx.coroutines.*
 
 class ExecutionsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val executionRepository: ExecutionRepository = Injector.executionRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
 
-    private val executionVList: List<ExecutionV> = listOf(
-        ExecutionV("1", "Home", "random pipeline", "1.8.2020", ExecutionStatus.FINISHED),
-        ExecutionV("2", "Work", "serious pl", "1.9.2020", ExecutionStatus.FINISHED),
-        ExecutionV("3", "Test", "haha", "15.9.2020", ExecutionStatus.RUNNING),
-        ExecutionV("4", "Home", "asdf", "9.6.2020", ExecutionStatus.FAILED),
-        ExecutionV("5", "Home", "my pipeline", "20.9.2020", ExecutionStatus.FINISHED)
-    )
+    private val retrofitScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
-    private val _liveExecutions: MutableLiveData<MailPackage<List<ExecutionV>>> =
-        MutableLiveData(MailPackage(executionVList))
-    val liveExecutions: LiveData<MailPackage<List<ExecutionV>>>
-        get() = _liveExecutions
+    val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
+        executionRepository.liveExecutions.switchMap {
+            liveData(Dispatchers.Default) {
+                emit(MailPackage.loadingPackage())
+                val mail = executionTransformation(it)
+                emit(mail)
+            }
+        }
+
+    private suspend fun executionTransformation(it: MailPackage<List<ServerWithExecutions>>?): MailPackage<List<ExecutionV>> =
+        withContext(Dispatchers.Default) {
+            val mail = it ?: return@withContext MailPackage.loadingPackage<List<ExecutionV>>()
+            return@withContext when(mail.status) {
+                MailPackage.Status.OK -> {
+                    mail.mailContent!!
+                    val list = mail.mailContent.flatMap {serverWithExecutions ->
+                        serverWithExecutions.executionList.filter {
+                            !it.deleted
+                        }.map {
+                            with(it) {
+                                ExecutionV(id, serverWithExecutions.server.name, pipelineName, ExecutionDateParser.toViewFormat(start), status)
+                            }
+                        }
+                    }
+                    MailPackage(list)
+                }
+                MailPackage.Status.ERROR -> MailPackage.brokenPackage<List<ExecutionV>>(mail.msg)
+                MailPackage.Status.LOADING -> MailPackage.loadingPackage<List<ExecutionV>>()
+            }
+        }
 
     private fun onServerToFilterChange() {
-        //TODO
+        executionRepository.onServerToFilterChange()
     }
 
     var serverToFilter: ServerInstance?
@@ -48,8 +68,14 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         serverToFilter = serverInstance
     }
 
+    private suspend fun downloadAllExecutions() {
+        executionRepository.cacheExecutions(serverRepository.activeLiveServers.value?.mailContent)
+    }
+
     fun refreshExecutionsButton() {
-        TODO()
+        retrofitScope.launch {
+            downloadAllExecutions()
+        }
     }
 
     companion object {
