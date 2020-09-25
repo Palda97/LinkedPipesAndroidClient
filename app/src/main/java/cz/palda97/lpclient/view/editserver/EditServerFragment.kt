@@ -10,10 +10,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 
@@ -88,7 +87,13 @@ class EditServerFragment : Fragment() {
         val url: String = binding.url.editText!!.text.toString()
         val notes: String = binding.notes.editText!!.text.toString()
         val active: Boolean = binding.activeSwitch.isChecked
-        val tmpInstance = ServerInstance(name, url, active, notes)
+        val tmpInstance =
+            ServerInstance(
+                name,
+                url,
+                active,
+                notes
+            )
         viewModel.tmpServer = tmpInstance
     }
 

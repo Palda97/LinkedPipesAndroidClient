@@ -1,5 +1,7 @@
 package cz.palda97.lpclient.model
 
+import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -8,28 +10,43 @@ class ExecutionFactoryTest {
 
     @Test
     fun parseExecutions() {
-        val executions = ExecutionFactory(SERVER, EXECUTIONS).serverWithPipelineViews
+        val executions = ExecutionFactory(
+            SERVER,
+            EXECUTIONS
+        ).serverWithPipelineViews
         assertTrue(executions.isOk)
         assertEquals(2, executions.mailContent!!.executionList.size)
     }
 
     @Test
     fun parseTomb() {
-        val executions = ExecutionFactory(SERVER, TOMBSTONE).serverWithPipelineViews
+        val executions = ExecutionFactory(
+            SERVER,
+            TOMBSTONE
+        ).serverWithPipelineViews
         assertTrue(executions.isOk)
         assertEquals(0, executions.mailContent!!.executionList.size)
     }
 
     @Test
     fun parseTombAndExecution() {
-        val executions = ExecutionFactory(SERVER, TOMBSTONE_AND_ONE_EXECUTION).serverWithPipelineViews
+        val executions = ExecutionFactory(
+            SERVER,
+            TOMBSTONE_AND_ONE_EXECUTION
+        ).serverWithPipelineViews
         assertTrue(executions.isOk)
         assertEquals(1, executions.mailContent!!.executionList.size)
     }
 
     companion object {
 
-        private val SERVER = ServerInstance("Test server", "http://example.com", true, "")
+        private val SERVER =
+            ServerInstance(
+                "Test server",
+                "http://example.com",
+                true,
+                ""
+            )
 
         private const val TOMBSTONE_AND_ONE_EXECUTION = "[\n" +
                 "    {\n" +

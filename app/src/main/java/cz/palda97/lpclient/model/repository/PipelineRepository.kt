@@ -8,9 +8,12 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
+import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
+import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import kotlinx.coroutines.delay
 import java.io.IOException
 
 class PipelineRepository(

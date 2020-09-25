@@ -1,7 +1,7 @@
 package cz.palda97.lpclient.model.db
 
 import androidx.room.TypeConverter
-import cz.palda97.lpclient.model.ExecutionStatus
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import java.util.*
 
 class Converters {

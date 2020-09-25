@@ -7,9 +7,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
-import java.util.*
 
 class ExecutionsViewModel(application: Application) : AndroidViewModel(application) {
 

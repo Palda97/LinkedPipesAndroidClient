@@ -13,7 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics

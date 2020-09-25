@@ -1,7 +1,10 @@
-package cz.palda97.lpclient.model
+package cz.palda97.lpclient.model.entities.pipeline
 
 import android.util.Log
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.Either
+import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
@@ -27,14 +30,17 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
             string: String?
         ): MailPackage<ServerWithPipelineViews> {
             return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(res.value)
+                is Either.Left -> MailPackage.brokenPackage(
+                    res.value
+                )
                 is Either.Right -> {
                     val list = mutableListOf<PipelineView>()
                     res.value.forEach {
-                        val resPipe = parsePipelineView(
-                            it,
-                            server
-                        )
+                        val resPipe =
+                            parsePipelineView(
+                                it,
+                                server
+                            )
                         if (resPipe is Either.Right)
                             list.add(resPipe.value)
                         else
@@ -42,7 +48,12 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
                                 "some pipelineView is null"
                             )
                     }
-                    MailPackage(ServerWithPipelineViews(server, list))
+                    MailPackage(
+                        ServerWithPipelineViews(
+                            server,
+                            list
+                        )
+                    )
                 }
             }
         }
@@ -75,7 +86,11 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
         ): PipelineView? {
             val id = giveMeThatId(map) ?: return null
             val prefLabel = giveMeThatString(map, PREF_LABEL, VALUE) ?: return null
-            return PipelineView(prefLabel, id, server.id)
+            return PipelineView(
+                prefLabel,
+                id,
+                server.id
+            )
         }
     }
 }

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.AdapterWithList
 
 class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :

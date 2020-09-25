@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 object ServerDropDownMagic {

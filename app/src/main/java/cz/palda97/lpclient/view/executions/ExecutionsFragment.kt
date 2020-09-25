@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
-import cz.palda97.lpclient.model.Execution
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV

@@ -1,14 +1,19 @@
-package cz.palda97.lpclient.model
+package cz.palda97.lpclient.model.entities.execution
 
 import android.util.Log
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.lang.NumberFormatException
 
 class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecutions>) {
     constructor(server: ServerInstance, string: String?) : this(
-        fromJson(server, string)
+        fromJson(
+            server,
+            string
+        )
     )
 
     companion object {
@@ -20,15 +25,18 @@ class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecut
             string: String?
         ): MailPackage<ServerWithExecutions> {
             return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(res.value)
+                is Either.Left -> MailPackage.brokenPackage(
+                    res.value
+                )
                 is Either.Right -> {
                     val list = mutableListOf<Execution>()
                     res.value.forEachIndexed { index, it ->
                         if (index != 0) {
-                            val resExe = parseExecution(
-                                it,
-                                server
-                            )
+                            val resExe =
+                                parseExecution(
+                                    it,
+                                    server
+                                )
                             if (resExe is Either.Right) {
                                 list.add(resExe.value)
                             }
@@ -40,7 +48,12 @@ class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecut
                             }
                         }
                     }
-                    MailPackage(ServerWithExecutions(server, list))
+                    MailPackage(
+                        ServerWithExecutions(
+                            server,
+                            list
+                        )
+                    )
                 }
             }
         }
@@ -65,7 +78,8 @@ class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecut
                     makeExecution(
                         executionRootMap,
                         server
-                    ) ?: return Either.Left( "execution is null")
+                    )
+                        ?: return Either.Left("execution is null")
                 Either.Right(execution)
             }catch (e: NumberFormatException) {
                 Either.Left("number format exception")
@@ -99,7 +113,9 @@ class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecut
                 size.toLong(),
                 DateParser.toDate(start) ?: return null,
                 pipeline,
-                executionStatusFromString(status) ?: return null,
+                executionStatusFromString(
+                    status
+                ) ?: return null,
                 server.id
             )
         }

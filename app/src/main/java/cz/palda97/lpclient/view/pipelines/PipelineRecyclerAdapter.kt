@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.model.PipelineView
+import cz.palda97.lpclient.model.entities.pipeline.PipelineView
 import cz.palda97.lpclient.view.AdapterWithList
 
 class PipelineRecyclerAdapter(

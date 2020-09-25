@@ -1,7 +1,7 @@
 package cz.palda97.lpclient.viewmodel.executions
 
-import cz.palda97.lpclient.model.Execution
-import cz.palda97.lpclient.model.ExecutionStatus
+import cz.palda97.lpclient.model.entities.execution.Execution
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 
 data class ExecutionV(
     val id: String,

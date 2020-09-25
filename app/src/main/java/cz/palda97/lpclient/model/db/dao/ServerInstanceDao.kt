@@ -2,9 +2,9 @@ package cz.palda97.lpclient.model.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import cz.palda97.lpclient.model.ServerInstance
-import cz.palda97.lpclient.model.ServerWithExecutions
-import cz.palda97.lpclient.model.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
+import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 
 @Dao
 abstract class ServerInstanceDao {

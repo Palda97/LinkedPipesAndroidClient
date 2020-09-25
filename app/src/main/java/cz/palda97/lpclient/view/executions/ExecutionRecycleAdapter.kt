@@ -9,8 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineMetaBinding
-import cz.palda97.lpclient.model.DateParser
-import cz.palda97.lpclient.model.Execution
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 

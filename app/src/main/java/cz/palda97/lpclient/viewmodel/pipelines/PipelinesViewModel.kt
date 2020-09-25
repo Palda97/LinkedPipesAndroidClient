@@ -5,6 +5,9 @@ import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
