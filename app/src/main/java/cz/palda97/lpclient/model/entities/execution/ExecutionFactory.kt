@@ -3,12 +3,13 @@ package cz.palda97.lpclient.model.entities.execution
 import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.lang.NumberFormatException
 
-class ExecutionFactory(val serverWithPipelineViews: MailPackage<ServerWithExecutions>) {
+class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecutions>) {
     constructor(server: ServerInstance, string: String?) : this(
         fromJson(
             server,

@@ -13,7 +13,7 @@ class ExecutionFactoryTest {
         val executions = ExecutionFactory(
             SERVER,
             EXECUTIONS
-        ).serverWithPipelineViews
+        ).serverWithExecutions
         assertTrue(executions.isOk)
         assertEquals(2, executions.mailContent!!.executionList.size)
     }
@@ -23,7 +23,7 @@ class ExecutionFactoryTest {
         val executions = ExecutionFactory(
             SERVER,
             TOMBSTONE
-        ).serverWithPipelineViews
+        ).serverWithExecutions
         assertTrue(executions.isOk)
         assertEquals(0, executions.mailContent!!.executionList.size)
     }
@@ -33,7 +33,7 @@ class ExecutionFactoryTest {
         val executions = ExecutionFactory(
             SERVER,
             TOMBSTONE_AND_ONE_EXECUTION
-        ).serverWithPipelineViews
+        ).serverWithExecutions
         assertTrue(executions.isOk)
         assertEquals(1, executions.mailContent!!.executionList.size)
     }
