@@ -26,8 +26,8 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
             server: ServerInstance,
             string: String?
         ): MailPackage<ServerWithPipelineViews> {
-            when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> return MailPackage.brokenPackage(res.value)
+            return when (val res = CommonFunctions.getRootArrayList(string)) {
+                is Either.Left -> MailPackage.brokenPackage(res.value)
                 is Either.Right -> {
                     val list = mutableListOf<PipelineView>()
                     res.value.forEach {
@@ -42,7 +42,7 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
                                 "some pipelineView is null"
                             )
                     }
-                    return MailPackage(ServerWithPipelineViews(server, list))
+                    MailPackage(ServerWithPipelineViews(server, list))
                 }
             }
         }
