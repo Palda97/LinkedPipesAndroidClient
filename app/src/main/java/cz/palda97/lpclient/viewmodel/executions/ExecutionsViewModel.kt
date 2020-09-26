@@ -22,7 +22,6 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
         executionRepository.liveExecutions.switchMap {
             liveData(Dispatchers.Default) {
-                emit(MailPackage.loadingPackage())
                 val mail = executionTransformation(it)
                 emit(mail)
             }
@@ -31,10 +30,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     private suspend fun executionTransformation(it: MailPackage<List<ServerWithExecutions>>?): MailPackage<List<ExecutionV>> =
         withContext(Dispatchers.Default) {
             val mail = it ?: return@withContext MailPackage.loadingPackage<List<ExecutionV>>()
-            return@withContext when(mail.status) {
+            return@withContext when (mail.status) {
                 MailPackage.Status.OK -> {
                     mail.mailContent!!
-                    val list = mail.mailContent.flatMap {serverWithExecutions ->
+                    val list = mail.mailContent.flatMap { serverWithExecutions ->
                         serverWithExecutions.executionList.filter {
                             !it.deleted
                         }.map {
@@ -42,6 +41,8 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                             /*with(it) {
                                 ExecutionV(id, serverWithExecutions.server.name, pipelineName, ExecutionDateParser.toViewFormat(start), status)
                             }*/
+                        }.sortedByDescending {
+                            it.id
                         }
                     }
                     MailPackage(list)
@@ -70,7 +71,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private suspend fun downloadAllExecutions() {
-        executionRepository.cacheExecutions(serverRepository.activeLiveServers.value?.mailContent)
+        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
     }
 
     fun refreshExecutionsButton() {

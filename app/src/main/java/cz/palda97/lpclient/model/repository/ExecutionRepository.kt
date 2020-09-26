@@ -30,9 +30,10 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
 
     private val dbMirror = serverDao.activeServerListWithExecutions()
 
-    private val filteredLiveExecutions: LiveData<MailPackage<List<ServerWithExecutions>>> = Transformations.map(dbMirror) {
-        return@map executionFilterTransformation(it)
-    }
+    private val filteredLiveExecutions: LiveData<MailPackage<List<ServerWithExecutions>>> =
+        Transformations.map(dbMirror) {
+            return@map executionFilterTransformation(it)
+        }
 
     private val mediator = MediatorLiveData<MailPackage<List<ServerWithExecutions>>>().apply {
         addSource(filteredLiveExecutions) {
@@ -60,7 +61,7 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
         }
 
     private suspend fun downloadExecutions(server: ServerInstance): MailPackage<ServerWithExecutions> {
-        val retrofit = when(val res = getExecutionRetrofit(server)) {
+        val retrofit = when (val res = getExecutionRetrofit(server)) {
             is Either.Left -> return MailPackage.brokenPackage(res.value.name)
             is Either.Right -> res.value
         }
@@ -89,7 +90,7 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
         executionDao.renewal(list)
     }
 
-    suspend fun cacheExecutions(server: ServerInstance) {
+    private suspend fun cacheExecutions(server: ServerInstance) {
         val mail = downloadExecutions(server)
         if (mail.isOk) {
             val list = mail.mailContent!!.executionList
@@ -99,7 +100,7 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    suspend fun cacheExecutions(serverList: List<ServerInstance>?) {
+    private suspend fun cacheExecutions(serverList: List<ServerInstance>?) {
         val mail = downloadExecutions(serverList)
         if (mail.isOk) {
             val list = mail.mailContent!!.flatMap { it.executionList }
@@ -109,6 +110,13 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
+    suspend fun cacheExecutions(either: Either<ServerInstance, List<ServerInstance>?>) {
+        mediator.postValue(MailPackage.loadingPackage())
+        return when (either) {
+            is Either.Left -> cacheExecutions(either.value)
+            is Either.Right -> cacheExecutions(either.value)
+        }
+    }
 
 
     companion object {
