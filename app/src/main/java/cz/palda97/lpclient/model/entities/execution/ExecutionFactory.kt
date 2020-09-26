@@ -103,28 +103,30 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             map: Map<*, *>,
             server: ServerInstance
         ): Execution? {
+            l("makeExecution")
             val id = CommonFunctions.giveMeThatId(map) ?: return null
-            val componentExecuted = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_EXECUTED, LdConstants.VALUE) ?: return null
-            val componentFinished = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_FINISHED, LdConstants.VALUE) ?: return null
-            val componentMapped = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_MAPPED, LdConstants.VALUE) ?: return null
-            val componentToExecute = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_TO_EXECUTE, LdConstants.VALUE) ?: return null
-            val componentToMap = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_TO_MAP, LdConstants.VALUE) ?: return null
-            val end = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_END, LdConstants.VALUE) ?: return null
-            val size = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_SIZE, LdConstants.VALUE) ?: return null
-            val start = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_START, LdConstants.VALUE) ?: return null
+            val componentExecuted = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_EXECUTED, LdConstants.VALUE)
+            val componentFinished = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_FINISHED, LdConstants.VALUE)
+            val componentMapped = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_MAPPED, LdConstants.VALUE)
+            val componentToExecute = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_TO_EXECUTE, LdConstants.VALUE)
+            val componentToMap = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_TO_MAP, LdConstants.VALUE)
+            val end = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_END, LdConstants.VALUE)
+            val size = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_SIZE, LdConstants.VALUE)
+            val start = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_START, LdConstants.VALUE)
             val pipeline = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_PIPELINE, LdConstants.ID) ?: return null
             val status = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_STATUS, LdConstants.ID) ?: return null
 
+            l(status)
             return Execution(
                 id,
-                componentExecuted.toInt(),
-                componentFinished.toInt(),
-                componentMapped.toInt(),
-                componentToExecute.toInt(),
-                componentToMap.toInt(),
-                DateParser.toDate(end) ?: return null,
-                size.toLong(),
-                DateParser.toDate(start) ?: return null,
+                componentExecuted?.toInt(),
+                componentFinished?.toInt(),
+                componentMapped?.toInt(),
+                componentToExecute?.toInt(),
+                componentToMap?.toInt(),
+                DateParser.toDate(end),
+                size?.toLong(),
+                DateParser.toDate(start),
                 pipeline,
                 executionStatusFromString(
                     status
@@ -137,6 +139,8 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
             LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED
             LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING
+            LdConstants.EXECUTION_STATUS_CANCELLED -> ExecutionStatus.CANCELLED
+            LdConstants.EXECUTION_STATUS_DANGLING -> ExecutionStatus.DANGLING
             else -> null
         }
     }

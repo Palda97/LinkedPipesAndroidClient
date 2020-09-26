@@ -38,9 +38,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                         serverWithExecutions.executionList.filter {
                             !it.deleted
                         }.map {
-                            with(it) {
+                            ExecutionV(it)
+                            /*with(it) {
                                 ExecutionV(id, serverWithExecutions.server.name, pipelineName, ExecutionDateParser.toViewFormat(start), status)
-                            }
+                            }*/
                         }
                     }
                     MailPackage(list)

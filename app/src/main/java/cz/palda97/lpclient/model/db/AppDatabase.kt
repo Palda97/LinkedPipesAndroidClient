@@ -15,7 +15,7 @@ import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 /**
  * Application database implemented with Room
  */
-@Database(entities = [ServerInstance::class, PipelineView::class, Execution::class], version = 5, exportSchema = true)
+@Database(entities = [ServerInstance::class, PipelineView::class, Execution::class], version = 6, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
