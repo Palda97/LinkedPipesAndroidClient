@@ -95,7 +95,7 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun viewExecution(execution: ExecutionV) {
-        TODO()
+        l("view ${execution.id}")
     }
 
     private fun launchExecution(execution: ExecutionV) {

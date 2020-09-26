@@ -27,8 +27,8 @@ object ServerDropDownMagic {
                 return@Observer
             mail.mailContent!!
             adapter.clear()
-            //adapter.add("")
             adapter.addAll(mail.mailContent.map(ServerInstance::name))
+            adapter.add("")
             adapter.notifyDataSetChanged()
             setAdapter(adapter)
         })
@@ -50,6 +50,9 @@ object ServerDropDownMagic {
         })
         serverToFilter?.let {
             setText(it.name)
+        }
+        setOnItemClickListener { _, _, _, _ ->
+            clearFocus()
         }
     }
 }
