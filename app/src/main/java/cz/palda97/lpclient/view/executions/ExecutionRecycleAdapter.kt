@@ -80,6 +80,7 @@ class ExecutionRecycleAdapter(
     override fun onBindViewHolder(holder: ExecutionViewHolder, position: Int) {
         val execution = executionList!![position]
 
+        holder.binding.imageView.setImageResource(execution.status)
         holder.binding.upperText = execution.pipelineName
         holder.binding.bottomText = execution.serverName
         holder.binding.metaText = execution.start

@@ -1,14 +1,13 @@
 package cz.palda97.lpclient.viewmodel.executions
 
 import cz.palda97.lpclient.model.entities.execution.Execution
-import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 
 data class ExecutionV(
     val id: String,
     val serverName: String,
     val pipelineName: String,
     val start: String?,
-    val status: ExecutionStatus
+    val status: Int
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -30,6 +29,6 @@ data class ExecutionV(
         execution.serverName,
         execution.pipelineName,
         ExecutionDateParser.toViewFormat(execution.start),
-        execution.status
+        execution.status.resource
     )
 }
