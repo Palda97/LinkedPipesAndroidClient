@@ -27,8 +27,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         pipelineRepository.liveServersWithPipelineViews.switchMap {
             l("switchMap")
             liveData(Dispatchers.Default) {
-                emit(MailPackage.loadingPackage())
-                //delay(2000)
                 val mail = pipelineViewTransform(it)
                 emit(mail)
                 l("switchMap end")
@@ -87,6 +85,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 onServerToFilterChange()
             }
         }
+
     fun setServerToFilterFun(serverInstance: ServerInstance?) {
         serverToFilter = serverInstance
     }

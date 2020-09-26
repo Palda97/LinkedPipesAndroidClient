@@ -8,20 +8,21 @@ import java.util.*
 @Entity
 data class Execution(
     @PrimaryKey(autoGenerate = false) val id: String,
-    val componentExecuted: Int,
-    val componentFinished: Int,
-    val componentMapped: Int,
-    val componentToExecute: Int,
-    val componentToMap: Int,
-    val end: Date,
-    val size: Long,
-    val start: Date,
-    val pipelineId: String,
+    val componentExecuted: Int?,
+    val componentFinished: Int?,
+    val componentMapped: Int?,
+    val componentToExecute: Int?,
+    val componentToMap: Int?,
+    val end: Date?,
+    val size: Long?,
+    val start: Date?,
     val status: ExecutionStatus,
     val serverId: Long
 ) {
     @Ignore
     var serverName: String = ""
+
+    var pipelineId: String = ""
 
     var pipelineName: String = ""
 
@@ -49,5 +50,5 @@ data class Execution(
 }
 
 enum class ExecutionStatus {
-    FINISHED, FAILED, RUNNING
+    FINISHED, FAILED, RUNNING, CANCELLED, DANGLING
 }

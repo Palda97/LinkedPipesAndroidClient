@@ -7,7 +7,7 @@ data class ExecutionV(
     val id: String,
     val serverName: String,
     val pipelineName: String,
-    val start: String,
+    val start: String?,
     val status: ExecutionStatus
 ) {
     override fun equals(other: Any?): Boolean {

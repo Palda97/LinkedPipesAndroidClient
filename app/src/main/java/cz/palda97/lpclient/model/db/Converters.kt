@@ -22,6 +22,8 @@ class Converters {
                 ExecutionStatus.FAILED -> 0
                 ExecutionStatus.FINISHED -> 1
                 ExecutionStatus.RUNNING -> 2
+                ExecutionStatus.CANCELLED -> 3
+                ExecutionStatus.DANGLING -> 4
             }
         }
     }
@@ -33,6 +35,8 @@ class Converters {
                 0 -> ExecutionStatus.FAILED
                 1 -> ExecutionStatus.FINISHED
                 2 -> ExecutionStatus.RUNNING
+                3 -> ExecutionStatus.CANCELLED
+                4 -> ExecutionStatus.DANGLING
                 else -> null
             }
         }
