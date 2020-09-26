@@ -42,10 +42,15 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
                                 list.add(resExe.value)
                             }
                             else {
-                                if (resExe is Either.Left && resExe.value != LdConstants.TYPE_TOMBSTONE)
+                                if (resExe is Either.Left && resExe.value != LdConstants.TYPE_TOMBSTONE) {
+                                    if (resExe.value == "execution is null") {
+                                        l("hh")
+                                    }
                                     return MailPackage.brokenPackage(
-                                        "some execution is null"
+                                        //"some execution is null"
+                                        resExe.value
                                     )
+                                }
                             }
                         }
                     }
@@ -89,6 +94,7 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
                     )
                         ?: return Either.Left("execution is null")
                 Either.Right(execution.apply {
+                    pipelineId = pipeline.id
                     pipelineName = pipeline.prefLabel
                 })
             }catch (e: NumberFormatException) {
@@ -113,7 +119,7 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             val end = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_END, LdConstants.VALUE)
             val size = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_SIZE, LdConstants.VALUE)
             val start = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_START, LdConstants.VALUE)
-            val pipeline = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_PIPELINE, LdConstants.ID) ?: return null
+            //val pipeline = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_PIPELINE, LdConstants.ID) ?: return null
             val status = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_STATUS, LdConstants.ID) ?: return null
 
             l(status)
@@ -127,7 +133,6 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
                 DateParser.toDate(end),
                 size?.toLong(),
                 DateParser.toDate(start),
-                pipeline,
                 executionStatusFromString(
                     status
                 ) ?: return null,

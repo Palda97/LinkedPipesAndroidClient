@@ -16,12 +16,13 @@ data class Execution(
     val end: Date?,
     val size: Long?,
     val start: Date?,
-    val pipelineId: String,
     val status: ExecutionStatus,
     val serverId: Long
 ) {
     @Ignore
     var serverName: String = ""
+
+    var pipelineId: String = ""
 
     var pipelineName: String = ""
 
