@@ -109,7 +109,6 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             map: Map<*, *>,
             server: ServerInstance
         ): Execution? {
-            l("makeExecution")
             val id = CommonFunctions.giveMeThatId(map) ?: return null
             val componentExecuted = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_EXECUTED, LdConstants.VALUE)
             val componentFinished = CommonFunctions.giveMeThatString(map, LdConstants.COMPONENT_FINISHED, LdConstants.VALUE)
@@ -122,7 +121,6 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             //val pipeline = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_PIPELINE, LdConstants.ID) ?: return null
             val status = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_STATUS, LdConstants.ID) ?: return null
 
-            l(status)
             return Execution(
                 id,
                 componentExecuted?.toInt(),

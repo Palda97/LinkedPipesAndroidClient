@@ -37,7 +37,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                         serverWithExecutions.executionList.filter {
                             !it.deleted
                         }.map {
-                            ExecutionV(it)
+                            ExecutionV(it.apply {
+                                serverName = serverWithExecutions.server.name
+                            })
                             /*with(it) {
                                 ExecutionV(id, serverWithExecutions.server.name, pipelineName, ExecutionDateParser.toViewFormat(start), status)
                             }*/
