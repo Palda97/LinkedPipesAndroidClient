@@ -15,8 +15,12 @@ import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 
-class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInstanceDao) {
+class ExecutionRepository(
+    private val executionDao: ExecutionDao,
+    private val serverDao: ServerInstanceDao
+) {
 
     private fun executionFilterTransformation(it: List<ServerWithExecutions>?): MailPackage<List<ServerWithExecutions>> {
         if (it == null)
@@ -49,7 +53,7 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
     }
 
     enum class StatusCode {
-        NO_CONNECT
+        NO_CONNECT, SERVER_ID_INVALID, NOT_FOUND_ON_SERVER, OK, ERROR
     }
 
     private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
@@ -118,6 +122,36 @@ class ExecutionRepository(val executionDao: ExecutionDao, serverDao: ServerInsta
         }
     }
 
+    suspend fun markForDeletion(execution: ExecutionV) {
+        executionDao.markForDeletion(execution.id)
+    }
+
+    suspend fun find(execution: ExecutionV): Execution? = executionDao.findById(execution.id)
+
+    suspend fun deleteExecution(execution: Execution): StatusCode {
+        val server = serverDao.findById(execution.serverId) ?: return StatusCode.SERVER_ID_INVALID
+        val retrofit = when (val res = getExecutionRetrofit(server)) {
+            is Either.Left -> return res.value
+            is Either.Right -> res.value
+        }
+        val call = retrofit.delete(execution.idNumber)
+        val text = RetrofitHelper.getStringFromCall(call)
+        if (text == null) {
+            //Not found on server
+            executionDao.delete(execution)
+            return StatusCode.NOT_FOUND_ON_SERVER
+        }
+        if (text.isEmpty()) {
+            //Success
+            executionDao.delete(execution)
+            return StatusCode.OK
+        }
+        return StatusCode.ERROR
+    }
+
+    suspend fun unMarkForDeletion(execution: ExecutionV) {
+        executionDao.unMarkForDeletion(execution.id)
+    }
 
     companion object {
         private val TAG = Injector.tag(this)

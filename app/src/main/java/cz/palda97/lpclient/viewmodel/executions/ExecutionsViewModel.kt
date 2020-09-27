@@ -18,6 +18,8 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
+    private val dbScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
     val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
         executionRepository.liveExecutions.switchMap {
@@ -40,9 +42,6 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                             ExecutionV(it.apply {
                                 serverName = serverWithExecutions.server.name
                             })
-                            /*with(it) {
-                                ExecutionV(id, serverWithExecutions.server.name, pipelineName, ExecutionDateParser.toViewFormat(start), status)
-                            }*/
                         }.sortedByDescending {
                             it.id
                         }
@@ -82,8 +81,30 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    private suspend fun deleteRoutine(executionV: ExecutionV) {
+        executionRepository.markForDeletion(executionV)
+        delay(DELETE_DELAY)
+        val execution = executionRepository.find(executionV) ?: return
+        if (execution.deleted) {
+            executionRepository.deleteExecution(execution)
+        }
+    }
+
+    fun deleteExecution(executionV: ExecutionV) {
+        retrofitScope.launch {
+            deleteRoutine(executionV)
+        }
+    }
+
+    fun cancelDeletion(execution: ExecutionV) {
+        dbScope.launch {
+            executionRepository.unMarkForDeletion(execution)
+        }
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
+        private const val DELETE_DELAY: Long = 5000L
     }
 }

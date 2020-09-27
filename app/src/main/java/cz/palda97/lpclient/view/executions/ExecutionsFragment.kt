@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
@@ -103,7 +104,17 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun deleteExecution(execution: ExecutionV) {
-        TODO()
+        viewModel.deleteExecution(execution)
+        Snackbar.make(
+            binding.root,
+            "${execution.pipelineName} ${getString(R.string.has_been_deleted)}",
+            Snackbar.LENGTH_LONG
+        )
+            .setAnchorView(refreshFab)
+            .setAction(getString(R.string.undo)) {
+                viewModel.cancelDeletion(execution)
+            }
+            .show()
     }
 
     companion object {
