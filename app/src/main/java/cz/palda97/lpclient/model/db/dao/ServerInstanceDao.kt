@@ -2,8 +2,9 @@ package cz.palda97.lpclient.model.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import cz.palda97.lpclient.model.ServerInstance
-import cz.palda97.lpclient.model.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
+import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 
 @Dao
 abstract class ServerInstanceDao {
@@ -32,13 +33,17 @@ abstract class ServerInstanceDao {
     ): List<ServerInstance>
 
     @Transaction
-    @Query("select * from serverinstance")
+    @Query("select * from serverinstance order by id asc")
     abstract fun serverListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
 
     @Transaction
-    @Query("select * from serverinstance where active = 1")
+    @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServerListWithPipelineViews(): LiveData<List<ServerWithPipelineViews>>
 
     @Query("select * from serverinstance where id = :id")
     abstract fun findById(id: Long): ServerInstance?
+
+    @Transaction
+    @Query("select * from serverinstance where active = 1 order by id asc")
+    abstract fun activeServerListWithExecutions(): LiveData<List<ServerWithExecutions>>
 }

@@ -1,0 +1,129 @@
+package cz.palda97.lpclient.viewmodel.executions
+
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.*
+import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
+import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.repository.ExecutionRepository
+import cz.palda97.lpclient.model.repository.ServerRepository
+import kotlinx.coroutines.*
+
+class ExecutionsViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val executionRepository: ExecutionRepository = Injector.executionRepository
+    private val serverRepository: ServerRepository = Injector.serverRepository
+
+    private val retrofitScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
+    private val dbScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
+
+    private var lastSilent: Boolean = false
+
+    val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
+        executionRepository.liveExecutions.switchMap {
+            liveData(Dispatchers.Default) {
+                l("update: ${it.status.name}")
+                val mail = executionTransformation(it)
+                lastSilent = false
+                emit(mail)
+            }
+        }
+
+    private suspend fun executionTransformation(it: MailPackage<List<ServerWithExecutions>>?): MailPackage<List<ExecutionV>> =
+        withContext(Dispatchers.Default) {
+            val mail = it ?: return@withContext MailPackage.loadingPackage<List<ExecutionV>>()
+            return@withContext when (mail.status) {
+                MailPackage.Status.OK -> {
+                    mail.mailContent!!
+                    val list = mail.mailContent.flatMap { serverWithExecutions ->
+                        serverWithExecutions.executionList.filter {
+                            !it.deleted
+                        }.map {
+                            ExecutionV(it.apply {
+                                serverName = serverWithExecutions.server.name
+                            })
+                        }.sortedByDescending {
+                            it.id
+                        }
+                    }
+                    MailPackage(
+                        list,
+                        MailPackage.Status.OK,
+                        if (lastSilent)
+                            SCROLL
+                        else
+                            ""
+                    )
+                }
+                MailPackage.Status.ERROR -> MailPackage.brokenPackage<List<ExecutionV>>(mail.msg)
+                MailPackage.Status.LOADING -> MailPackage.loadingPackage<List<ExecutionV>>()
+            }
+        }
+
+    private fun onServerToFilterChange() {
+        executionRepository.onServerToFilterChange()
+    }
+
+    var serverToFilter: ServerInstance?
+        get() = serverRepository.serverToFilter
+        private set(value) {
+            val changed = value != serverRepository.serverToFilter
+            serverRepository.serverToFilter = value
+            if (changed) {
+                onServerToFilterChange()
+            }
+        }
+
+    fun setServerToFilterFun(serverInstance: ServerInstance?) {
+        serverToFilter = serverInstance
+    }
+
+    private suspend fun downloadAllExecutions(silent: Boolean = false) {
+        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
+    }
+
+    fun refreshExecutionsButton() {
+        retrofitScope.launch {
+            downloadAllExecutions()
+        }
+    }
+
+    private suspend fun deleteRoutine(executionV: ExecutionV) {
+        executionRepository.markForDeletion(executionV)
+        delay(DELETE_DELAY)
+        val execution = executionRepository.find(executionV) ?: return
+        if (execution.deleted) {
+            executionRepository.deleteExecution(execution)
+        }
+    }
+
+    fun deleteExecution(executionV: ExecutionV) {
+        retrofitScope.launch {
+            deleteRoutine(executionV)
+        }
+    }
+
+    fun cancelDeletion(execution: ExecutionV) {
+        dbScope.launch {
+            executionRepository.unMarkForDeletion(execution)
+        }
+    }
+
+    fun silentRefresh() {
+        lastSilent = true
+        retrofitScope.launch {
+            downloadAllExecutions(true)
+        }
+    }
+
+    companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
+        private const val DELETE_DELAY: Long = 5000L
+        const val SCROLL = "SCROLL"
+    }
+}

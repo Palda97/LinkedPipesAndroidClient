@@ -55,15 +55,21 @@
                     android:id="@+id/insert_pipelines_here"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:nestedScrollingEnabled="true"
                     android:visibility="@{noInstances ? View.GONE : View.VISIBLE}"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <com.futuremind.recyclerviewfastscroll.FastScroller
+                    android:id="@+id/fastscroll"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="@string/no_server_instances"
+                    android:text="@string/no_pipelines"
                     android:visibility="@{noInstances ? View.VISIBLE : View.GONE}" />
             </RelativeLayout>
 
@@ -122,6 +128,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|start"
+            android:visibility="gone"
             app:layout_anchor="@id/gap"
             app:layout_anchorGravity="start"
             app:srcCompat="@drawable/ic_baseline_refresh_24" />

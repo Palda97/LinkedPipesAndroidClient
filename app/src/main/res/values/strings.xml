@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LinkedPipesAndroidClient</string>
+    <string name="app_name">ETL Client</string>
     <string name="title_executions">Executions</string>
     <string name="title_pipelines">Pipelines</string>
     <string name="title_settings">Settings</string>
@@ -18,6 +18,7 @@
     <string name="save_status_empty_name">Name can\'t be empty!</string>
     <string name="save_status_empty_url">Url can\'t be empty!</string>
     <string name="no_server_instances">There are no server instances.</string>
+    <string name="no_pipelines">There are no pipelines.</string>
     <string name="has_been_deleted">has been deleted</string>
     <string name="undo">UNDO</string>
     <string name="pipeline_not_found">Pipeline not found!</string>
@@ -27,4 +28,5 @@
     <string name="server_side_error">Server side error!</string>
     <string name="successfully_launched">Successfully launched.</string>
     <string name="problem_with_protocol">Problem with protocol!</string>
+    <string name="no_executions">There are no executions.</string>
 </resources>

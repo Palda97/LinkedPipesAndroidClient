@@ -1,13 +1,10 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -17,11 +14,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
-import cz.palda97.lpclient.model.ServerInstance
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
-import cz.palda97.lpclient.model.PipelineView
+import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 
 class PipelinesFragment : Fragment() {
 
@@ -41,12 +39,7 @@ class PipelinesFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
         settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtons()
         return root
-    }
-
-    private fun tmpButtons() {
-        //
     }
 
     private fun setUpComponents() {
@@ -58,47 +51,22 @@ class PipelinesFragment : Fragment() {
         }
 
         fun setUpRefreshFAB() {
-            refreshFab = binding.fabRefresh
-            refreshFab.setOnClickListener {
-                refreshPipelines()
+            refreshFab = binding.fabRefresh.apply {
+                hideOrShowSub(viewModel.livePipelineViews, viewLifecycleOwner)
+                setOnClickListener {
+                    refreshPipelines()
+                }
             }
         }
 
         fun setUpDropDown() {
-            val adapter = ArrayAdapter<String>(requireContext(), R.layout.dropdown_item_text_view)
-            settingsViewModel.activeLiveServers.observe(viewLifecycleOwner, Observer {
-                val mail = it ?: return@Observer
-                if (!mail.isOk)
-                    return@Observer
-                mail.mailContent!!
-                adapter.clear()
-                //adapter.add("")
-                adapter.addAll(mail.mailContent.map(ServerInstance::name))
-                mail.mailContent.forEach { l(it.toString()) }
-                divLog()
-                adapter.notifyDataSetChanged()
-                binding.serverInstanceDropDown.setAdapter(adapter)
-            })
-            binding.serverInstanceDropDown.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    val server = settingsViewModel.findServerByName(s.toString())
-                    l("selected server: ${server?.name}")
-                    viewModel.serverToFilter = server
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
-            viewModel.serverToFilter?.let {
-                binding.serverInstanceDropDown.setText(it.name)
-            }
+            binding.serverInstanceDropDown.setUpWithServers(
+                requireContext(),
+                settingsViewModel,
+                viewLifecycleOwner,
+                { viewModel.setServerToFilterFun(it) },
+                viewModel.serverToFilter
+            )
         }
 
         fun setUpPipelineRecycler() {
@@ -106,7 +74,12 @@ class PipelinesFragment : Fragment() {
                 { editPipeline(it) },
                 { launchPipeline(it) }
             )
-            binding.insertPipelinesHere.adapter = pipelineRecyclerAdapter
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertPipelinesHere,
+                pipelineRecyclerAdapter,
+                { deletePipeline(it) },
+                requireContext()
+            )
             viewModel.livePipelineViews.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (mail.isOk) {
@@ -121,12 +94,7 @@ class PipelinesFragment : Fragment() {
                 binding.executePendingBindings()
                 l("livePipelineViews.observe ends")
             })
-            RecyclerViewCosmetics.makeItAllWork(
-                binding.insertPipelinesHere,
-                { pipelineRecyclerAdapter.getPipelineList() },
-                { deletePipeline(it) },
-                requireContext()
-            )
+            binding.fastscroll.setRecyclerView(binding.insertPipelinesHere)
             l("setUpPipelineRecycler ends")
         }
 

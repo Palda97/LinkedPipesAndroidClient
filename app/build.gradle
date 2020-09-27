@@ -89,4 +89,7 @@ dependencies {
 
     //That weird ssl handshake error
     implementation 'org.conscrypt:conscrypt-android:2.2.1'
+
+    //RecyclerView fast scroll
+    implementation 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
 }

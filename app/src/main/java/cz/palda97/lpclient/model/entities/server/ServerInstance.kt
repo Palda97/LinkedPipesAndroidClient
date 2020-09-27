@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.model
+package cz.palda97.lpclient.model.entities.server
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

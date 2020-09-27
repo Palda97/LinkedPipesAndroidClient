@@ -5,15 +5,21 @@ import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
 
 class PipelinesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
+    private val executionRepository: ExecutionRepository = Injector.executionRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -24,8 +30,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         pipelineRepository.liveServersWithPipelineViews.switchMap {
             l("switchMap")
             liveData(Dispatchers.Default) {
-                emit(MailPackage.loadingPackage())
-                //delay(2000)
                 val mail = pipelineViewTransform(it)
                 emit(mail)
                 l("switchMap end")
@@ -38,21 +42,25 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             val mail = it ?: return@withContext MailPackage.loadingPackage<List<PipelineView>>()
             if (mail.isOk) {
                 mail.mailContent!!
+                mail.mailContent.forEach {
+                    l("pipelineViewTransform - ${it.server.id} - ${it.server.name}")
+                }
                 val list = mutableListOf<PipelineView>()
                 list.addAll(mail.mailContent.flatMap {
                     it.pipelineViewList.filter { !it.deleted }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
+                    }.sortedByDescending {
+                        it.id
                     }
-                }.sortedBy {
-                    it.id
                 })
                 l("pipelineViewTransform before ok return")
                 return@withContext MailPackage(list.toList())
             }
             if (mail.isError)
                 return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
+            l("still loading")
             return@withContext MailPackage.loadingPackage<List<PipelineView>>()
         }
 
@@ -73,13 +81,17 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     var serverToFilter: ServerInstance?
         get() = serverRepository.serverToFilter
-        set(value) {
+        private set(value) {
             val changed = value != serverRepository.serverToFilter
             serverRepository.serverToFilter = value
             if (changed) {
                 onServerToFilterChange()
             }
         }
+
+    fun setServerToFilterFun(serverInstance: ServerInstance?) {
+        serverToFilter = serverInstance
+    }
 
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
         pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
@@ -153,6 +165,19 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun launchPipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
+            launchPipelineRoutine(pipelineView)
+        }
+    }
+
+    fun launchPipeline(executionV: ExecutionV) {
+        retrofitScope.launch {
+            val pipelineView = executionRepository.find(executionV)?.let {
+                pipelineRepository.findPipelineViewById(it.pipelineId)
+            }
+            if (pipelineView == null) {
+                _launchStatus.postValue(LaunchStatus.INTERNAL_ERROR)
+                return@launch
+            }
             launchPipelineRoutine(pipelineView)
         }
     }

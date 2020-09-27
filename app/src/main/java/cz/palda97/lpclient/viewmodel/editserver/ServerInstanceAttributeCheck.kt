@@ -1,8 +1,6 @@
 package cz.palda97.lpclient.viewmodel.editserver
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 
 class ServerInstanceAttributeCheck(serverInstance: ServerInstance) {
 

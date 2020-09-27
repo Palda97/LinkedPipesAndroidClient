@@ -15,5 +15,12 @@
     <color name="brand_red">#f2001d</color>
     
     <color name="execution_failed">#D95555</color>
+    <color name="execution_running">#3800ff</color>
+    <color name="execution_ok">#3faf3b</color>
+    <color name="execution_cancelled">#f59b15</color>
+    <color name="execution_queued">#000000</color>
+
+    <color name="execution_background">#cccccc</color>
+
     <color name="delete_gesture_background">@color/execution_failed</color>
 </resources>

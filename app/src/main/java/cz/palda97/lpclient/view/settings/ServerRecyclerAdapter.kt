@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.view.AdapterWithList
 
 class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
-    RecyclerView.Adapter<ServerRecyclerAdapter.ServerViewHolder>() {
+    RecyclerView.Adapter<ServerRecyclerAdapter.ServerViewHolder>(), AdapterWithList<ServerInstance> {
     private var serverList: List<ServerInstance>? = null
-    fun getServerList(): List<ServerInstance>? = serverList
 
     init {
         //setHasStableIds(true)
@@ -80,6 +80,10 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
             editServer(serverList!![holder.adapterPosition])
         }
     }
+
+    override fun getList(): List<ServerInstance>? = serverList
+
+    override val adapter: RecyclerView.Adapter<*> = this
 
     /*override fun getItemId(position: Int): Long {
         return serverList?.get(position)?.id ?: -1

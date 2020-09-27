@@ -1,6 +1,11 @@
-package cz.palda97.lpclient.model
+package cz.palda97.lpclient.model.entities.pipeline
 
-import com.google.gson.Gson
+import android.util.Log
+import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.Either
+import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.prepareSemiRootElement
@@ -17,46 +22,39 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
     )
 
     companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
+
         private fun fromJson(
             server: ServerInstance,
             string: String?
         ): MailPackage<ServerWithPipelineViews> {
-            if (string == null)
-                return MailPackage.brokenPackage("string is null")
-            //val res = pipelineViewsFromJsonLd(JsonUtils.fromString(string), server)
-            return pipelineViewsFromJsonLd(
-                Gson().fromJson(string, Any::class.java),
-                server
-            )
-        }
-
-        private fun pipelineViewsFromJsonLd(
-            jsonObject: Any?,
-            server: ServerInstance
-        ): MailPackage<ServerWithPipelineViews> {
-            if (jsonObject == null)
-                return MailPackage.brokenPackage("null pointer")
-            return when (jsonObject) {
-                is ArrayList<*> -> {
-                    if (jsonObject.size == 0)
-                        return MailPackage.brokenPackage("size of the root arraylist is zero")
+            return when (val res = CommonFunctions.getRootArrayList(string)) {
+                is Either.Left -> MailPackage.brokenPackage(
+                    res.value
+                )
+                is Either.Right -> {
                     val list = mutableListOf<PipelineView>()
-                    jsonObject.forEach {
-                        val res =
+                    res.value.forEach {
+                        val resPipe =
                             parsePipelineView(
                                 it,
                                 server
                             )
-                        if (res is Either.Right)
-                            list.add(res.value)
+                        if (resPipe is Either.Right)
+                            list.add(resPipe.value)
                         else
                             return MailPackage.brokenPackage(
                                 "some pipelineView is null"
                             )
                     }
-                    return MailPackage(ServerWithPipelineViews(server, list))
+                    MailPackage(
+                        ServerWithPipelineViews(
+                            server,
+                            list
+                        )
+                    )
                 }
-                else -> MailPackage.brokenPackage("root element not arraylist")
             }
         }
 
@@ -82,13 +80,17 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
             return Either.Right(pipelineView)
         }
 
-        private fun makePipelineView(
+        fun makePipelineView(
             map: Map<*, *>,
             server: ServerInstance
         ): PipelineView? {
             val id = giveMeThatId(map) ?: return null
             val prefLabel = giveMeThatString(map, PREF_LABEL, VALUE) ?: return null
-            return PipelineView(prefLabel, id, server.id)
+            return PipelineView(
+                prefLabel,
+                id,
+                server.id
+            )
         }
     }
 }

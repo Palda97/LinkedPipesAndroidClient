@@ -13,7 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
@@ -36,11 +36,11 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         setUpComponents()
-        tmpButtons()
+        //tmpButtons()
         return root
     }
 
-    private fun tmpButtons() {
+    /*private fun tmpButtons() {
         binding.tmpButtonDeleteAllInstances.setOnClickListener {
             viewModel.deleteAllInstances()
         }
@@ -54,7 +54,7 @@ class SettingsFragment : Fragment() {
                 viewModel.forceSaveServer(it)
             }
         }
-    }
+    }*/
 
     private fun setUpComponents() {
         fun setUpNotificationSwitch() {
@@ -66,7 +66,12 @@ class SettingsFragment : Fragment() {
 
         fun setUpServerRecycler() {
             serverRecyclerAdapter = ServerRecyclerAdapter { editServer(it) }
-            binding.insertServerInstancesHere.adapter = serverRecyclerAdapter
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertServerInstancesHere,
+                serverRecyclerAdapter,
+                { deleteServer(it) },
+                requireContext()
+            )
             viewModel.liveServers.observe(viewLifecycleOwner, Observer {
                 if (it == null)
                     return@Observer
@@ -86,12 +91,6 @@ class SettingsFragment : Fragment() {
                 binding.mail = it
                 binding.executePendingBindings()
             })
-            RecyclerViewCosmetics.makeItAllWork(
-                binding.insertServerInstancesHere,
-                { serverRecyclerAdapter.getServerList() },
-                { deleteServer(it) },
-                requireContext()
-            )
         }
 
         fun setUpFAB() {

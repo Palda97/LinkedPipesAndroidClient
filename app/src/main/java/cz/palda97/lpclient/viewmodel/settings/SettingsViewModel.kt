@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.repository.EditServerRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
@@ -23,7 +23,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    private var lastDeletedServer: ServerInstance = ServerInstance()
+    private var lastDeletedServer: ServerInstance =
+        ServerInstance()
 
     init {
         l("init")
@@ -71,7 +72,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         editServer(ServerInstance())
     }
 
-    fun findServerByName(name: String?): ServerInstance? = liveServers.value?.mailContent?.find {
+    fun findActiveServerByName(name: String?): ServerInstance? = activeLiveServers.value?.mailContent?.find {
         it.name == name
     }
 

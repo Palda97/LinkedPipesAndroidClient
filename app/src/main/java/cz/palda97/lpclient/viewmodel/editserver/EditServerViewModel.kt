@@ -3,7 +3,7 @@ package cz.palda97.lpclient.viewmodel.editserver
 import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

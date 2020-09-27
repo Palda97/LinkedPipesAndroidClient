@@ -3,7 +3,7 @@ package cz.palda97.lpclient.model.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import cz.palda97.lpclient.model.MailPackage
-import cz.palda97.lpclient.model.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 
 class ServerRepositoryImp(private val serverInstanceDao: ServerInstanceDao) : ServerRepository() {
