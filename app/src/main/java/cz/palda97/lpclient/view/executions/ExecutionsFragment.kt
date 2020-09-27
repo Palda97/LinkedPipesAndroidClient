@@ -20,6 +20,7 @@ import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
+import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 
 class ExecutionsFragment : Fragment() {
 
@@ -27,6 +28,7 @@ class ExecutionsFragment : Fragment() {
     private lateinit var viewModel: ExecutionsViewModel
     private lateinit var refreshFab: FloatingActionButton
     private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var pipelineViewModel: PipelinesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +40,7 @@ class ExecutionsFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(ExecutionsViewModel::class.java)
         settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        pipelineViewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
         setUpComponents()
         return root
     }
@@ -86,9 +89,42 @@ class ExecutionsFragment : Fragment() {
             binding.fastscroll.setRecyclerView(binding.insertExecutionsHere)
         }
 
+        fun setUpLaunchStatus() {
+            pipelineViewModel.launchStatus.observe(viewLifecycleOwner, Observer {
+                if (it == null || it == PipelinesViewModel.LaunchStatus.WAITING)
+                    return@Observer
+                pipelineViewModel.resetLaunchStatus()
+                val text: String = when (it) {
+                    PipelinesViewModel.LaunchStatus.PIPELINE_NOT_FOUND -> getString(R.string.pipeline_not_found)
+                    PipelinesViewModel.LaunchStatus.SERVER_NOT_FOUND -> getString(R.string.server_not_found)
+                    PipelinesViewModel.LaunchStatus.CAN_NOT_CONNECT -> getString(R.string.can_not_connect_to_server)
+                    PipelinesViewModel.LaunchStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
+                    PipelinesViewModel.LaunchStatus.SERVER_ERROR -> getString(R.string.server_side_error)
+                    PipelinesViewModel.LaunchStatus.WAITING -> ""
+                    PipelinesViewModel.LaunchStatus.OK -> {
+                        //TODO("silent refresh")
+                        /*refreshExecutions()
+                        val smoothScroller = object : LinearSmoothScroller(requireContext()) {
+                            override fun getVerticalSnapPreference(): Int {
+                                return SNAP_TO_START
+                            }
+                        }
+                        smoothScroller.targetPosition = 0
+                        binding.insertExecutionsHere.layoutManager?.startSmoothScroll(smoothScroller)*/
+                        getString(R.string.successfully_launched)
+                    }
+                    PipelinesViewModel.LaunchStatus.PROTOCOL_PROBLEM -> getString(R.string.problem_with_protocol)
+                }
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                    .setAnchorView(refreshFab)
+                    .show()
+            })
+        }
+
         setUpRefreshFab()
         setUpDropDown()
         setUpExecutionRecycler()
+        setUpLaunchStatus()
     }
 
     private fun refreshExecutions() {
@@ -100,7 +136,7 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun launchExecution(execution: ExecutionV) {
-        TODO()
+        pipelineViewModel.launchPipeline(execution)
     }
 
     private fun deleteExecution(execution: ExecutionV) {

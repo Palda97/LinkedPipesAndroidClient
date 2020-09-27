@@ -9,14 +9,17 @@ import cz.palda97.lpclient.model.entities.pipeline.PipelineView
 import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
 
 class PipelinesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
+    private val executionRepository: ExecutionRepository = Injector.executionRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -162,6 +165,19 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun launchPipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
+            launchPipelineRoutine(pipelineView)
+        }
+    }
+
+    fun launchPipeline(executionV: ExecutionV) {
+        retrofitScope.launch {
+            val pipelineView = executionRepository.find(executionV)?.let {
+                pipelineRepository.findPipelineViewById(it.pipelineId)
+            }
+            if (pipelineView == null) {
+                _launchStatus.postValue(LaunchStatus.INTERNAL_ERROR)
+                return@launch
+            }
             launchPipelineRoutine(pipelineView)
         }
     }
