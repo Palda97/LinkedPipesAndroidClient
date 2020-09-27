@@ -43,4 +43,7 @@ object LdConstants {
     const val EXECUTION_STATUS_RUNNING = "http://etl.linkedpipes.com/resources/status/running"
     const val EXECUTION_STATUS_CANCELLED = "http://etl.linkedpipes.com/resources/status/cancelled"
     const val EXECUTION_STATUS_DANGLING = "http://etl.linkedpipes.com/resources/status/dangling"
+    const val EXECUTION_STATUS_CANCELLING = "http://etl.linkedpipes.com/resources/status/cancelling"
+    const val EXECUTION_STATUS_QUEUED = "http://etl.linkedpipes.com/resources/status/queued"
+
 }
