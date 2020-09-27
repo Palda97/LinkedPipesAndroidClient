@@ -144,6 +144,8 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
             LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING
             LdConstants.EXECUTION_STATUS_CANCELLED -> ExecutionStatus.CANCELLED
             LdConstants.EXECUTION_STATUS_DANGLING -> ExecutionStatus.DANGLING
+            LdConstants.EXECUTION_STATUS_CANCELLING -> ExecutionStatus.CANCELLING
+            LdConstants.EXECUTION_STATUS_QUEUED -> ExecutionStatus.QUEUED
             else -> null
         }
     }

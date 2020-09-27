@@ -50,5 +50,5 @@ data class Execution(
 }
 
 enum class ExecutionStatus {
-    FINISHED, FAILED, RUNNING, CANCELLED, DANGLING
+    FINISHED, FAILED, RUNNING, CANCELLED, DANGLING, CANCELLING, QUEUED
 }

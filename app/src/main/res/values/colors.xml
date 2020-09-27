@@ -18,6 +18,7 @@
     <color name="execution_running">#3800ff</color>
     <color name="execution_ok">#3faf3b</color>
     <color name="execution_cancelled">#f59b15</color>
+    <color name="execution_queued">#000000</color>
 
     <color name="execution_background">#cccccc</color>
 

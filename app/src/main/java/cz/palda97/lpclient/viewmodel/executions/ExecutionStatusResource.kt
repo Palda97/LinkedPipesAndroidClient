@@ -10,4 +10,6 @@ val ExecutionStatus.resource: Int
         ExecutionStatus.RUNNING -> R.drawable.ic_baseline_directions_run_24
         ExecutionStatus.CANCELLED -> R.drawable.ic_baseline_done_24_yellow
         ExecutionStatus.DANGLING -> R.drawable.ic_baseline_settings_24
+        ExecutionStatus.CANCELLING -> R.drawable.ic_baseline_done_24_yellow
+        ExecutionStatus.QUEUED -> R.drawable.ic_baseline_hourglass_empty_24
     }

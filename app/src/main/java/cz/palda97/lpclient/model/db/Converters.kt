@@ -24,6 +24,8 @@ class Converters {
                 ExecutionStatus.RUNNING -> 2
                 ExecutionStatus.CANCELLED -> 3
                 ExecutionStatus.DANGLING -> 4
+                ExecutionStatus.CANCELLING -> 5
+                ExecutionStatus.QUEUED -> 6
             }
         }
     }
@@ -37,6 +39,8 @@ class Converters {
                 2 -> ExecutionStatus.RUNNING
                 3 -> ExecutionStatus.CANCELLED
                 4 -> ExecutionStatus.DANGLING
+                5 -> ExecutionStatus.CANCELLING
+                6 -> ExecutionStatus.QUEUED
                 else -> null
             }
         }
