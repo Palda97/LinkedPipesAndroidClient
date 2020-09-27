@@ -21,10 +21,14 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
+    private var lastSilent: Boolean = false
+
     val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
         executionRepository.liveExecutions.switchMap {
             liveData(Dispatchers.Default) {
+                l("update: ${it.status.name}")
                 val mail = executionTransformation(it)
+                lastSilent = false
                 emit(mail)
             }
         }
@@ -46,7 +50,14 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                             it.id
                         }
                     }
-                    MailPackage(list)
+                    MailPackage(
+                        list,
+                        MailPackage.Status.OK,
+                        if (lastSilent)
+                            SCROLL
+                        else
+                            ""
+                    )
                 }
                 MailPackage.Status.ERROR -> MailPackage.brokenPackage<List<ExecutionV>>(mail.msg)
                 MailPackage.Status.LOADING -> MailPackage.loadingPackage<List<ExecutionV>>()
@@ -71,8 +82,8 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         serverToFilter = serverInstance
     }
 
-    private suspend fun downloadAllExecutions() {
-        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
+    private suspend fun downloadAllExecutions(silent: Boolean = false) {
+        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
     }
 
     fun refreshExecutionsButton() {
@@ -102,9 +113,17 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun silentRefresh() {
+        lastSilent = true
+        retrofitScope.launch {
+            downloadAllExecutions(true)
+        }
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
         private const val DELETE_DELAY: Long = 5000L
+        const val SCROLL = "SCROLL"
     }
 }

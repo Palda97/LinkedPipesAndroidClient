@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
@@ -82,6 +83,15 @@ class ExecutionsFragment : Fragment() {
                     mail.mailContent!!
                     executionRecycleAdapter.updateExecutionList(mail.mailContent)
                     binding.noInstances = mail.mailContent.isEmpty()
+                    if (mail.msg == ExecutionsViewModel.SCROLL) {
+                        val smoothScroller = object : LinearSmoothScroller(requireContext()) {
+                            override fun getVerticalSnapPreference(): Int {
+                                return SNAP_TO_START
+                            }
+                        }
+                        smoothScroller.targetPosition = 0
+                        binding.insertExecutionsHere.layoutManager?.startSmoothScroll(smoothScroller)
+                    }
                 }
                 binding.mail = mail
                 binding.executePendingBindings()
@@ -102,15 +112,7 @@ class ExecutionsFragment : Fragment() {
                     PipelinesViewModel.LaunchStatus.SERVER_ERROR -> getString(R.string.server_side_error)
                     PipelinesViewModel.LaunchStatus.WAITING -> ""
                     PipelinesViewModel.LaunchStatus.OK -> {
-                        //TODO("silent refresh")
-                        /*refreshExecutions()
-                        val smoothScroller = object : LinearSmoothScroller(requireContext()) {
-                            override fun getVerticalSnapPreference(): Int {
-                                return SNAP_TO_START
-                            }
-                        }
-                        smoothScroller.targetPosition = 0
-                        binding.insertExecutionsHere.layoutManager?.startSmoothScroll(smoothScroller)*/
+                        refreshExecutions(true)
                         getString(R.string.successfully_launched)
                     }
                     PipelinesViewModel.LaunchStatus.PROTOCOL_PROBLEM -> getString(R.string.problem_with_protocol)
@@ -127,8 +129,11 @@ class ExecutionsFragment : Fragment() {
         setUpLaunchStatus()
     }
 
-    private fun refreshExecutions() {
-        viewModel.refreshExecutionsButton()
+    private fun refreshExecutions(silent: Boolean = false) {
+        return when(silent) {
+            true -> viewModel.silentRefresh()
+            false -> viewModel.refreshExecutionsButton()
+        }
     }
 
     private fun viewExecution(execution: ExecutionV) {

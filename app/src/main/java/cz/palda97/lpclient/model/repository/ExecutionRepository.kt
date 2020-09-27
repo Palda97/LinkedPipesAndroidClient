@@ -88,37 +88,41 @@ class ExecutionRepository(
         return MailPackage(list)
     }
 
-    private suspend fun updateDbAndRefresh(list: List<Execution>) {
+    private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
         if (list.isEmpty())
             mediator.postValue(MailPackage(emptyList()))
-        executionDao.renewal(list)
+        return when(silent){
+            true -> executionDao.insert(list)
+            false -> executionDao.renewal(list)
+        }
     }
 
-    private suspend fun cacheExecutions(server: ServerInstance) {
+    private suspend fun cacheExecutions(server: ServerInstance, silent: Boolean) {
         val mail = downloadExecutions(server)
         if (mail.isOk) {
             val list = mail.mailContent!!.executionList
-            updateDbAndRefresh(list)
+            updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    private suspend fun cacheExecutions(serverList: List<ServerInstance>?) {
+    private suspend fun cacheExecutions(serverList: List<ServerInstance>?, silent: Boolean) {
         val mail = downloadExecutions(serverList)
         if (mail.isOk) {
             val list = mail.mailContent!!.flatMap { it.executionList }
-            updateDbAndRefresh(list)
+            updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    suspend fun cacheExecutions(either: Either<ServerInstance, List<ServerInstance>?>) {
-        mediator.postValue(MailPackage.loadingPackage())
+    suspend fun cacheExecutions(either: Either<ServerInstance, List<ServerInstance>?>, silent: Boolean) {
+        if (!silent)
+            mediator.postValue(MailPackage.loadingPackage())
         return when (either) {
-            is Either.Left -> cacheExecutions(either.value)
-            is Either.Right -> cacheExecutions(either.value)
+            is Either.Left -> cacheExecutions(either.value, silent)
+            is Either.Right -> cacheExecutions(either.value, silent)
         }
     }
 
