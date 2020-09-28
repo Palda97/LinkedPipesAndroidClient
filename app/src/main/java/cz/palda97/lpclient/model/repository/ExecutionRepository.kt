@@ -16,6 +16,8 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class ExecutionRepository(
     private val executionDao: ExecutionDao,
@@ -74,24 +76,28 @@ class ExecutionRepository(
         return ExecutionFactory(server, text).serverWithExecutions
     }
 
-    private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> {
-        if (serverList == null)
-            return MailPackage.brokenPackage("server list is null")
-        val list: MutableList<ServerWithExecutions> = mutableListOf()
-        serverList.forEach {
-            val mail = downloadExecutions(it)
-            if (!mail.isOk)
-                return MailPackage.brokenPackage("error while parsing executions from ${it.name}")
-            mail.mailContent!!
-            list.add(mail.mailContent)
+    private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> =
+        coroutineScope {
+            if (serverList == null)
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("server list is null")
+            val jobs = serverList.map {
+                async {
+                    downloadExecutions(it) to it
+                }
+            }
+            val list = jobs.map {
+                val (mail, server) = it.await()
+                if (!mail.isOk)
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("error while parsing executions from ${server.name}")
+                mail.mailContent!!
+            }
+            return@coroutineScope MailPackage(list)
         }
-        return MailPackage(list)
-    }
 
     private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
         if (list.isEmpty())
             mediator.postValue(MailPackage(emptyList()))
-        return when(silent){
+        return when (silent) {
             true -> executionDao.insert(list)
             false -> executionDao.renewal(list)
         }
@@ -117,7 +123,10 @@ class ExecutionRepository(
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    suspend fun cacheExecutions(either: Either<ServerInstance, List<ServerInstance>?>, silent: Boolean) {
+    suspend fun cacheExecutions(
+        either: Either<ServerInstance, List<ServerInstance>?>,
+        silent: Boolean
+    ) {
         if (!silent)
             mediator.postValue(MailPackage.loadingPackage())
         return when (either) {

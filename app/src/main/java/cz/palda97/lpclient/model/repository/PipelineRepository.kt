@@ -14,6 +14,8 @@ import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.io.IOException
 
 class PipelineRepository(
@@ -98,19 +100,24 @@ class PipelineRepository(
             liveServersWithPipelineViews.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> {
-        if (serverList == null)
-            return MailPackage.brokenPackage("server list is null")
-        val list: MutableList<ServerWithPipelineViews> = mutableListOf()
-        serverList.forEach {
-            val mail = downloadPipelineViews(it)
-            if (!mail.isOk)
-                return MailPackage.brokenPackage("error while parsing pipelines from ${it.name}")
-            mail.mailContent!!
-            list.add(mail.mailContent)
+    private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> =
+        coroutineScope {
+            if (serverList == null)
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("server list is null")
+            val jobs = serverList.map {
+                async {
+                    downloadPipelineViews(it) to it
+                }
+            }
+            val list = jobs.map {
+                val (mail, server) = it.await()
+                if (!mail.isOk)
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("error while parsing pipelines from ${server.name}")
+                mail.mailContent!!
+            }
+
+            return@coroutineScope MailPackage(list)
         }
-        return MailPackage(list)
-    }
 
     private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(serverInstance)) {
