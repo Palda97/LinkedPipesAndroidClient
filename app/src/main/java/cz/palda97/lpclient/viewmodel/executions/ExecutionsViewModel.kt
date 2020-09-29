@@ -41,7 +41,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                     mail.mailContent!!
                     val list = mail.mailContent.flatMap { serverWithExecutions ->
                         serverWithExecutions.executionList.filter {
-                            !it.deleted
+                            !(it.deleted || executionRepository.deleteRepo.toBeDeleted(it))
                         }.map {
                             ExecutionV(it.apply {
                                 serverName = serverWithExecutions.server.name
@@ -93,12 +93,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private suspend fun deleteRoutine(executionV: ExecutionV) {
-        executionRepository.markForDeletion(executionV)
-        delay(DELETE_DELAY)
-        val execution = executionRepository.find(executionV) ?: return
-        if (execution.deleted) {
-            executionRepository.deleteExecution(execution)
-        }
+        val execution = executionRepository.find(executionV.id) ?: return
+        executionRepository.markForDeletion(execution)
+        executionRepository.deleteRepo.addPending(execution, DELETE_DELAY)
     }
 
     fun deleteExecution(executionV: ExecutionV) {
@@ -107,9 +104,15 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun cancelDeletion(execution: ExecutionV) {
-        dbScope.launch {
-            executionRepository.unMarkForDeletion(execution)
+    private suspend fun cancelRoutine(executionV: ExecutionV) {
+        val execution = executionRepository.find(executionV.id) ?: return
+        executionRepository.unMarkForDeletion(execution)
+        executionRepository.deleteRepo.cancelDeletion(execution)
+    }
+
+    fun cancelDeletion(executionV: ExecutionV) {
+        retrofitScope.launch {
+            cancelRoutine(executionV)
         }
     }
 

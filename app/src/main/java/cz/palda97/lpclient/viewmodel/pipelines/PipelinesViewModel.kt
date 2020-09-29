@@ -171,7 +171,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun launchPipeline(executionV: ExecutionV) {
         retrofitScope.launch {
-            val pipelineView = executionRepository.find(executionV)?.let {
+            val pipelineView = executionRepository.find(executionV.id)?.let {
                 pipelineRepository.findPipelineViewById(it.pipelineId)
             }
             if (pipelineView == null) {

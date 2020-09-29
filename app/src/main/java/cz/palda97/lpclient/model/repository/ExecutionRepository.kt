@@ -135,13 +135,17 @@ class ExecutionRepository(
         }
     }
 
-    suspend fun markForDeletion(execution: ExecutionV) {
+    suspend fun markForDeletion(execution: Execution) {
         executionDao.markForDeletion(execution.id)
     }
 
-    suspend fun find(execution: ExecutionV): Execution? = executionDao.findById(execution.id)
+    suspend fun unMarkForDeletion(execution: Execution) {
+        executionDao.unMarkForDeletion(execution.id)
+    }
 
-    suspend fun deleteExecution(execution: Execution): StatusCode {
+    suspend fun find(id: String): Execution? = executionDao.findById(id)
+
+    private suspend fun deleteExecution(execution: Execution): StatusCode {
         val server = serverDao.findById(execution.serverId) ?: return StatusCode.SERVER_ID_INVALID
         val retrofit = when (val res = getExecutionRetrofit(server)) {
             is Either.Left -> return res.value
@@ -162,8 +166,8 @@ class ExecutionRepository(
         return StatusCode.ERROR
     }
 
-    suspend fun unMarkForDeletion(execution: ExecutionV) {
-        executionDao.unMarkForDeletion(execution.id)
+    val deleteRepo = DeleteRepository<Execution> {
+        deleteExecution(it)
     }
 
     companion object {
