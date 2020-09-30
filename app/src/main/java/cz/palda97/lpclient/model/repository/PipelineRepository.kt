@@ -56,7 +56,7 @@ class PipelineRepository(
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
-    suspend fun insertPipelineView(pipelineView: PipelineView) {
+    private suspend fun insertPipelineView(pipelineView: PipelineView) {
         pipelineViewDao.insert(pipelineView)
     }
 
@@ -165,7 +165,7 @@ class PipelineRepository(
             Either.Left(StatusCode.NO_CONNECT)
         }
 
-    suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
+    private suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
             is Either.Left -> return res.value
             is Either.Right -> res.value
@@ -212,6 +212,18 @@ class PipelineRepository(
         }
             ?: return Either.Left(StatusCode.INTERNAL_ERROR)
         return Either.Right(text)
+    }
+
+    suspend fun markForDeletion(pipelineView: PipelineView) {
+        pipelineViewDao.markForDeletion(pipelineView.id)
+    }
+
+    suspend fun unMarkForDeletion(pipelineView: PipelineView) {
+        pipelineViewDao.unMarkForDeletion(pipelineView.id)
+    }
+
+    val deleteRepo = DeleteRepository<PipelineView> {
+        deletePipeline(it)
     }
 
     companion object {

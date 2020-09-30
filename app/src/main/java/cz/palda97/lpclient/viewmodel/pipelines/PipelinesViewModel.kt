@@ -47,7 +47,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 }
                 val list = mutableListOf<PipelineView>()
                 list.addAll(mail.mailContent.flatMap {
-                    it.pipelineViewList.filter { !it.deleted }.apply {
+                    it.pipelineViewList.filter { !(it.deleted || pipelineRepository.deleteRepo.toBeDeleted(it)) }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
@@ -94,13 +94,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
-        pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
-        l("${pipelineView.prefLabel} marked for deletion")
-        delay(DELETE_DELAY)
-        val pipe = pipelineRepository.findPipelineViewById(pipelineView.id) ?: return
-        if (pipe.deleted) {
-            pipelineRepository.deletePipeline(pipelineView)
-        }
+        pipelineRepository.markForDeletion(pipelineView)
+        pipelineRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
     }
 
     fun deletePipeline(pipelineView: PipelineView) {
@@ -109,9 +104,14 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private suspend fun cancelRoutine(pipelineView: PipelineView) {
+        pipelineRepository.unMarkForDeletion(pipelineView)
+        pipelineRepository.deleteRepo.cancelDeletion(pipelineView)
+    }
+
     fun cancelDeletion(pipelineView: PipelineView) {
         dbScope.launch {
-            pipelineRepository.insertPipelineView(pipelineView.apply { deleted = false })
+            cancelRoutine(pipelineView)
         }
     }
 
