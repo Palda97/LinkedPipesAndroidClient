@@ -21,7 +21,7 @@ object Injector {
     }
     val executionRepository: ExecutionRepository by lazy {
         val db = AppDatabase.getInstance(context)
-        ExecutionRepository(db.executionDao(), db.serverDao())
+        ExecutionRepository(db.executionDao(), db.serverDao(), db.markForDeletionDao())
     }
 
     fun tag(companion: Any): String =

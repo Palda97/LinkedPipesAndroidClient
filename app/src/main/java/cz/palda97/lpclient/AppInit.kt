@@ -38,8 +38,14 @@ class AppInit : Application() {
             if (noContext(context))
                 return false
             CoroutineScope(Dispatchers.IO).launch {
-                Injector.pipelineRepository.cleanDb()
-                l("cleanDb should be completed")
+                launch {
+                    Injector.pipelineRepository.cleanDb()
+                    l("pipelineRepository.cleanDb() should be completed")
+                }
+                launch {
+                    Injector.executionRepository.cleanDb()
+                    l("executionRepository.cleanDb() should be completed")
+                }
             }
             return true
         }

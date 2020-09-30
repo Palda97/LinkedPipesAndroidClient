@@ -8,6 +8,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
+import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
@@ -21,7 +22,8 @@ import kotlinx.coroutines.coroutineScope
 
 class ExecutionRepository(
     private val executionDao: ExecutionDao,
-    private val serverDao: ServerInstanceDao
+    private val serverDao: ServerInstanceDao,
+    private val deleteDao: MarkForDeletionDao
 ) {
 
     private fun executionFilterTransformation(it: List<ServerWithExecutions>?): MailPackage<List<ServerWithExecutions>> {
@@ -106,7 +108,7 @@ class ExecutionRepository(
     private suspend fun cacheExecutions(server: ServerInstance, silent: Boolean) {
         val mail = downloadExecutions(server)
         if (mail.isOk) {
-            val list = mail.mailContent!!.executionList
+            val list = mail.mailContent!!.executionList.map { it.execution }
             updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
@@ -116,7 +118,7 @@ class ExecutionRepository(
     private suspend fun cacheExecutions(serverList: List<ServerInstance>?, silent: Boolean) {
         val mail = downloadExecutions(serverList)
         if (mail.isOk) {
-            val list = mail.mailContent!!.flatMap { it.executionList }
+            val list = mail.mailContent!!.flatMap { it.executionList }.map { it.execution }
             updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
@@ -136,14 +138,19 @@ class ExecutionRepository(
     }
 
     suspend fun markForDeletion(execution: Execution) {
-        executionDao.markForDeletion(execution.id)
+        deleteDao.markForDeletion(execution.id)
     }
 
     suspend fun unMarkForDeletion(execution: Execution) {
-        executionDao.unMarkForDeletion(execution.id)
+        deleteDao.unMarkForDeletion(execution.id)
     }
 
     suspend fun find(id: String): Execution? = executionDao.findById(id)
+
+    private suspend fun deleteRoutine(execution: Execution) {
+        executionDao.delete(execution)
+        deleteDao.delete(execution.id)
+    }
 
     private suspend fun deleteExecution(execution: Execution): StatusCode {
         val server = serverDao.findById(execution.serverId) ?: return StatusCode.SERVER_ID_INVALID
@@ -155,12 +162,12 @@ class ExecutionRepository(
         val text = RetrofitHelper.getStringFromCall(call)
         if (text == null) {
             //Not found on server
-            executionDao.delete(execution)
+            deleteRoutine(execution)
             return StatusCode.NOT_FOUND_ON_SERVER
         }
         if (text.isEmpty()) {
             //Success
-            executionDao.delete(execution)
+            deleteRoutine(execution)
             return StatusCode.OK
         }
         return StatusCode.ERROR
@@ -168,6 +175,12 @@ class ExecutionRepository(
 
     val deleteRepo = DeleteRepository<Execution> {
         deleteExecution(it)
+    }
+
+    suspend fun cleanDb() {
+        executionDao.selectDeleted().forEach {
+            deleteExecution(it)
+        }
     }
 
     companion object {

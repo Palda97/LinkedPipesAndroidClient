@@ -41,9 +41,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                     mail.mailContent!!
                     val list = mail.mailContent.flatMap { serverWithExecutions ->
                         serverWithExecutions.executionList.filter {
-                            !(it.deleted || executionRepository.deleteRepo.toBeDeleted(it))
+                            !(it.mark != null || executionRepository.deleteRepo.toBeDeleted(it.execution))
                         }.map {
-                            ExecutionV(it.apply {
+                            ExecutionV(it.execution.apply {
                                 serverName = serverWithExecutions.server.name
                             })
                         }.sortedByDescending {

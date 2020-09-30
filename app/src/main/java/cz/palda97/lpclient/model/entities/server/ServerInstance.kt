@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class ServerInstance(
+data class ServerInstance(
     val name: String = "",
     val url: String = "",
     val active: Boolean = true,
