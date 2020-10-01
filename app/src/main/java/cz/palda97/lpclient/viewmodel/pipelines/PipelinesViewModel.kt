@@ -45,18 +45,17 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 mail.mailContent.forEach {
                     l("pipelineViewTransform - ${it.server.id} - ${it.server.name}")
                 }
-                val list = mutableListOf<PipelineView>()
-                list.addAll(mail.mailContent.flatMap {
-                    it.pipelineViewList.filter { !(it.deleted || pipelineRepository.deleteRepo.toBeDeleted(it)) }.apply {
+                val list = mail.mailContent.flatMap {
+                    it.pipelineViewList.filter { !(it.mark != null || pipelineRepository.deleteRepo.toBeDeleted(it.pipelineView)) }.map { it.pipelineView }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
                     }.sortedByDescending {
                         it.id
                     }
-                })
+                }
                 l("pipelineViewTransform before ok return")
-                return@withContext MailPackage(list.toList())
+                return@withContext MailPackage(list)
             }
             if (mail.isError)
                 return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)

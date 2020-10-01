@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.PipelineView
@@ -20,7 +21,8 @@ import java.io.IOException
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
-    private val serverInstanceDao: ServerInstanceDao
+    private val serverInstanceDao: ServerInstanceDao,
+    private val deleteDao: MarkForDeletionDao
 ) {
 
     private val dbMirror = serverInstanceDao.activeServerListWithPipelineViews()
@@ -82,7 +84,7 @@ class PipelineRepository(
             mail.mailContent!!
             if (mail.mailContent.flatMap { it.pipelineViewList }.isEmpty())
                 liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
-            deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
+            deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList }.map { it.pipelineView })
         }
         if (mail.isError)
             liveServersWithPipelineViews.postValue(mail)
@@ -94,7 +96,7 @@ class PipelineRepository(
             mail.mailContent!!
             if (mail.mailContent.pipelineViewList.isEmpty())
                 liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
-            deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList)
+            deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList.map { it.pipelineView })
         }
         if (mail.isError)
             liveServersWithPipelineViews.postValue(MailPackage.brokenPackage(mail.msg))
@@ -142,12 +144,8 @@ class PipelineRepository(
     }
 
     suspend fun cleanDb() {
-        val list = pipelineViewDao.selectDeleted()
-        list.forEach {
-            if (deletePipeline(it) != StatusCode.OK)
-                insertPipelineView(it.apply {
-                    deleted = false
-                })
+        pipelineViewDao.selectDeleted().forEach {
+            deletePipeline(it)
         }
     }
 
@@ -188,6 +186,7 @@ class PipelineRepository(
 
     private suspend fun deleteRoutine(pipelineView: PipelineView) {
         pipelineViewDao.deletePipelineView(pipelineView)
+        deleteDao.delete(pipelineView.id)
     }
 
     suspend fun findPipelineViewById(id: String): PipelineView? =
@@ -215,11 +214,11 @@ class PipelineRepository(
     }
 
     suspend fun markForDeletion(pipelineView: PipelineView) {
-        pipelineViewDao.markForDeletion(pipelineView.id)
+        deleteDao.markForDeletion(pipelineView.id)
     }
 
     suspend fun unMarkForDeletion(pipelineView: PipelineView) {
-        pipelineViewDao.unMarkForDeletion(pipelineView.id)
+        deleteDao.unMarkForDeletion(pipelineView.id)
     }
 
     val deleteRepo = DeleteRepository<PipelineView> {
