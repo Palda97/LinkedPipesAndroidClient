@@ -8,7 +8,7 @@
 
     <style name="ta_regular14_secondary" parent="TextAppearance.MaterialComponents.Body2">
         <!-- Regular 14 54 % -->
-        <item name="android:textColor">@color/black_secondary</item>
+        <item name="android:textColor">?textColorSecondary</item>
     </style>
 
     <style name="ta_regular12_secondary" parent="@style/TextAppearance.MaterialComponents.Caption">

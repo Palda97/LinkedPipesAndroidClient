@@ -2,8 +2,10 @@ package cz.palda97.lpclient.viewmodel.settings
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import cz.palda97.lpclient.AppInit
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.server.ServerInstance
@@ -22,6 +24,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
+
+    var nightMode: NightModeEnum
+        get() = NightModeEnum.fromNightMode(
+            sharedPreferences.getInt(AppInit.NIGHT_MODE, AppInit.DEFAULT_NIGHT_MODE)
+        )
+        set(value) {
+            sharedPreferences.edit().putInt(AppInit.NIGHT_MODE, value.nightMode).apply()
+            AppCompatDelegate.setDefaultNightMode(value.nightMode)
+        }
 
     private var lastDeletedServer: ServerInstance =
         ServerInstance()
@@ -72,12 +83,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         editServer(ServerInstance())
     }
 
-    fun findActiveServerByName(name: String?): ServerInstance? = activeLiveServers.value?.mailContent?.find {
-        it.name == name
-    }
+    fun findActiveServerByName(name: String?): ServerInstance? =
+        activeLiveServers.value?.mailContent?.find {
+            it.name == name
+        }
 
     companion object {
-        private const val NOTIFICATIONS = "notifications"
+        private const val NOTIFICATIONS = "NOTIFICATIONS"
         private const val TAG = "SettingsViewModel"
         private fun l(msg: String) = Log.d(TAG, msg)
     }
