@@ -45,18 +45,17 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 mail.mailContent.forEach {
                     l("pipelineViewTransform - ${it.server.id} - ${it.server.name}")
                 }
-                val list = mutableListOf<PipelineView>()
-                list.addAll(mail.mailContent.flatMap {
-                    it.pipelineViewList.filter { !it.deleted }.apply {
+                val list = mail.mailContent.flatMap {
+                    it.pipelineViewList.filter { !(it.mark != null || pipelineRepository.deleteRepo.toBeDeleted(it.pipelineView)) }.map { it.pipelineView }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
                     }.sortedByDescending {
                         it.id
                     }
-                })
+                }
                 l("pipelineViewTransform before ok return")
-                return@withContext MailPackage(list.toList())
+                return@withContext MailPackage(list)
             }
             if (mail.isError)
                 return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
@@ -94,13 +93,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
-        pipelineRepository.insertPipelineView(pipelineView.apply { deleted = true })
-        l("${pipelineView.prefLabel} marked for deletion")
-        delay(DELETE_DELAY)
-        val pipe = pipelineRepository.findPipelineViewById(pipelineView.id) ?: return
-        if (pipe.deleted) {
-            pipelineRepository.deletePipeline(pipelineView)
-        }
+        pipelineRepository.markForDeletion(pipelineView)
+        pipelineRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
     }
 
     fun deletePipeline(pipelineView: PipelineView) {
@@ -109,9 +103,14 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private suspend fun cancelRoutine(pipelineView: PipelineView) {
+        pipelineRepository.unMarkForDeletion(pipelineView)
+        pipelineRepository.deleteRepo.cancelDeletion(pipelineView)
+    }
+
     fun cancelDeletion(pipelineView: PipelineView) {
         dbScope.launch {
-            pipelineRepository.insertPipelineView(pipelineView.apply { deleted = false })
+            cancelRoutine(pipelineView)
         }
     }
 
@@ -171,7 +170,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun launchPipeline(executionV: ExecutionV) {
         retrofitScope.launch {
-            val pipelineView = executionRepository.find(executionV)?.let {
+            val pipelineView = executionRepository.find(executionV.id)?.let {
                 pipelineRepository.findPipelineViewById(it.pipelineId)
             }
             if (pipelineView == null) {

@@ -27,6 +27,6 @@ abstract class PipelineViewDao {
     @Query("select * from pipelineview where id = :id")
     abstract suspend fun findPipelineViewById(id: String): PipelineView?
 
-    @Query("select * from pipelineview where deleted = 1")
+    @Query("select * from pipelineview join markfordeletion on PipelineView.id = MarkForDeletion.mark")
     abstract suspend fun selectDeleted(): List<PipelineView>
 }

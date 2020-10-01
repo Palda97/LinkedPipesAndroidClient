@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
+import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.PipelineView
@@ -14,11 +15,14 @@ import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.io.IOException
 
 class PipelineRepository(
     private val pipelineViewDao: PipelineViewDao,
-    private val serverInstanceDao: ServerInstanceDao
+    private val serverInstanceDao: ServerInstanceDao,
+    private val deleteDao: MarkForDeletionDao
 ) {
 
     private val dbMirror = serverInstanceDao.activeServerListWithPipelineViews()
@@ -54,7 +58,7 @@ class PipelineRepository(
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
-    suspend fun insertPipelineView(pipelineView: PipelineView) {
+    private suspend fun insertPipelineView(pipelineView: PipelineView) {
         pipelineViewDao.insert(pipelineView)
     }
 
@@ -80,7 +84,7 @@ class PipelineRepository(
             mail.mailContent!!
             if (mail.mailContent.flatMap { it.pipelineViewList }.isEmpty())
                 liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
-            deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList })
+            deleteAndInsertPipelineViews(mail.mailContent.flatMap { it.pipelineViewList }.map { it.pipelineView })
         }
         if (mail.isError)
             liveServersWithPipelineViews.postValue(mail)
@@ -92,25 +96,30 @@ class PipelineRepository(
             mail.mailContent!!
             if (mail.mailContent.pipelineViewList.isEmpty())
                 liveServersWithPipelineViews.postValue(MailPackage(emptyList()))
-            deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList)
+            deleteAndInsertPipelineViews(mail.mailContent.pipelineViewList.map { it.pipelineView })
         }
         if (mail.isError)
             liveServersWithPipelineViews.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> {
-        if (serverList == null)
-            return MailPackage.brokenPackage("server list is null")
-        val list: MutableList<ServerWithPipelineViews> = mutableListOf()
-        serverList.forEach {
-            val mail = downloadPipelineViews(it)
-            if (!mail.isOk)
-                return MailPackage.brokenPackage("error while parsing pipelines from ${it.name}")
-            mail.mailContent!!
-            list.add(mail.mailContent)
+    private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> =
+        coroutineScope {
+            if (serverList == null)
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("server list is null")
+            val jobs = serverList.map {
+                async {
+                    downloadPipelineViews(it) to it
+                }
+            }
+            val list = jobs.map {
+                val (mail, server) = it.await()
+                if (!mail.isOk)
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("error while parsing pipelines from ${server.name}")
+                mail.mailContent!!
+            }
+
+            return@coroutineScope MailPackage(list)
         }
-        return MailPackage(list)
-    }
 
     private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(serverInstance)) {
@@ -135,12 +144,8 @@ class PipelineRepository(
     }
 
     suspend fun cleanDb() {
-        val list = pipelineViewDao.selectDeleted()
-        list.forEach {
-            if (deletePipeline(it) != StatusCode.OK)
-                insertPipelineView(it.apply {
-                    deleted = false
-                })
+        pipelineViewDao.selectDeleted().forEach {
+            deletePipeline(it)
         }
     }
 
@@ -158,7 +163,7 @@ class PipelineRepository(
             Either.Left(StatusCode.NO_CONNECT)
         }
 
-    suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
+    private suspend fun deletePipeline(pipelineView: PipelineView): StatusCode {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
             is Either.Left -> return res.value
             is Either.Right -> res.value
@@ -181,6 +186,7 @@ class PipelineRepository(
 
     private suspend fun deleteRoutine(pipelineView: PipelineView) {
         pipelineViewDao.deletePipelineView(pipelineView)
+        deleteDao.delete(pipelineView.id)
     }
 
     suspend fun findPipelineViewById(id: String): PipelineView? =
@@ -205,6 +211,18 @@ class PipelineRepository(
         }
             ?: return Either.Left(StatusCode.INTERNAL_ERROR)
         return Either.Right(text)
+    }
+
+    suspend fun markForDeletion(pipelineView: PipelineView) {
+        deleteDao.markForDeletion(pipelineView.id)
+    }
+
+    suspend fun unMarkForDeletion(pipelineView: PipelineView) {
+        deleteDao.unMarkForDeletion(pipelineView.id)
+    }
+
+    val deleteRepo = DeleteRepository<PipelineView> {
+        deletePipeline(it)
     }
 
     companion object {

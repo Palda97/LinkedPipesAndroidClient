@@ -24,15 +24,9 @@ abstract class ExecutionDao {
         insert(list)
     }
 
-    @Query("select * from execution where deleted = 1")
+    @Query("select * from execution join markfordeletion on Execution.id = MarkForDeletion.mark")
     abstract suspend fun selectDeleted(): List<Execution>
-
-    @Query("update execution set deleted = 1 where id = :id")
-    abstract suspend fun markForDeletion(id: String)
 
     @Query("select * from execution where id = :id")
     abstract suspend fun findById(id: String): Execution?
-
-    @Query("update execution set deleted = 0 where id = :id")
-    abstract suspend fun unMarkForDeletion(id: String)
 }

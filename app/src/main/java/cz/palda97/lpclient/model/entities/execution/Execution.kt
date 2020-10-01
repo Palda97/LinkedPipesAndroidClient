@@ -26,8 +26,6 @@ data class Execution(
 
     var pipelineName: String = ""
 
-    var deleted: Boolean = false
-
     val idNumber: String
         get() = id.split("/").last()
 

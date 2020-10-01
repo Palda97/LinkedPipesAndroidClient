@@ -8,6 +8,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
+import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
@@ -16,10 +17,13 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class ExecutionRepository(
     private val executionDao: ExecutionDao,
-    private val serverDao: ServerInstanceDao
+    private val serverDao: ServerInstanceDao,
+    private val deleteDao: MarkForDeletionDao
 ) {
 
     private fun executionFilterTransformation(it: List<ServerWithExecutions>?): MailPackage<List<ServerWithExecutions>> {
@@ -74,24 +78,28 @@ class ExecutionRepository(
         return ExecutionFactory(server, text).serverWithExecutions
     }
 
-    private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> {
-        if (serverList == null)
-            return MailPackage.brokenPackage("server list is null")
-        val list: MutableList<ServerWithExecutions> = mutableListOf()
-        serverList.forEach {
-            val mail = downloadExecutions(it)
-            if (!mail.isOk)
-                return MailPackage.brokenPackage("error while parsing executions from ${it.name}")
-            mail.mailContent!!
-            list.add(mail.mailContent)
+    private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> =
+        coroutineScope {
+            if (serverList == null)
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("server list is null")
+            val jobs = serverList.map {
+                async {
+                    downloadExecutions(it) to it
+                }
+            }
+            val list = jobs.map {
+                val (mail, server) = it.await()
+                if (!mail.isOk)
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("error while parsing executions from ${server.name}")
+                mail.mailContent!!
+            }
+            return@coroutineScope MailPackage(list)
         }
-        return MailPackage(list)
-    }
 
     private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
         if (list.isEmpty())
             mediator.postValue(MailPackage(emptyList()))
-        return when(silent){
+        return when (silent) {
             true -> executionDao.insert(list)
             false -> executionDao.renewal(list)
         }
@@ -100,7 +108,7 @@ class ExecutionRepository(
     private suspend fun cacheExecutions(server: ServerInstance, silent: Boolean) {
         val mail = downloadExecutions(server)
         if (mail.isOk) {
-            val list = mail.mailContent!!.executionList
+            val list = mail.mailContent!!.executionList.map { it.execution }
             updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
@@ -110,14 +118,17 @@ class ExecutionRepository(
     private suspend fun cacheExecutions(serverList: List<ServerInstance>?, silent: Boolean) {
         val mail = downloadExecutions(serverList)
         if (mail.isOk) {
-            val list = mail.mailContent!!.flatMap { it.executionList }
+            val list = mail.mailContent!!.flatMap { it.executionList }.map { it.execution }
             updateDbAndRefresh(list, silent)
         }
         if (mail.isError)
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
-    suspend fun cacheExecutions(either: Either<ServerInstance, List<ServerInstance>?>, silent: Boolean) {
+    suspend fun cacheExecutions(
+        either: Either<ServerInstance, List<ServerInstance>?>,
+        silent: Boolean
+    ) {
         if (!silent)
             mediator.postValue(MailPackage.loadingPackage())
         return when (either) {
@@ -126,13 +137,22 @@ class ExecutionRepository(
         }
     }
 
-    suspend fun markForDeletion(execution: ExecutionV) {
-        executionDao.markForDeletion(execution.id)
+    suspend fun markForDeletion(execution: Execution) {
+        deleteDao.markForDeletion(execution.id)
     }
 
-    suspend fun find(execution: ExecutionV): Execution? = executionDao.findById(execution.id)
+    suspend fun unMarkForDeletion(execution: Execution) {
+        deleteDao.unMarkForDeletion(execution.id)
+    }
 
-    suspend fun deleteExecution(execution: Execution): StatusCode {
+    suspend fun find(id: String): Execution? = executionDao.findById(id)
+
+    private suspend fun deleteRoutine(execution: Execution) {
+        executionDao.delete(execution)
+        deleteDao.delete(execution.id)
+    }
+
+    private suspend fun deleteExecution(execution: Execution): StatusCode {
         val server = serverDao.findById(execution.serverId) ?: return StatusCode.SERVER_ID_INVALID
         val retrofit = when (val res = getExecutionRetrofit(server)) {
             is Either.Left -> return res.value
@@ -142,19 +162,25 @@ class ExecutionRepository(
         val text = RetrofitHelper.getStringFromCall(call)
         if (text == null) {
             //Not found on server
-            executionDao.delete(execution)
+            deleteRoutine(execution)
             return StatusCode.NOT_FOUND_ON_SERVER
         }
         if (text.isEmpty()) {
             //Success
-            executionDao.delete(execution)
+            deleteRoutine(execution)
             return StatusCode.OK
         }
         return StatusCode.ERROR
     }
 
-    suspend fun unMarkForDeletion(execution: ExecutionV) {
-        executionDao.unMarkForDeletion(execution.id)
+    val deleteRepo = DeleteRepository<Execution> {
+        deleteExecution(it)
+    }
+
+    suspend fun cleanDb() {
+        executionDao.selectDeleted().forEach {
+            deleteExecution(it)
+        }
     }
 
     companion object {
