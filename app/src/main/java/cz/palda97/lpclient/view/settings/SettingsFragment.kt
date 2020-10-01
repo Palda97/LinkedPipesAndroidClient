@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Filter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,6 +19,9 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
+import cz.palda97.lpclient.viewmodel.settings.NightModeEnum
+import cz.palda97.lpclient.viewmodel.settings.NightModeFactory
+import cz.palda97.lpclient.viewmodel.settings.NightModeInstance
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 
@@ -56,7 +61,65 @@ class SettingsFragment : Fragment() {
         }
     }*/
 
+    //
+
     private fun setUpComponents() {
+
+        /*fun setUpNightMode() {
+            val adapter =  ArrayAdapter<ExecutionV>(requireContext(), R.layout.dropdown_item_text_view)
+            val executions = listOf(
+                ExecutionV("1", "home", "empty pipeline", "1.1.1970", 0),
+                ExecutionV("2", "test", "new pipeline", "31.12.1999", 0),
+                ExecutionV("3", "work", "old pipeline", "1.2.3456", 0)
+            )
+            adapter.addAll(executions)
+            binding.nightModeDropDown.setAdapter(adapter)
+        }*/
+        fun setUpNightMode() {
+            l("setUpNightMode start")
+            val enum = viewModel.nightMode
+            val list = NightModeFactory.getList(
+                getString(R.string.night_mode_no),
+                getString(R.string.night_mode_yes),
+                getString(R.string.night_mode_system)
+            )
+            //val adapter =  ArrayAdapter<NightModeInstance>(requireContext(), R.layout.dropdown_item_text_view)
+            val adapter = object : ArrayAdapter<NightModeInstance>(
+                requireContext(),
+                R.layout.dropdown_item_text_view,
+                list
+            ) {
+                override fun getFilter(): Filter =
+                    object : Filter() {
+                        override fun performFiltering(constraint: CharSequence?): FilterResults =
+                            FilterResults().apply {
+                                values = list
+                                count = list.size
+                            }
+
+                        override fun publishResults(
+                            constraint: CharSequence?,
+                            results: FilterResults?
+                        ) {
+                            notifyDataSetChanged()
+                        }
+
+                    }
+            }
+            binding.nightModeDropDown.setAdapter(adapter)
+            binding.nightModeDropDown.setText(
+                NightModeFactory.enumAndListToString(
+                    enum, list
+                )
+            )
+            binding.nightModeDropDown.setOnItemClickListener { parent, view, position, id ->
+                viewModel.nightMode = list[position].enum
+                l("setUpNightMode after viewModel.nightMode is set")
+                binding.nightModeDropDown.clearFocus()
+            }
+            l("setUpNightMode end")
+        }
+
         fun setUpNotificationSwitch() {
             binding.notificationSwitch.isChecked = viewModel.notifications
             binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -99,6 +162,8 @@ class SettingsFragment : Fragment() {
                 addServer()
             }
         }
+
+        setUpNightMode()
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()

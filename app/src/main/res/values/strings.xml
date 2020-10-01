@@ -29,4 +29,7 @@
     <string name="successfully_launched">Successfully launched.</string>
     <string name="problem_with_protocol">Problem with protocol!</string>
     <string name="no_executions">There are no executions.</string>
+    <string name="night_mode_no">Off</string>
+    <string name="night_mode_yes">On</string>
+    <string name="night_mode_system">System default</string>
 </resources>

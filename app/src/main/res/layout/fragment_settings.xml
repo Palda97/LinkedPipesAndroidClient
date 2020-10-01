@@ -41,6 +41,7 @@
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/night_mode_drop_down"
                         android:layout_width="match_parent"
+                        android:inputType="none"
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
