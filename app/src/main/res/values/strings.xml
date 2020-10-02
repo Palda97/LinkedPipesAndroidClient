@@ -36,4 +36,5 @@
     <string name="no_camera_permission">App does not have the permission to use camera</string>
     <string name="ok">Ok</string>
     <string name="low_storage_error">Not enough storage!</string>
+    <string name="server_not_parsed">Server instance could not be parsed!</string>
 </resources>

@@ -16,6 +16,7 @@ import com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
+import cz.palda97.lpclient.model.entities.server.ServerFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
@@ -71,6 +72,17 @@ class EditServerFragment : Fragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    private fun parseFromQrCode(json: String?) {
+        val server = ServerFactory.fromJson(json)
+        if (server == null) {
+            Snackbar.make(binding.root, getString(R.string.server_not_parsed), Snackbar.LENGTH_LONG)
+                .setAnchorView(binding.editServerBottomButtons)
+                .show()
+            return
+        }
+        viewModel.tmpServer = server
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == BARCODE_READER_REQUEST_CODE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
@@ -79,6 +91,7 @@ class EditServerFragment : Fragment() {
                     //val p = barcode.cornerPoints
                     //textView.text = barcode.displayValue
                     l("code captured: ${barcode?.displayValue}")
+                    parseFromQrCode(barcode?.displayValue)
                 } else {
                     l("no barcode captured")
                     //textView.setText(R.string.no_barcode_captured)
@@ -156,12 +169,15 @@ class EditServerFragment : Fragment() {
         super.onPause()
     }
 
+    private fun loadFromServerInstance(serverInstance: ServerInstance) {
+        binding.name.editText!!.setText(serverInstance.name)
+        binding.url.editText!!.setText(serverInstance.url)
+        binding.notes.editText!!.setText(serverInstance.description)
+        binding.activeSwitch.isChecked = serverInstance.active
+    }
+
     override fun onResume() {
-        val tmpInstance = viewModel.tmpServer
-        binding.name.editText!!.setText(tmpInstance.name)
-        binding.url.editText!!.setText(tmpInstance.url)
-        binding.notes.editText!!.setText(tmpInstance.description)
-        binding.activeSwitch.isChecked = tmpInstance.active
+        loadFromServerInstance(viewModel.tmpServer)
         super.onResume()
     }
 }
