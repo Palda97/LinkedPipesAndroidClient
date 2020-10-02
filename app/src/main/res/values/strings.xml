@@ -32,4 +32,8 @@
     <string name="night_mode_no">Off</string>
     <string name="night_mode_yes">On</string>
     <string name="night_mode_system">System default</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="no_camera_permission">App does not have the permission to use camera</string>
+    <string name="ok">Ok</string>
+    <string name="low_storage_error">Not enough storage!</string>
 </resources>

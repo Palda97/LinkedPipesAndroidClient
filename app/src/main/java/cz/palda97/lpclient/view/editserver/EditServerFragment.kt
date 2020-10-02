@@ -1,15 +1,19 @@
 package cz.palda97.lpclient.view.editserver
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.material.snackbar.Snackbar
+import com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
 import cz.palda97.lpclient.model.entities.server.ServerInstance
@@ -19,8 +23,11 @@ import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 class EditServerFragment : Fragment() {
 
     companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
         fun newInstance() =
             EditServerFragment()
+        private const val BARCODE_READER_REQUEST_CODE = 1
     }
 
     private lateinit var viewModel: EditServerViewModel
@@ -28,6 +35,11 @@ class EditServerFragment : Fragment() {
     private lateinit var doneButton: Button
 
     private var done = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +51,43 @@ class EditServerFragment : Fragment() {
         setUpComponents()
         MainActivity.switchToFragment = R.id.navigation_settings
         return root
+    }
+
+    private fun startQrScanner() {
+        val intent = Intent(requireContext(), BarcodeCaptureActivity::class.java)
+        startActivityForResult(intent, BARCODE_READER_REQUEST_CODE)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_editserver, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId) {
+        R.id.qr_scan_item -> {
+            startQrScanner()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == BARCODE_READER_REQUEST_CODE) {
+            if (resultCode == CommonStatusCodes.SUCCESS) {
+                if (data != null) {
+                    val barcode = data.getParcelableExtra<Barcode>(BarcodeCaptureActivity.BarcodeObject)
+                    //val p = barcode.cornerPoints
+                    //textView.text = barcode.displayValue
+                    l("code captured: ${barcode?.displayValue}")
+                } else {
+                    l("no barcode captured")
+                    //textView.setText(R.string.no_barcode_captured)
+                }
+            } else {
+                Log.d(TAG, "result code: ${CommonStatusCodes.getStatusCodeString(resultCode)}")
+            }
+        } else
+            super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun setUpComponents() {
