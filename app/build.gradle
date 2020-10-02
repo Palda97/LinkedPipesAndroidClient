@@ -92,4 +92,7 @@ dependencies {
 
     //RecyclerView fast scroll
     implementation 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
+
+    //Google Play Services for qr code detection
+    implementation 'com.google.android.gms:play-services-vision:20.1.0'
 }
