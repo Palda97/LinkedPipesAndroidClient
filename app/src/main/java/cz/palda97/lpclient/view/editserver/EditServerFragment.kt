@@ -20,6 +20,7 @@ import cz.palda97.lpclient.model.entities.server.ServerFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
+import cz.palda97.lpclient.viewmodel.editserver.Ping
 
 class EditServerFragment : Fragment() {
 
@@ -104,6 +105,35 @@ class EditServerFragment : Fragment() {
     }
 
     private fun setUpComponents() {
+
+        fun setUpPingButton() {
+            binding.ping.setOnClickListener {
+                val url = binding.url.editText!!.text.toString()
+                viewModel.ping(url)
+            }
+            viewModel.pingStatus.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (mail.isLoading)
+                    return@Observer
+                viewModel.resetPingStatus()
+                if (!mail.isOk)
+                    return@Observer
+                val (url, status) = mail.mailContent!!
+                val text: String = "${getString(R.string.ping_of)} $url:\n" +
+                        when(status) {
+                            Ping.Status.OK -> getString(R.string.successful)
+                            Ping.Status.NO -> getString(R.string.connection_timeout)
+                            Ping.Status.UNKNOWN_HOST -> getString(R.string.unknown_host)
+                            Ping.Status.SECURITY -> getString(R.string.security_exception)
+                            Ping.Status.IO -> getString(R.string.network_error)
+                            Ping.Status.API_OK -> getString(R.string.successful_api_call)
+                        }
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                    .setAnchorView(binding.editServerBottomButtons)
+                    .show()
+            })
+        }
+
         fun setUpDoneButton() {
             doneButton = binding.saveServer
             doneButton.setOnClickListener {
@@ -136,6 +166,8 @@ class EditServerFragment : Fragment() {
                 viewModel.resetStatus()
             })
         }
+
+        setUpPingButton()
         setUpDoneButton()
     }
 
@@ -159,11 +191,6 @@ class EditServerFragment : Fragment() {
         viewModel.tmpServer = tmpInstance
     }
 
-    /*override fun onPause() {
-        if (!done)
-            saveTmpInstance()
-        super.onPause()
-    }*/
     override fun onPause() {
         saveTmpInstance()
         super.onPause()

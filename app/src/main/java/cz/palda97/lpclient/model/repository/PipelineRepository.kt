@@ -121,7 +121,7 @@ class PipelineRepository(
             return@coroutineScope MailPackage(list)
         }
 
-    private suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
+    suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(serverInstance)) {
             is Either.Left -> {
                 return when (res.value) {
