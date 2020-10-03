@@ -37,4 +37,11 @@
     <string name="ok">Ok</string>
     <string name="low_storage_error">Not enough storage!</string>
     <string name="server_not_parsed">Server instance could not be parsed!</string>
+    <string name="ping_of">Ping of</string>
+    <string name="successful">Successful</string>
+    <string name="connection_timeout">Connection timeout</string>
+    <string name="unknown_host">Unknown host</string>
+    <string name="security_exception">Security exception</string>
+    <string name="network_error">Network error</string>
+    <string name="successful_api_call">Successful api call</string>
 </resources>
