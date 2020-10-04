@@ -112,7 +112,7 @@ class SettingsFragment : Fragment() {
                     enum, list
                 )
             )
-            binding.nightModeDropDown.setOnItemClickListener { parent, view, position, id ->
+            binding.nightModeDropDown.setOnItemClickListener { _, _, position, _ ->
                 viewModel.nightMode = list[position].enum
                 l("setUpNightMode after viewModel.nightMode is set")
                 binding.nightModeDropDown.clearFocus()
