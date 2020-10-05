@@ -190,6 +190,15 @@ class ExecutionRepository(
         }
     }
 
+    suspend fun update(server: ServerInstance) {
+        val mail = downloadExecutions(server)
+        if (!mail.isOk)
+            return
+        val pack = mail.mailContent!!
+        executionDao.deleteByServer(pack.server.id)
+        executionDao.insert(pack.executionList.map { it.execution })
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)

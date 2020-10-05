@@ -29,4 +29,7 @@ abstract class PipelineViewDao {
 
     @Query("select * from pipelineview join markfordeletion on PipelineView.id = MarkForDeletion.mark")
     abstract suspend fun selectDeleted(): List<PipelineView>
+
+    @Query("delete from pipelineview where serverId = :serverId")
+    abstract suspend fun deleteByServer(serverId: Long)
 }

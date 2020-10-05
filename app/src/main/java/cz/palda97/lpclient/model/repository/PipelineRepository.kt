@@ -230,6 +230,15 @@ class PipelineRepository(
         deletePipeline(it)
     }
 
+    suspend fun update(server: ServerInstance) {
+        val mail = downloadPipelineViews(server)
+        if (!mail.isOk)
+            return
+        val pack = mail.mailContent!!
+        pipelineViewDao.deleteByServer(pack.server.id)
+        pipelineViewDao.insertList(pack.pipelineViewList.map { it.pipelineView })
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
