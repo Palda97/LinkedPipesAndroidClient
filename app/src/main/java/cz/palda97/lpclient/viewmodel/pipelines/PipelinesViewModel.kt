@@ -11,6 +11,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
+import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
@@ -70,7 +71,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshButton() {
         retrofitScope.launch {
-            downloadAllPipelineViews()
+            //downloadAllPipelineViews()
+            RepositoryRoutines().refresh()
         }
     }
 

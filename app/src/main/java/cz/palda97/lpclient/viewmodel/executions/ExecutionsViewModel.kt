@@ -8,6 +8,7 @@ import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ExecutionRepository
+import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.*
 
@@ -88,7 +89,8 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     fun refreshExecutionsButton() {
         retrofitScope.launch {
-            downloadAllExecutions()
+            //downloadAllExecutions()
+            RepositoryRoutines().refresh()
         }
     }
 
