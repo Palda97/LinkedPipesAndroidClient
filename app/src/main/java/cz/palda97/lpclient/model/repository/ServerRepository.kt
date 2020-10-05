@@ -49,4 +49,6 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
 
     suspend fun matchUrlOrName(serverInstance: ServerInstance) =
         matchUrlOrNameExcept(serverInstance, ServerInstance())
+
+    suspend fun activeServers(): List<ServerInstance> = serverInstanceDao.activeServers()
 }

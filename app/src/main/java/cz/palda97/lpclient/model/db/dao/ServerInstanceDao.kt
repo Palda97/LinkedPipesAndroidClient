@@ -46,4 +46,7 @@ abstract class ServerInstanceDao {
     @Transaction
     @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServerListWithExecutions(): LiveData<List<ServerWithExecutions>>
+
+    @Query("select * from serverinstance where active = 1 order by id asc")
+    abstract suspend fun activeServers(): List<ServerInstance>
 }
