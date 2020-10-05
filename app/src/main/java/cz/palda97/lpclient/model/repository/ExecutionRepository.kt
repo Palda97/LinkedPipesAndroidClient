@@ -16,7 +16,6 @@ import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -45,7 +44,8 @@ class ExecutionRepository(
 
     private val mediator = MediatorLiveData<MailPackage<List<ServerWithExecutions>>>().apply {
         addSource(filteredLiveExecutions) {
-            postValue(it)
+            if (!noisyFlag)
+                postValue(it)
         }
     }
 
@@ -97,11 +97,14 @@ class ExecutionRepository(
         }
 
     private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
-        if (list.isEmpty())
-            mediator.postValue(MailPackage(emptyList()))
         return when (silent) {
             true -> executionDao.insert(list)
-            false -> executionDao.renewal(list)
+            false -> {
+                noisyFlag = false
+                if (list.isEmpty())
+                    mediator.postValue(MailPackage(emptyList()))
+                executionDao.renewal(list)
+            }
         }
     }
 
@@ -125,12 +128,16 @@ class ExecutionRepository(
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
+    var noisyFlag = false
+
     suspend fun cacheExecutions(
         either: Either<ServerInstance, List<ServerInstance>?>,
         silent: Boolean
     ) {
-        if (!silent)
+        if (!silent) {
+            noisyFlag = true
             mediator.postValue(MailPackage.loadingPackage())
+        }
         return when (either) {
             is Either.Left -> cacheExecutions(either.value, silent)
             is Either.Right -> cacheExecutions(either.value, silent)
