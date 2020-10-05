@@ -167,6 +167,12 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     fun launchPipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
             launchPipelineRoutine(pipelineView)
+            val server = serverRepository.activeLiveServers.value?.mailContent?.find {
+                it.id == pipelineView.serverId
+            }
+            server?.let {
+                executionRepository.cacheExecutions(Either.Left(it), true)
+            }
         }
     }
 
