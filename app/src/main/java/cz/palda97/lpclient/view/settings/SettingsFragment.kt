@@ -143,11 +143,11 @@ class SettingsFragment : Fragment() {
                     Log.d(TAG, "it.isOk")
                     Log.d(TAG, "item count: ${it.mailContent.size}")
 
-                    it.mailContent.forEach {
+                    /*it.mailContent.forEach {
                         with(it) {
                             Log.d(TAG, "name: $name\nurl: $url\nid: $id")
                         }
-                    }
+                    }*/
                     serverRecyclerAdapter.updateServerList(it.mailContent)
                     binding.noInstances = it.mailContent.isEmpty()
                 }

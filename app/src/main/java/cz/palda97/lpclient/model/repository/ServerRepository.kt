@@ -1,15 +1,26 @@
 package cz.palda97.lpclient.model.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import androidx.lifecycle.Transformations
+import cz.palda97.lpclient.Injector
 
 class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
 
+    companion object {
+        private val TAG = Injector.tag(this)
+        private fun l(msg: String) = Log.d(TAG, msg)
+    }
+
     suspend fun insertServer(serverInstance: ServerInstance) {
-        serverInstanceDao.insertServer(serverInstance)
+        val id = serverInstanceDao.insertServer(serverInstance)
+        serverInstance.id = id
+        l("insertServer: id: ${serverInstance.id.toString()}")
+        if (serverInstance.active)
+            RepositoryRoutines().update(serverInstance)
     }
 
     suspend fun matchUrlOrNameExcept(

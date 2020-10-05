@@ -13,7 +13,7 @@ abstract class ServerInstanceDao {
     abstract fun serverList(): LiveData<List<ServerInstance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertServer(server: ServerInstance)
+    abstract suspend fun insertServer(server: ServerInstance): Long
 
     @Delete
     abstract suspend fun deleteServer(server: ServerInstance)
