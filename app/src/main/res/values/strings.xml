@@ -44,4 +44,5 @@
     <string name="security_exception">Security exception</string>
     <string name="network_error">Network error</string>
     <string name="successful_api_call">Successful api call</string>
+    <string name="night_mode">Night Mode</string>
 </resources>

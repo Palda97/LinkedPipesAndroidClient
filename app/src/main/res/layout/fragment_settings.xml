@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/dropdown_horizontal_margin"
                     android:layout_marginVertical="@dimen/dropdown_vertical_margin"
-                    android:hint="Nigth mode">
+                    android:hint="@string/night_mode">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/night_mode_drop_down"
