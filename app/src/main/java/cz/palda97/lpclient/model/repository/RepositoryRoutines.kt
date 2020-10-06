@@ -56,4 +56,9 @@ class RepositoryRoutines {
             it.join()
         }
     }
+
+    fun onServerToFilterChange() {
+        pipelineRepository.onServerToFilterChange()
+        executionRepository.onServerToFilterChange()
+    }
 }

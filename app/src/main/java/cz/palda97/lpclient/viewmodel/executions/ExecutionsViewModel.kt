@@ -66,7 +66,8 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         }
 
     private fun onServerToFilterChange() {
-        executionRepository.onServerToFilterChange()
+        //executionRepository.onServerToFilterChange()
+        RepositoryRoutines().onServerToFilterChange()
     }
 
     var serverToFilter: ServerInstance?

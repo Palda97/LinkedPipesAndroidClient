@@ -78,7 +78,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun onServerToFilterChange() {
-        pipelineRepository.onServerToFilterChange()
+        //pipelineRepository.onServerToFilterChange()
+        RepositoryRoutines().onServerToFilterChange()
     }
 
     var serverToFilter: ServerInstance?
