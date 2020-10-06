@@ -3,6 +3,7 @@ package cz.palda97.lpclient.viewmodel.pipelines
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.google.gson.Gson
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.pipeline.PipelineView
@@ -162,6 +163,15 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
         l(text)
         _launchStatus.postValue(LaunchStatus.OK)
+        val iri = Gson().fromJson(text, Iri::class.java)?.let { iri ->
+            l("mam iri")
+            serverRepository.activeLiveServers.value?.mailContent?.find {
+                l("mam server")
+                it.id == pipelineView.serverId
+            }?.let {
+                executionRepository.monitor(it.id, iri.iri)
+            }
+        }
     }
 
     fun launchPipeline(pipelineView: PipelineView) {
@@ -188,6 +198,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             launchPipelineRoutine(pipelineView)
         }
     }
+
+    class Iri(val iri: String)
 
     companion object {
         private const val TAG = "PipelinesViewModel"

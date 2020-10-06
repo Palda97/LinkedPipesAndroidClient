@@ -16,7 +16,7 @@ data class Execution(
     val end: Date?,
     val size: Long?,
     val start: Date?,
-    val status: ExecutionStatus,
+    var status: ExecutionStatus,
     val serverId: Long
 ) {
     @Ignore
@@ -27,7 +27,7 @@ data class Execution(
     var pipelineName: String = ""
 
     val idNumber: String
-        get() = id.split("/").last()
+        get() = idNumberFun(id)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -44,7 +44,9 @@ data class Execution(
         return id.hashCode()
     }
 
-
+    companion object {
+        fun idNumberFun(fullId: String) = fullId.split("/").last()
+    }
 }
 
 enum class ExecutionStatus {

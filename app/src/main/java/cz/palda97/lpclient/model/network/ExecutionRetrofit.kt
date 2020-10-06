@@ -15,6 +15,9 @@ interface ExecutionRetrofit {
     @DELETE("resources/executions/{id}")
     fun delete(@Path("id") id: String): Call<ResponseBody>
 
+    @GET("resources/executions/{id}")
+    fun execution(@Path("id") id: String): Call<ResponseBody>
+
     companion object {
         fun getInstance(baseUrl: String): ExecutionRetrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
