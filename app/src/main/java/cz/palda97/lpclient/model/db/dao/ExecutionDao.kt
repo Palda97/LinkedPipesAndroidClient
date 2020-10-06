@@ -32,4 +32,7 @@ abstract class ExecutionDao {
 
     @Query("delete from execution where serverId = :serverId")
     abstract suspend fun deleteByServer(serverId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun silentInsert(list: List<Execution>)
 }

@@ -98,7 +98,7 @@ class ExecutionRepository(
 
     private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
         return when (silent) {
-            true -> executionDao.insert(list)
+            true -> executionDao.silentInsert(list)
             false -> {
                 noisyFlag = false
                 if (list.isEmpty())
