@@ -3,6 +3,7 @@ package cz.palda97.lpclient.viewmodel.pipelines
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.google.gson.Gson
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.pipeline.PipelineView
@@ -11,6 +12,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
+import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
@@ -70,12 +72,14 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshButton() {
         retrofitScope.launch {
-            downloadAllPipelineViews()
+            //downloadAllPipelineViews()
+            RepositoryRoutines().refresh()
         }
     }
 
     private fun onServerToFilterChange() {
-        pipelineRepository.onServerToFilterChange()
+        //pipelineRepository.onServerToFilterChange()
+        RepositoryRoutines().onServerToFilterChange()
     }
 
     var serverToFilter: ServerInstance?
@@ -160,11 +164,26 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
         l(text)
         _launchStatus.postValue(LaunchStatus.OK)
+        val iri = Gson().fromJson(text, Iri::class.java)?.let { iri ->
+            l("mam iri")
+            serverRepository.activeLiveServers.value?.mailContent?.find {
+                l("mam server")
+                it.id == pipelineView.serverId
+            }?.let {
+                executionRepository.monitor(it.id, iri.iri)
+            }
+        }
     }
 
     fun launchPipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
             launchPipelineRoutine(pipelineView)
+            val server = serverRepository.activeLiveServers.value?.mailContent?.find {
+                it.id == pipelineView.serverId
+            }
+            server?.let {
+                executionRepository.cacheExecutions(Either.Left(it), true)
+            }
         }
     }
 
@@ -180,6 +199,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             launchPipelineRoutine(pipelineView)
         }
     }
+
+    class Iri(val iri: String)
 
     companion object {
         private const val TAG = "PipelinesViewModel"

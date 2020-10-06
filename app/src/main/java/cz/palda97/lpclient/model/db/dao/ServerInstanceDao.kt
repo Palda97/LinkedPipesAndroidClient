@@ -13,7 +13,7 @@ abstract class ServerInstanceDao {
     abstract fun serverList(): LiveData<List<ServerInstance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertServer(server: ServerInstance)
+    abstract suspend fun insertServer(server: ServerInstance): Long
 
     @Delete
     abstract suspend fun deleteServer(server: ServerInstance)
@@ -46,4 +46,7 @@ abstract class ServerInstanceDao {
     @Transaction
     @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServerListWithExecutions(): LiveData<List<ServerWithExecutions>>
+
+    @Query("select * from serverinstance where active = 1 order by id asc")
+    abstract suspend fun activeServers(): List<ServerInstance>
 }

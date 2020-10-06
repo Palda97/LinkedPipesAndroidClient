@@ -38,7 +38,8 @@ class PipelineRepository(
     init {
         with(liveServersWithPipelineViews) {
             addSource(livePipelineViews) {
-                postValue(it)
+                if (!noisyFlag)
+                    postValue(it)
             }
         }
     }
@@ -63,10 +64,14 @@ class PipelineRepository(
     }
 
     private suspend fun deleteAndInsertPipelineViews(list: List<PipelineView>) {
+        noisyFlag = false
         pipelineViewDao.deleteAndInsertPipelineViews(list)
     }
 
+    private var noisyFlag = false
+
     suspend fun refreshPipelineViews(either: Either<ServerInstance, List<ServerInstance>?>) {
+        noisyFlag = true
         liveServersWithPipelineViews.postValue(MailPackage.loadingPackage())
         when (either) {
             is Either.Left -> downAndCachePipelineViews(either.value)
@@ -223,6 +228,15 @@ class PipelineRepository(
 
     val deleteRepo = DeleteRepository<PipelineView> {
         deletePipeline(it)
+    }
+
+    suspend fun update(server: ServerInstance) {
+        val mail = downloadPipelineViews(server)
+        if (!mail.isOk)
+            return
+        val pack = mail.mailContent!!
+        pipelineViewDao.deleteByServer(pack.server.id)
+        pipelineViewDao.insertList(pack.pipelineViewList.map { it.pipelineView })
     }
 
     companion object {

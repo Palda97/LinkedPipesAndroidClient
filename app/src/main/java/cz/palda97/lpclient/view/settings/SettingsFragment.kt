@@ -112,7 +112,7 @@ class SettingsFragment : Fragment() {
                     enum, list
                 )
             )
-            binding.nightModeDropDown.setOnItemClickListener { parent, view, position, id ->
+            binding.nightModeDropDown.setOnItemClickListener { _, _, position, _ ->
                 viewModel.nightMode = list[position].enum
                 l("setUpNightMode after viewModel.nightMode is set")
                 binding.nightModeDropDown.clearFocus()
@@ -143,11 +143,11 @@ class SettingsFragment : Fragment() {
                     Log.d(TAG, "it.isOk")
                     Log.d(TAG, "item count: ${it.mailContent.size}")
 
-                    it.mailContent.forEach {
+                    /*it.mailContent.forEach {
                         with(it) {
                             Log.d(TAG, "name: $name\nurl: $url\nid: $id")
                         }
-                    }
+                    }*/
                     serverRecyclerAdapter.updateServerList(it.mailContent)
                     binding.noInstances = it.mailContent.isEmpty()
                 }

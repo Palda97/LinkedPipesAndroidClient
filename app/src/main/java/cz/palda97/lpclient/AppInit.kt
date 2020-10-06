@@ -2,14 +2,12 @@ package cz.palda97.lpclient
 
 import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import cz.palda97.lpclient.model.SharedPreferencesFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import cz.palda97.lpclient.model.db.AppDatabase
+import cz.palda97.lpclient.model.repository.RepositoryRoutines
+import kotlinx.coroutines.*
 import org.conscrypt.Conscrypt
 import java.security.Security
 
@@ -17,27 +15,10 @@ class AppInit : Application() {
     override fun onCreate() {
         super.onCreate()
         init(applicationContext)
-
-        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
-        val uiModeNight = when(applicationContext.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-            Configuration.UI_MODE_NIGHT_YES -> "yes"
-            Configuration.UI_MODE_NIGHT_NO -> "no"
-            else -> "else"
+        CoroutineScope(Dispatchers.IO).launch {
+            cleanDb()
+            refresh()
         }
-        l("system night mode: $uiModeNight")
-
-        val appCompat = when(AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_YES -> "MODE_NIGHT_YES"
-            AppCompatDelegate.MODE_NIGHT_NO -> "MODE_NIGHT_NO"
-            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY -> "MODE_NIGHT_AUTO_BATTERY"
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> "MODE_NIGHT_FOLLOW_SYSTEM"
-            AppCompatDelegate.MODE_NIGHT_UNSPECIFIED -> "MODE_NIGHT_UNSPECIFIED"
-            else -> "else"
-        }
-        l("app night mode: $appCompat")
-
-        cleanDb()
     }
 
     companion object {
@@ -50,7 +31,8 @@ class AppInit : Application() {
         fun init(context: Context) {
             Injector.context = context
             Security.insertProviderAt(Conscrypt.newProvider(), 1)
-            val nightMode = SharedPreferencesFactory.sharedPreferences(context).getInt(NIGHT_MODE, DEFAULT_NIGHT_MODE)
+            val nightMode = SharedPreferencesFactory.sharedPreferences(context)
+                .getInt(NIGHT_MODE, DEFAULT_NIGHT_MODE)
             AppCompatDelegate.setDefaultNightMode(nightMode)
         }
 
@@ -63,20 +45,26 @@ class AppInit : Application() {
             return false
         }
 
-        fun cleanDb(context: Context? = null): Boolean {
+        private suspend fun <R> afterInit(context: Context?, block: suspend () -> R): R? =
             if (noContext(context))
-                return false
-            CoroutineScope(Dispatchers.IO).launch {
-                launch {
-                    Injector.pipelineRepository.cleanDb()
-                    l("pipelineRepository.cleanDb() should be completed")
-                }
-                launch {
-                    Injector.executionRepository.cleanDb()
-                    l("executionRepository.cleanDb() should be completed")
-                }
-            }
-            return true
+                null
+            else
+                block()
+
+        suspend fun cleanDb(context: Context? = null) = afterInit(context) {
+            RepositoryRoutines().cleanDb()
+        }
+
+        suspend fun preserveOnlyServers(context: Context? = null) = afterInit(context) {
+            val db = AppDatabase.getInstance(Injector.context)
+            val pipelineViewDao = db.pipelineViewDao()
+            val executionDao = db.executionDao()
+            pipelineViewDao.deleteAll()
+            executionDao.deleteAll()
+        }
+
+        suspend fun refresh(context: Context? = null) = afterInit(context) {
+            RepositoryRoutines().refresh()
         }
     }
 }

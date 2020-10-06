@@ -131,22 +131,11 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
                 DateParser.toDate(end),
                 size?.toLong(),
                 DateParser.toDate(start),
-                executionStatusFromString(
+                ExecutionStatusUtilities.fromString(
                     status
                 ) ?: return null,
                 server.id
             )
-        }
-
-        private fun executionStatusFromString(string: String): ExecutionStatus? = when(string) {
-            LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
-            LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED
-            LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING
-            LdConstants.EXECUTION_STATUS_CANCELLED -> ExecutionStatus.CANCELLED
-            LdConstants.EXECUTION_STATUS_DANGLING -> ExecutionStatus.DANGLING
-            LdConstants.EXECUTION_STATUS_CANCELLING -> ExecutionStatus.CANCELLING
-            LdConstants.EXECUTION_STATUS_QUEUED -> ExecutionStatus.QUEUED
-            else -> null
         }
     }
 }

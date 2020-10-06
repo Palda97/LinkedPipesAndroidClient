@@ -10,15 +10,11 @@ import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
-import cz.palda97.lpclient.model.entities.execution.Execution
-import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
-import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
+import cz.palda97.lpclient.model.entities.execution.*
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import cz.palda97.lpclient.viewmodel.executions.ExecutionV
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 
 class ExecutionRepository(
     private val executionDao: ExecutionDao,
@@ -45,7 +41,8 @@ class ExecutionRepository(
 
     private val mediator = MediatorLiveData<MailPackage<List<ServerWithExecutions>>>().apply {
         addSource(filteredLiveExecutions) {
-            postValue(it)
+            if (!noisyFlag)
+                postValue(it)
         }
     }
 
@@ -97,11 +94,14 @@ class ExecutionRepository(
         }
 
     private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
-        if (list.isEmpty())
-            mediator.postValue(MailPackage(emptyList()))
         return when (silent) {
-            true -> executionDao.insert(list)
-            false -> executionDao.renewal(list)
+            true -> executionDao.silentInsert(list)
+            false -> {
+                noisyFlag = false
+                if (list.isEmpty())
+                    mediator.postValue(MailPackage(emptyList()))
+                executionDao.renewal(list)
+            }
         }
     }
 
@@ -125,12 +125,16 @@ class ExecutionRepository(
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
+    var noisyFlag = false
+
     suspend fun cacheExecutions(
         either: Either<ServerInstance, List<ServerInstance>?>,
         silent: Boolean
     ) {
-        if (!silent)
+        if (!silent) {
+            noisyFlag = true
             mediator.postValue(MailPackage.loadingPackage())
+        }
         return when (either) {
             is Either.Left -> cacheExecutions(either.value, silent)
             is Either.Right -> cacheExecutions(either.value, silent)
@@ -183,10 +187,54 @@ class ExecutionRepository(
         }
     }
 
+    suspend fun update(server: ServerInstance) {
+        val mail = downloadExecutions(server)
+        if (!mail.isOk)
+            return
+        val pack = mail.mailContent!!
+        executionDao.deleteByServer(pack.server.id)
+        executionDao.insert(pack.executionList.map { it.execution })
+    }
+
+    private suspend fun getSpecificExecution(executionId: String, server: ServerInstance): String? {
+        val retrofit = when (val res = getExecutionRetrofit(server)) {
+            is Either.Left -> return null
+            is Either.Right -> res.value
+        }
+        val call = retrofit.execution(Execution.idNumberFun(executionId))
+        return RetrofitHelper.getStringFromCall(call)
+    }
+
+    fun monitor(serverId: Long, executionId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                delay(MONITOR_DELAY)
+                val server = serverDao.findById(serverId) ?: break
+                if (!server.active)
+                    break
+                val json = getSpecificExecution(executionId, server)
+                if (json == "[ ]"){
+                    continue
+                }
+                val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
+                executionDao.findById(executionId)?.let {
+                    if (status != it.status) {
+                        it.status = status
+                        executionDao.insert(it)
+                    }
+                }
+                if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
+                    break
+                }
+            }
+        }
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
         private const val FRONTEND_PORT: Short = 8080
         private fun mixAddressWithPort(address: String) = "${address}:${FRONTEND_PORT}/"
+        private const val MONITOR_DELAY = 1000L
     }
 }
