@@ -13,6 +13,7 @@ import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.execution.*
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
+import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
 
@@ -59,7 +60,8 @@ class ExecutionRepository(
 
     private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
         try {
-            Either.Right(ExecutionRetrofit.getInstance(mixAddressWithPort(server.url)))
+            //Either.Right(ExecutionRetrofit.getInstance(server.url))
+            Either.Right(RetrofitHelper.getBuilder(server, server.frontend).executionRetrofit)
         } catch (e: IllegalArgumentException) {
             l("getExecutionRetrofit ${e.toString()}")
             Either.Left(StatusCode.NO_CONNECT)
@@ -233,8 +235,6 @@ class ExecutionRepository(
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
-        private const val FRONTEND_PORT: Short = 8080
-        private fun mixAddressWithPort(address: String) = "${address}:${FRONTEND_PORT}/"
         private const val MONITOR_DELAY = 1000L
     }
 }

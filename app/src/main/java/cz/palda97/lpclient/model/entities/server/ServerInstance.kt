@@ -8,8 +8,16 @@ data class ServerInstance(
     val name: String = "",
     val url: String = "",
     val active: Boolean = true,
-    val description: String = ""
+    val description: String = "",
+    val auth: Boolean = false
 ) {
+    var frontend: Int? = null
+
+    var username: String = ""
+    var password: String = ""
+    val credentials: Pair<String, String>?
+        get() = if (auth) username to password else null
+
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
 
@@ -27,9 +35,4 @@ data class ServerInstance(
     override fun hashCode(): Int {
         return id.hashCode()
     }
-
-    override fun toString(): String {
-        return "ServerInstance(name='$name', url='$url', active=$active, description='$description', id=$id)"
-    }
-
 }
