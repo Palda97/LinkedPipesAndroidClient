@@ -45,4 +45,8 @@
     <string name="network_error">Network error</string>
     <string name="successful_api_call">Successful api call</string>
     <string name="night_mode">Night Mode</string>
+    <string name="frontend_port_if_not_protocol_default">Frontend port (if not protocol default)</string>
+    <string name="use_basic_authentication">Use basic authentication</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
 </resources>

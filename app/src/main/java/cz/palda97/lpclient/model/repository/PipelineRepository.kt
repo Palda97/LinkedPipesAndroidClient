@@ -14,6 +14,7 @@ import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
 import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
+import cz.palda97.lpclient.model.network.PipelineRetrofit.Companion.pipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -162,7 +163,8 @@ class PipelineRepository(
 
     suspend fun getPipelineRetrofit(server: ServerInstance): Either<StatusCode, PipelineRetrofit> =
         try {
-            Either.Right(PipelineRetrofit.getInstance(mixAddressWithPort(server.url)))
+            //Either.Right(PipelineRetrofit.getInstance(server.url))
+            Either.Right(RetrofitHelper.getBuilder(server, server.frontend).pipelineRetrofit)
         } catch (e: IllegalArgumentException) {
             l("deletePipeline ${e.toString()}")
             Either.Left(StatusCode.NO_CONNECT)
@@ -242,7 +244,5 @@ class PipelineRepository(
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
-        private const val FRONTEND_PORT: Short = 8080
-        private fun mixAddressWithPort(address: String) = "${address}:${FRONTEND_PORT}/"
     }
 }

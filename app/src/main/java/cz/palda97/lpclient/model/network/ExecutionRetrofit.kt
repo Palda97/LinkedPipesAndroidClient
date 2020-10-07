@@ -19,9 +19,7 @@ interface ExecutionRetrofit {
     fun execution(@Path("id") id: String): Call<ResponseBody>
 
     companion object {
-        fun getInstance(baseUrl: String): ExecutionRetrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .build()
-            .create(ExecutionRetrofit::class.java)
+        val Retrofit.Builder.executionRetrofit: ExecutionRetrofit
+            get() = build().create(ExecutionRetrofit::class.java)
     }
 }

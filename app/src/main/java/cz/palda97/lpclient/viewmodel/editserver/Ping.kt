@@ -8,9 +8,11 @@ import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
 
-class Ping(val inputUrl: String) {
+//class Ping(private val apiUrl: String) {
+class Ping(server: ServerInstance) {
 
-    val url = address(inputUrl)
+    val pingUrl = address(server.url)
+    val apiUrl = server.frontendUrl
 
     enum class Status {
         OK, NO, UNKNOWN_HOST, SECURITY, IO, API_OK
@@ -18,7 +20,7 @@ class Ping(val inputUrl: String) {
 
     suspend fun tryApiCall(): Status = withContext(Dispatchers.IO) {
         val pipelineRepository = Injector.pipelineRepository
-        val mail = pipelineRepository.downloadPipelineViews(ServerInstance(url = inputUrl))
+        val mail = pipelineRepository.downloadPipelineViews(ServerInstance(url = apiUrl))
         if (mail.isOk)
             Status.API_OK
         else
@@ -26,10 +28,10 @@ class Ping(val inputUrl: String) {
     }
 
     suspend fun ping(): Status = withContext(Dispatchers.IO) {
-        if (url.isEmpty())
+        if (pingUrl.isEmpty())
             return@withContext Status.UNKNOWN_HOST
         try {
-            val ip = InetAddress.getByName(url)
+            val ip = InetAddress.getByName(pingUrl)
             if (ip?.isReachable(TIMEOUT) == true)
                 Status.OK
             else

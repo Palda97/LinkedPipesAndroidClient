@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Button
+import android.widget.ScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,8 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
+import kotlinx.coroutines.*
+import java.lang.NumberFormatException
 
 class EditServerFragment : Fragment() {
 
@@ -106,10 +109,28 @@ class EditServerFragment : Fragment() {
 
     private fun setUpComponents() {
 
+        fun setUpAuthSwitch() {
+            binding.authSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (buttonView?.isPressed != true)
+                    return@setOnCheckedChangeListener
+                binding.auth = isChecked
+                if (!isChecked)
+                    return@setOnCheckedChangeListener
+                binding.scrollView.fullScroll(View.FOCUS_DOWN)
+                CoroutineScope(Dispatchers.Default).launch {
+                    delay(100)
+                    withContext(Dispatchers.Main) {
+                        val height = binding.scrollView.getChildAt(0).height
+                        binding.scrollView.fling(height * 2)
+                    }
+                }
+            }
+        }
+
         fun setUpPingButton() {
             binding.ping.setOnClickListener {
-                val url = binding.url.editText!!.text.toString()
-                viewModel.ping(url)
+                val server = saveTmpInstance()
+                viewModel.ping(server)
             }
             viewModel.pingStatus.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
@@ -167,6 +188,7 @@ class EditServerFragment : Fragment() {
             })
         }
 
+        setUpAuthSwitch()
         setUpPingButton()
         setUpDoneButton()
     }
@@ -176,19 +198,33 @@ class EditServerFragment : Fragment() {
         viewModel.saveServer()
     }
 
-    private fun saveTmpInstance() {
+    private fun saveTmpInstance(): ServerInstance {
         val name: String = binding.name.editText!!.text.toString()
         val url: String = binding.url.editText!!.text.toString()
         val notes: String = binding.notes.editText!!.text.toString()
         val active: Boolean = binding.activeSwitch.isChecked
+        val auth: Boolean = binding.auth ?: false
+        val username: String = binding.username.editText!!.text.toString()
+        val password: String = binding.password.editText!!.text.toString()
+        val frontend: Int? = try {
+            binding.frontend.editText!!.text.toString().toInt()
+        } catch (e: NumberFormatException) {
+            null
+        }
         val tmpInstance =
             ServerInstance(
                 name,
                 url,
                 active,
-                notes
-            )
+                notes,
+                auth
+            ).apply {
+                this.username = username
+                this.password = password
+                this.frontend = frontend
+            }
         viewModel.tmpServer = tmpInstance
+        return tmpInstance
     }
 
     override fun onPause() {
@@ -201,6 +237,12 @@ class EditServerFragment : Fragment() {
         binding.url.editText!!.setText(serverInstance.url)
         binding.notes.editText!!.setText(serverInstance.description)
         binding.activeSwitch.isChecked = serverInstance.active
+        binding.auth = serverInstance.auth
+        binding.username.editText!!.setText(serverInstance.username)
+        binding.password.editText!!.setText(serverInstance.password)
+        serverInstance.frontend?.let {
+            binding.frontend.editText!!.setText(it.toString())
+        }
     }
 
     override fun onResume() {

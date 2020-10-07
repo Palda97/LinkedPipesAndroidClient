@@ -2,7 +2,11 @@
 <layout>
 
     <data>
-        <!-- -->
+        <import type="android.view.View" />
+
+        <variable
+            name="auth"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,6 +20,7 @@
         tools:context=".view.editserver.EditServerFragment">
 
         <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@id/edit_server_bottom_buttons"
@@ -52,6 +57,22 @@
                     android:hint="@string/server_address">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:inputType="textUri"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/frontend"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
+                    android:hint="@string/frontend_port_if_not_protocol_default">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:inputType="number"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -79,6 +100,46 @@
                     android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:checked="true"
                     android:text="@string/active" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/auth_switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/edit_server_switch_horizontal_margin"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
+                    android:text="@string/use_basic_authentication" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/username"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{auth ? View.VISIBLE : View.GONE}"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
+                    android:hint="@string/username">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="password_toggle"
+                    android:visibility="@{auth ? View.VISIBLE : View.GONE}"
+                    android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
+                    android:hint="@string/password">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:inputType="textPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
         </ScrollView>

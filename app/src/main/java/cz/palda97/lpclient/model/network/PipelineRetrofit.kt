@@ -21,9 +21,7 @@ interface PipelineRetrofit {
     fun executePipeline(@Part("pipeline") pipeline: RequestBody): Call<ResponseBody>
 
     companion object {
-        fun getInstance(baseUrl: String): PipelineRetrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .build()
-            .create(PipelineRetrofit::class.java)
+        val Retrofit.Builder.pipelineRetrofit: PipelineRetrofit
+            get() = build().create(PipelineRetrofit::class.java)
     }
 }
