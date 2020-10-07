@@ -91,7 +91,7 @@
                     android:checked="@={auth}"
                     android:layout_marginHorizontal="@dimen/edit_server_switch_horizontal_margin"
                     android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
-                    android:text="Use basic authentication" />
+                    android:text="@string/use_basic_authentication" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/username"
@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:visibility="@{auth ? View.VISIBLE : View.GONE}"
                     android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
-                    android:hint="Username">
+                    android:hint="@string/username">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -116,7 +116,7 @@
                     app:endIconMode="password_toggle"
                     android:visibility="@{auth ? View.VISIBLE : View.GONE}"
                     android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
-                    android:hint="Password">
+                    android:hint="@string/password">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:inputType="textPassword"

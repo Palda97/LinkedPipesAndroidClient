@@ -108,8 +108,8 @@ class EditServerFragment : Fragment() {
 
         fun setUpPingButton() {
             binding.ping.setOnClickListener {
-                val url = binding.url.editText!!.text.toString()
-                viewModel.ping(url)
+                val server = saveTmpInstance()
+                viewModel.ping(server)
             }
             viewModel.pingStatus.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
@@ -176,7 +176,7 @@ class EditServerFragment : Fragment() {
         viewModel.saveServer()
     }
 
-    private fun saveTmpInstance() {
+    private fun saveTmpInstance(): ServerInstance {
         val name: String = binding.name.editText!!.text.toString()
         val url: String = binding.url.editText!!.text.toString()
         val notes: String = binding.notes.editText!!.text.toString()
@@ -196,6 +196,7 @@ class EditServerFragment : Fragment() {
                 this.password = password
             }
         viewModel.tmpServer = tmpInstance
+        return tmpInstance
     }
 
     override fun onPause() {

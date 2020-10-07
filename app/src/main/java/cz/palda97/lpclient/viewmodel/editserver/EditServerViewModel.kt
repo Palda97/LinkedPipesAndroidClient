@@ -9,7 +9,6 @@ import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class EditServerViewModel : ViewModel() {
 
@@ -76,23 +75,23 @@ class EditServerViewModel : ViewModel() {
         _pingStatus.value = MailPackage.loadingPackage()
     }
 
-    private suspend fun pingRoutine(url: String) {
+    private suspend fun pingRoutine(server: ServerInstance) {
         l("ping start")
-        val ping = Ping(url)
+        val ping = Ping(server)
         _pingStatus.postValue(
             MailPackage(
                 if (ping.tryApiCall() == Ping.Status.API_OK)
-                    ping.url to Ping.Status.API_OK
+                    ping.pingUrl to Ping.Status.API_OK
                 else
-                    ping.url to ping.ping()
+                    ping.pingUrl to ping.ping()
             )
         )
         l("ping end")
     }
 
-    fun ping(url: String) {
+    fun ping(server: ServerInstance) {
         CoroutineScope(Dispatchers.IO).launch {
-            pingRoutine(url)
+            pingRoutine(server)
         }
     }
 
