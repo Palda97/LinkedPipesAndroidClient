@@ -181,13 +181,20 @@ class EditServerFragment : Fragment() {
         val url: String = binding.url.editText!!.text.toString()
         val notes: String = binding.notes.editText!!.text.toString()
         val active: Boolean = binding.activeSwitch.isChecked
+        val auth: Boolean = binding.auth ?: false
+        val username: String = binding.username.editText!!.text.toString()
+        val password: String = binding.password.editText!!.text.toString()
         val tmpInstance =
             ServerInstance(
                 name,
                 url,
                 active,
-                notes
-            )
+                notes,
+                auth
+            ).apply {
+                this.username = username
+                this.password = password
+            }
         viewModel.tmpServer = tmpInstance
     }
 
@@ -201,6 +208,9 @@ class EditServerFragment : Fragment() {
         binding.url.editText!!.setText(serverInstance.url)
         binding.notes.editText!!.setText(serverInstance.description)
         binding.activeSwitch.isChecked = serverInstance.active
+        binding.auth = serverInstance.auth
+        binding.username.editText!!.setText(serverInstance.username)
+        binding.password.editText!!.setText(serverInstance.password)
     }
 
     override fun onResume() {
