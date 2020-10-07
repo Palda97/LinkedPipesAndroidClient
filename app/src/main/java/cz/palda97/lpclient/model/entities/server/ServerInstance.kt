@@ -15,7 +15,7 @@ data class ServerInstance(
     val frontendUrl: String
         get() {
             frontend?.let {
-                return "$url:$it"
+                return "${url.removeSuffix("/")}:$it"
             }
             return url
         }
