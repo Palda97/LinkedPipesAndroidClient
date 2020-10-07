@@ -12,6 +12,13 @@ data class ServerInstance(
     val auth: Boolean = false
 ) {
     var frontend: Int? = null
+    val frontendUrl: String
+        get() {
+            frontend?.let {
+                return "$url:$it"
+            }
+            return url
+        }
 
     var username: String = ""
     var password: String = ""

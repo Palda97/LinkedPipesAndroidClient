@@ -21,6 +21,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
+import java.lang.NumberFormatException
 
 class EditServerFragment : Fragment() {
 
@@ -184,6 +185,11 @@ class EditServerFragment : Fragment() {
         val auth: Boolean = binding.auth ?: false
         val username: String = binding.username.editText!!.text.toString()
         val password: String = binding.password.editText!!.text.toString()
+        val frontend: Int? = try {
+            binding.frontend.editText!!.text.toString().toInt()
+        } catch (e: NumberFormatException) {
+            null
+        }
         val tmpInstance =
             ServerInstance(
                 name,
@@ -194,6 +200,7 @@ class EditServerFragment : Fragment() {
             ).apply {
                 this.username = username
                 this.password = password
+                this.frontend = frontend
             }
         viewModel.tmpServer = tmpInstance
         return tmpInstance
@@ -212,6 +219,9 @@ class EditServerFragment : Fragment() {
         binding.auth = serverInstance.auth
         binding.username.editText!!.setText(serverInstance.username)
         binding.password.editText!!.setText(serverInstance.password)
+        serverInstance.frontend?.let {
+            binding.frontend.editText!!.setText(it.toString())
+        }
     }
 
     override fun onResume() {
