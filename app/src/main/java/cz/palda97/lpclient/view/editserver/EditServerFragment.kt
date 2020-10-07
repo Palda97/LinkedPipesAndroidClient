@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Button
+import android.widget.ScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
+import kotlinx.coroutines.*
 import java.lang.NumberFormatException
 
 class EditServerFragment : Fragment() {
@@ -107,6 +109,24 @@ class EditServerFragment : Fragment() {
 
     private fun setUpComponents() {
 
+        fun setUpAuthSwitch() {
+            binding.authSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (buttonView?.isPressed != true)
+                    return@setOnCheckedChangeListener
+                binding.auth = isChecked
+                if (!isChecked)
+                    return@setOnCheckedChangeListener
+                binding.scrollView.fullScroll(View.FOCUS_DOWN)
+                CoroutineScope(Dispatchers.Default).launch {
+                    delay(100)
+                    withContext(Dispatchers.Main) {
+                        val height = binding.scrollView.getChildAt(0).height
+                        binding.scrollView.fling(height * 2)
+                    }
+                }
+            }
+        }
+
         fun setUpPingButton() {
             binding.ping.setOnClickListener {
                 val server = saveTmpInstance()
@@ -168,6 +188,7 @@ class EditServerFragment : Fragment() {
             })
         }
 
+        setUpAuthSwitch()
         setUpPingButton()
         setUpDoneButton()
     }

@@ -20,6 +20,7 @@
         tools:context=".view.editserver.EditServerFragment">
 
         <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@id/edit_server_bottom_buttons"
@@ -56,6 +57,7 @@
                     android:hint="@string/server_address">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:inputType="textUri"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -103,7 +105,6 @@
                     android:id="@+id/auth_switch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="@={auth}"
                     android:layout_marginHorizontal="@dimen/edit_server_switch_horizontal_margin"
                     android:layout_marginVertical="@dimen/edit_server_input_components_vertical_margin"
                     android:text="@string/use_basic_authentication" />
