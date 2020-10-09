@@ -164,7 +164,7 @@ class PipelineRepository(
     suspend fun getPipelineRetrofit(server: ServerInstance): Either<StatusCode, PipelineRetrofit> =
         try {
             //Either.Right(PipelineRetrofit.getInstance(server.url))
-            Either.Right(RetrofitHelper.getBuilder(server, server.frontend).pipelineRetrofit)
+            Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).pipelineRetrofit)
         } catch (e: IllegalArgumentException) {
             l("deletePipeline ${e.toString()}")
             Either.Left(StatusCode.NO_CONNECT)

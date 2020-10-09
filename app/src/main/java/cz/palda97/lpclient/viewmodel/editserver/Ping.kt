@@ -9,7 +9,7 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 
 //class Ping(private val apiUrl: String) {
-class Ping(server: ServerInstance) {
+class Ping(private val server: ServerInstance) {
 
     val pingUrl = address(server.url)
     val apiUrl = server.frontendUrl
@@ -20,7 +20,7 @@ class Ping(server: ServerInstance) {
 
     suspend fun tryApiCall(): Status = withContext(Dispatchers.IO) {
         val pipelineRepository = Injector.pipelineRepository
-        val mail = pipelineRepository.downloadPipelineViews(ServerInstance(url = apiUrl))
+        val mail = pipelineRepository.downloadPipelineViews(server)
         if (mail.isOk)
             Status.API_OK
         else

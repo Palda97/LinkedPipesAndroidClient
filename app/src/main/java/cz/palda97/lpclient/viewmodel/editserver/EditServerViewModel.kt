@@ -9,6 +9,7 @@ import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 class EditServerViewModel : ViewModel() {
 
@@ -75,17 +76,29 @@ class EditServerViewModel : ViewModel() {
         _pingStatus.value = MailPackage.loadingPackage()
     }
 
+    private var pingStatusCnt: AtomicInteger = AtomicInteger(0)
+
+    private fun updatePingStatus(order: Int, mail: MailPackage<Pair<String, Ping.Status>>) {
+        if (pingStatusCnt.get() != order)
+            return
+        _pingStatus.postValue(mail)
+        l("ping status updated: $order")
+    }
+
+    private fun reservePingOrder(): Int = pingStatusCnt.addAndGet(1)
+
     private suspend fun pingRoutine(server: ServerInstance) {
-        l("ping start")
+        val order = reservePingOrder()
+        l("ping start: $order")
         val ping = Ping(server)
-        _pingStatus.postValue(
-            MailPackage(
-                if (ping.tryApiCall() == Ping.Status.API_OK)
-                    ping.pingUrl to Ping.Status.API_OK
+        val apiCallResult = ping.tryApiCall()
+        val mail = MailPackage(
+                if (apiCallResult == Ping.Status.API_OK)
+                    ping.pingUrl to apiCallResult
                 else
                     ping.pingUrl to ping.ping()
             )
-        )
+        updatePingStatus(order, mail)
         l("ping end")
     }
 
