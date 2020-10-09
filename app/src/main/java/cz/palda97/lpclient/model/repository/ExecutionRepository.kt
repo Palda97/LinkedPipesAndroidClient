@@ -61,7 +61,7 @@ class ExecutionRepository(
     private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
         try {
             //Either.Right(ExecutionRetrofit.getInstance(server.url))
-            Either.Right(RetrofitHelper.getBuilder(server, server.frontend).executionRetrofit)
+            Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).executionRetrofit)
         } catch (e: IllegalArgumentException) {
             l("getExecutionRetrofit ${e.toString()}")
             Either.Left(StatusCode.NO_CONNECT)

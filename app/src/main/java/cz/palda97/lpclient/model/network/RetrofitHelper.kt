@@ -42,11 +42,7 @@ object RetrofitHelper {
             .build()
     )
 
-    fun getBuilder(server: ServerInstance, port: Int?): Retrofit.Builder {
-        var url = server.url
-        port?.let {
-            url += ":$it"
-        }
+    fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
         val builder = getBuilder(url)
         val auth = server.credentials ?: return builder
         return builder.basicAuth(auth.first, auth.second)

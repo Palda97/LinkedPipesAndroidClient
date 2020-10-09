@@ -238,6 +238,7 @@ class EditServerFragment : Fragment() {
         binding.notes.editText!!.setText(serverInstance.description)
         binding.activeSwitch.isChecked = serverInstance.active
         binding.auth = serverInstance.auth
+        binding.authSwitch.isChecked = serverInstance.auth
         binding.username.editText!!.setText(serverInstance.username)
         binding.password.editText!!.setText(serverInstance.password)
         serverInstance.frontend?.let {
