@@ -207,27 +207,25 @@ class ExecutionRepository(
         return RetrofitHelper.getStringFromCall(call)
     }
 
-    fun monitor(serverId: Long, executionId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                delay(MONITOR_DELAY)
-                val server = serverDao.findById(serverId) ?: break
-                if (!server.active)
-                    break
-                val json = getSpecificExecution(executionId, server)
-                if (json == "[ ]"){
-                    continue
+    suspend fun monitor(serverId: Long, executionId: String) {
+        while (true) {
+            delay(MONITOR_DELAY)
+            val server = serverDao.findById(serverId) ?: break
+            if (!server.active)
+                break
+            val json = getSpecificExecution(executionId, server)
+            if (json == "[ ]") {
+                continue
+            }
+            val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
+            executionDao.findById(executionId)?.let {
+                if (status != it.status) {
+                    it.status = status
+                    executionDao.insert(it)
                 }
-                val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
-                executionDao.findById(executionId)?.let {
-                    if (status != it.status) {
-                        it.status = status
-                        executionDao.insert(it)
-                    }
-                }
-                if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
-                    break
-                }
+            }
+            if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
+                break
             }
         }
     }

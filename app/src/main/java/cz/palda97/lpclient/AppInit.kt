@@ -29,6 +29,8 @@ class AppInit : Application() {
         const val DEFAULT_NIGHT_MODE = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
         fun init(context: Context) {
+            if (Injector.isThereContext)
+                return
             Injector.context = context
             Security.insertProviderAt(Conscrypt.newProvider(), 1)
             val nightMode = SharedPreferencesFactory.sharedPreferences(context)
