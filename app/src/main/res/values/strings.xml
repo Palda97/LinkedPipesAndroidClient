@@ -49,4 +49,6 @@
     <string name="use_basic_authentication">Use basic authentication</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="notification_channel_name">ETL Client Channel</string>
+    <string name="execution_notification_title">Execution finished</string>
 </resources>

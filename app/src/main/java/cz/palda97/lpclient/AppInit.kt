@@ -1,7 +1,10 @@
 package cz.palda97.lpclient
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import cz.palda97.lpclient.model.SharedPreferencesFactory
@@ -18,6 +21,23 @@ class AppInit : Application() {
         CoroutineScope(Dispatchers.IO).launch {
             cleanDb()
             refresh()
+        }
+        notificationChannel()
+    }
+
+    private fun notificationChannel(){
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_name)
+            //val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                //description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 
@@ -68,5 +88,7 @@ class AppInit : Application() {
         suspend fun refresh(context: Context? = null) = afterInit(context) {
             RepositoryRoutines().refresh()
         }
+
+        const val CHANNEL_ID = "etl_client_channel"
     }
 }
