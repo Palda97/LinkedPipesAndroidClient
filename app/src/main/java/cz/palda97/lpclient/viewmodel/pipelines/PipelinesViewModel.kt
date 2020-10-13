@@ -173,7 +173,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 it.id == pipelineView.serverId
             }?.let {
                 //executionRepository.monitor(it.id, iri.iri)
-                ExecutionMonitor.enqueue(getApplication(), iri.iri, it.id)
+                ExecutionMonitor.enqueue(getApplication(), iri.iri, it.id, pipelineView.prefLabel)
             }
         }
     }

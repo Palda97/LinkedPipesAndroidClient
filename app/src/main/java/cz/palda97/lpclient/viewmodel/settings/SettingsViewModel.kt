@@ -12,6 +12,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.repository.EditServerRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.view.Notifications.NOTIFICATIONS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -89,7 +90,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
 
     companion object {
-        private const val NOTIFICATIONS = "NOTIFICATIONS"
         private const val TAG = "SettingsViewModel"
         private fun l(msg: String) = Log.d(TAG, msg)
     }

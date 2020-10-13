@@ -15,6 +15,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.services.ExecutionMonitor
 import kotlinx.coroutines.*
 
 class ExecutionRepository(
@@ -208,6 +209,7 @@ class ExecutionRepository(
     }
 
     suspend fun monitor(serverId: Long, executionId: String) {
+        //l("monitor thread: ${Thread.currentThread().name}")
         while (true) {
             delay(MONITOR_DELAY)
             val server = serverDao.findById(serverId) ?: break
