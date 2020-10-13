@@ -7,10 +7,13 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import cz.palda97.lpclient.AppInit
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.model.SharedPreferencesFactory
-import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
+import cz.palda97.lpclient.viewmodel.executions.resource
 
 
 object Notifications {
@@ -23,7 +26,20 @@ object Notifications {
         return sharedPreferences.getBoolean(NOTIFICATIONS, false)
     }
 
-    fun executionNotification(context: Context, text: String) {
+    private fun ExecutionStatus?.title(context: Context): String = context.getString(
+        when (this) {
+            ExecutionStatus.FINISHED -> R.string.execution_notification_finished
+            ExecutionStatus.FAILED -> R.string.execution_notification_failed
+            ExecutionStatus.RUNNING -> R.string.execution_notification_running
+            ExecutionStatus.CANCELLED -> R.string.execution_notification_cancelled
+            ExecutionStatus.DANGLING -> R.string.execution_notification_dangling
+            ExecutionStatus.CANCELLING -> R.string.execution_notification_cancelling
+            ExecutionStatus.QUEUED -> R.string.execution_notification_queued
+            null -> R.string.execution_notification_null_status
+        }
+    )
+
+    fun executionNotification(context: Context, text: String, status: ExecutionStatus?) {
         if (!allowNotifications(context))
             return
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -36,7 +52,8 @@ object Notifications {
             .setSmallIcon(R.mipmap.etl_icon_foreground)
             .setColor(ContextCompat.getColor(context, R.color.brand_orange))
             //.setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.etl_icon_foreground))
-            .setContentTitle(context.getString(R.string.execution_notification_title))
+            //.setContentTitle(context.getString(R.string.execution_notification_title))
+            .setContentTitle(status.title(context))
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             //.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
@@ -44,6 +61,17 @@ object Notifications {
             // Set the intent that will fire when the user taps the notification
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .apply {
+                status?.let {
+                    setLargeIcon(
+                        ResourcesCompat.getDrawable(
+                            context.resources,
+                            it.resource,
+                            null
+                        )?.toBitmap()
+                    )
+                }
+            }
 
         //startForeground(NOTIFICATION_ID, builder.build())
         with(NotificationManagerCompat.from(context)) {

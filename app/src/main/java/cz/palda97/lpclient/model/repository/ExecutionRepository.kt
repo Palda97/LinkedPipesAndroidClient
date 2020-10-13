@@ -208,8 +208,9 @@ class ExecutionRepository(
         return RetrofitHelper.getStringFromCall(call)
     }
 
-    suspend fun monitor(serverId: Long, executionId: String) {
+    suspend fun monitor(serverId: Long, executionId: String): ExecutionStatus? {
         //l("monitor thread: ${Thread.currentThread().name}")
+        var finalStatus: ExecutionStatus? = null
         while (true) {
             delay(MONITOR_DELAY)
             val server = serverDao.findById(serverId) ?: break
@@ -227,9 +228,11 @@ class ExecutionRepository(
                 }
             }
             if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
+                finalStatus = status
                 break
             }
         }
+        return finalStatus
     }
 
     companion object {

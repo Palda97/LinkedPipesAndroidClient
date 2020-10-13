@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.*
 import cz.palda97.lpclient.AppInit
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import cz.palda97.lpclient.view.Notifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,9 +30,9 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
             params.inputData.getString(PIPELINE_NAME) ?: return@withContext Result.failure()
         val repo = Injector.executionRepository
         l("monitor start $executionId")
-        repo.monitor(serverId, executionId)
+        val status = repo.monitor(serverId, executionId)
         l("monitor done $executionId")
-        Notifications.executionNotification(applicationContext, pipelineName)
+        Notifications.executionNotification(applicationContext, pipelineName, status)
         return@withContext Result.success()
     }
 

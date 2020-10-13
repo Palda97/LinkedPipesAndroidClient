@@ -50,5 +50,12 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="notification_channel_name">ETL Client Channel</string>
-    <string name="execution_notification_title">Execution finished</string>
+    <string name="execution_notification_finished">Execution finished</string>
+    <string name="execution_notification_failed">Execution failed</string>
+    <string name="execution_notification_running">Execution running</string>
+    <string name="execution_notification_cancelled">Execution canceled</string>
+    <string name="execution_notification_dangling">Execution dangling</string>
+    <string name="execution_notification_cancelling">Execution cancelling</string>
+    <string name="execution_notification_queued">Execution queued</string>
+    <string name="execution_notification_null_status">Execution completed</string>
 </resources>
