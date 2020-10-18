@@ -5,19 +5,81 @@ import android.util.Log
 import androidx.work.*
 import cz.palda97.lpclient.AppInit
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
+import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.view.Notifications
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
     CoroutineWorker(context, params) {
 
+    private lateinit var repo: ExecutionRepository
+
     override suspend fun doWork(): Result {
-        return startMonitor()
+        //return startMonitor()
+        return monitor()
     }
 
-    private suspend fun startMonitor(): Result = withContext(Dispatchers.IO) {
+    private suspend fun monitorRoutine(
+        serverId: Long,
+        executionId: String,
+        mode: Int
+    ): ExecutionStatus? = when (mode) {
+        MODE_INIT -> {
+            var status: ExecutionStatus? = null
+            for (i in 0..19) {
+                delay(
+                    if (i < 10) 1000
+                    else 5000
+                )
+                status = repo.fetchStatus(serverId, executionId)
+                if (status == null || status.isDone)
+                    break
+            }
+            status
+        }
+        MODE_AFTER_MINUTE -> repo.fetchStatus(serverId, executionId)
+        else -> null
+    }
+
+    private suspend fun monitor(): Result = withContext(Dispatchers.IO) {
+        l("startMonitor thread: ${Thread.currentThread().name}")
+        AppInit.init(applicationContext)
+        val executionId =
+            params.inputData.getString(EXECUTION_ID) ?: return@withContext Result.failure()
+        val serverId = params.inputData.getLong(SERVER_ID, 0L)
+        if (serverId == 0L) {
+            return@withContext Result.failure()
+        }
+        val pipelineName =
+            params.inputData.getString(PIPELINE_NAME) ?: return@withContext Result.failure()
+        val mode = params.inputData.getInt(MODE, MODE_INIT)
+        repo = Injector.executionRepository
+
+        val status = monitorRoutine(serverId, executionId, mode)
+
+        when(status.isDone) {
+            true -> {
+                Notifications.executionNotification(applicationContext, pipelineName, status)
+                cancelWorker(applicationContext, executionId)
+            }
+            null -> {
+                cancelWorker(applicationContext, executionId)
+            }
+        }
+
+        if (mode == MODE_INIT) {
+            enqueue(applicationContext, executionId, serverId, pipelineName, true)
+        }
+
+        return@withContext Result.success()
+    }
+
+    /*private suspend fun startMonitor(): Result = withContext(Dispatchers.IO) {
         l("startMonitor thread: ${Thread.currentThread().name}")
         AppInit.init(applicationContext)
         val executionId =
@@ -34,7 +96,7 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         l("monitor done $executionId")
         Notifications.executionNotification(applicationContext, pipelineName, status)
         return@withContext Result.success()
-    }
+    }*/
 
     companion object {
         private val TAG = Injector.tag(this)
@@ -47,6 +109,49 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
             context: Context,
             executionId: String,
             serverId: Long,
+            pipelineName: String,
+            periodic: Boolean = false
+        ): Operation {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            val data = workDataOf(
+                EXECUTION_ID to executionId,
+                SERVER_ID to serverId,
+                PIPELINE_NAME to pipelineName,
+                MODE to if (periodic) MODE_AFTER_MINUTE else MODE_INIT
+            )
+            val request: Either<OneTimeWorkRequest, PeriodicWorkRequest> = when(periodic) {
+                false -> Either.Left(OneTimeWorkRequestBuilder<ExecutionMonitor>()
+                    .setConstraints(constraints)
+                    .setInputData(data)
+                    //.setInitialDelay(5, TimeUnit.SECONDS)
+                    //.addTag("lemonade")
+                    .build())
+                true -> Either.Right(PeriodicWorkRequestBuilder<ExecutionMonitor>(1, TimeUnit.HOURS)
+                    .setConstraints(constraints)
+                    .setInputData(data)
+                    //.setInitialDelay(5, TimeUnit.SECONDS)
+                    //.addTag("lemonade")
+                    .build())
+            }
+            return when(request) {
+                is Either.Left -> WorkManager.getInstance(context)
+                    .enqueueUniqueWork(executionId, ExistingWorkPolicy.KEEP, request.value)
+                is Either.Right -> WorkManager.getInstance(context)
+                    .enqueueUniquePeriodicWork(executionId, ExistingPeriodicWorkPolicy.REPLACE, request.value)
+            }
+        }
+
+        private const val MODE = "MODE"
+
+        private const val MODE_INIT = 0
+        private const val MODE_AFTER_MINUTE = 1
+
+        fun enqueuePeriodic(
+            context: Context,
+            executionId: String,
+            serverId: Long,
             pipelineName: String
         ): Operation {
             val constraints = Constraints.Builder()
@@ -55,9 +160,10 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
             val data = workDataOf(
                 EXECUTION_ID to executionId,
                 SERVER_ID to serverId,
-                PIPELINE_NAME to pipelineName
+                PIPELINE_NAME to pipelineName,
+                MODE to MODE_INIT
             )
-            val request = OneTimeWorkRequestBuilder<ExecutionMonitor>()
+            val request = PeriodicWorkRequestBuilder<ExecutionMonitor>(15, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .setInputData(data)
                 //.setInitialDelay(5, TimeUnit.SECONDS)
@@ -65,7 +171,26 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
                 .build()
             return WorkManager.getInstance(context)
                 //.enqueue(request)
-                .enqueueUniqueWork(executionId, ExistingWorkPolicy.KEEP, request)
+                //.enqueueUniqueWork(executionId, ExistingWorkPolicy.KEEP, request)
+                .enqueueUniquePeriodicWork(executionId, ExistingPeriodicWorkPolicy.REPLACE, request)
         }
+
+        private fun cancelWorker(context: Context, executionId: String): Result {
+            WorkManager.getInstance(context)
+                .cancelUniqueWork(executionId)
+            return Result.success()
+        }
+
+        private val ExecutionStatus?.isDone: Boolean?
+            get() = when (this) {
+                null -> null
+                else -> this.isDone
+            }
+        private val ExecutionStatus.isDone: Boolean
+            get() = when (this) {
+                ExecutionStatus.QUEUED -> false
+                ExecutionStatus.RUNNING -> false
+                else -> true
+            }
     }
 }

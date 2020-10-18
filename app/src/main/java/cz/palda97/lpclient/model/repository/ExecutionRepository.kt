@@ -235,6 +235,27 @@ class ExecutionRepository(
         return finalStatus
     }
 
+    suspend fun fetchStatus(serverId: Long, executionId: String): ExecutionStatus? {
+        while (true) {
+            val server = serverDao.findById(serverId) ?: return null
+            if (!server.active)
+                return null
+            val json = getSpecificExecution(executionId, server)
+            if (json == "[ ]") {
+                delay(MONITOR_DELAY)
+                continue
+            }
+            val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: return null
+            executionDao.findById(executionId)?.let {
+                if (status != it.status) {
+                    it.status = status
+                    executionDao.insert(it)
+                }
+            }
+            return status
+        }
+    }
+
     companion object {
         private val TAG = Injector.tag(this)
         private fun l(msg: String) = Log.d(TAG, msg)
