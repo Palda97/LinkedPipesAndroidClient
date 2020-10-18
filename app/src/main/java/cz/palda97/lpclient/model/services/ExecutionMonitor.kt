@@ -36,7 +36,9 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
                     if (i < 10) 1000
                     else 5000
                 )
+                l("i = $i")
                 status = repo.fetchStatus(serverId, executionId)
+                l("status = ${status?.name ?: "null"}")
                 if (status == null || status.isDone)
                     break
             }
@@ -60,6 +62,7 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         val mode = params.inputData.getInt(MODE, MODE_INIT)
         repo = Injector.executionRepository
 
+        l("before monitorRoutine($serverId, $executionId, $mode)")
         val status = monitorRoutine(serverId, executionId, mode)
 
         when(status.isDone) {
@@ -126,13 +129,13 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
                     .setConstraints(constraints)
                     .setInputData(data)
                     //.setInitialDelay(5, TimeUnit.SECONDS)
-                    //.addTag("lemonade")
+                    .addTag("one time")
                     .build())
                 true -> Either.Right(PeriodicWorkRequestBuilder<ExecutionMonitor>(1, TimeUnit.HOURS)
                     .setConstraints(constraints)
                     .setInputData(data)
                     //.setInitialDelay(5, TimeUnit.SECONDS)
-                    //.addTag("lemonade")
+                    .addTag("periodic")
                     .build())
             }
             return when(request) {
@@ -149,6 +152,7 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         private const val MODE_AFTER_MINUTE = 1
 
         private fun cancelWorker(context: Context, executionId: String): Result {
+            l("cancelWorker $executionId")
             WorkManager.getInstance(context)
                 .cancelUniqueWork(executionId)
             return Result.success()
