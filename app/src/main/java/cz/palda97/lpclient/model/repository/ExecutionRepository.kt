@@ -15,6 +15,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.services.ExecutionMonitor
 import kotlinx.coroutines.*
 
 class ExecutionRepository(
@@ -207,28 +208,51 @@ class ExecutionRepository(
         return RetrofitHelper.getStringFromCall(call)
     }
 
-    fun monitor(serverId: Long, executionId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                delay(MONITOR_DELAY)
-                val server = serverDao.findById(serverId) ?: break
-                if (!server.active)
-                    break
-                val json = getSpecificExecution(executionId, server)
-                if (json == "[ ]"){
-                    continue
-                }
-                val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
-                executionDao.findById(executionId)?.let {
-                    if (status != it.status) {
-                        it.status = status
-                        executionDao.insert(it)
-                    }
-                }
-                if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
-                    break
+    suspend fun monitor(serverId: Long, executionId: String): ExecutionStatus? {
+        //l("monitor thread: ${Thread.currentThread().name}")
+        var finalStatus: ExecutionStatus? = null
+        while (true) {
+            delay(MONITOR_DELAY)
+            val server = serverDao.findById(serverId) ?: break
+            if (!server.active)
+                break
+            val json = getSpecificExecution(executionId, server)
+            if (json == "[ ]") {
+                continue
+            }
+            val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
+            executionDao.findById(executionId)?.let {
+                if (status != it.status) {
+                    it.status = status
+                    executionDao.insert(it)
                 }
             }
+            if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
+                finalStatus = status
+                break
+            }
+        }
+        return finalStatus
+    }
+
+    suspend fun fetchStatus(serverId: Long, executionId: String): ExecutionStatus? {
+        while (true) {
+            val server = serverDao.findById(serverId) ?: return null
+            if (!server.active)
+                return null
+            val json = getSpecificExecution(executionId, server)
+            if (json == "[ ]") {
+                delay(MONITOR_DELAY)
+                continue
+            }
+            val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: return null
+            executionDao.findById(executionId)?.let {
+                if (status != it.status) {
+                    it.status = status
+                    executionDao.insert(it)
+                }
+            }
+            return status
         }
     }
 
