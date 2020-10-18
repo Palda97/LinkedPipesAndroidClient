@@ -65,10 +65,10 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         when(status.isDone) {
             true -> {
                 Notifications.executionNotification(applicationContext, pipelineName, status)
-                cancelWorker(applicationContext, executionId)
+                return@withContext cancelWorker(applicationContext, executionId)
             }
             null -> {
-                cancelWorker(applicationContext, executionId)
+                return@withContext cancelWorker(applicationContext, executionId)
             }
         }
 
@@ -147,33 +147,6 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
 
         private const val MODE_INIT = 0
         private const val MODE_AFTER_MINUTE = 1
-
-        fun enqueuePeriodic(
-            context: Context,
-            executionId: String,
-            serverId: Long,
-            pipelineName: String
-        ): Operation {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val data = workDataOf(
-                EXECUTION_ID to executionId,
-                SERVER_ID to serverId,
-                PIPELINE_NAME to pipelineName,
-                MODE to MODE_INIT
-            )
-            val request = PeriodicWorkRequestBuilder<ExecutionMonitor>(15, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .setInputData(data)
-                //.setInitialDelay(5, TimeUnit.SECONDS)
-                //.addTag("lemonade")
-                .build()
-            return WorkManager.getInstance(context)
-                //.enqueue(request)
-                //.enqueueUniqueWork(executionId, ExistingWorkPolicy.KEEP, request)
-                .enqueueUniquePeriodicWork(executionId, ExistingPeriodicWorkPolicy.REPLACE, request)
-        }
 
         private fun cancelWorker(context: Context, executionId: String): Result {
             WorkManager.getInstance(context)
