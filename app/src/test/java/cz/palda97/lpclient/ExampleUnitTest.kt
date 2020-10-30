@@ -1,5 +1,6 @@
 package cz.palda97.lpclient
 
+import cz.palda97.lpclient.*
 import org.junit.Test
 
 import org.junit.Assert.*

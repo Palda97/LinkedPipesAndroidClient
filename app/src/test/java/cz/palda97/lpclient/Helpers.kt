@@ -3,7 +3,7 @@ package cz.palda97.lpclient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
-fun String.println() {
+fun Any?.println() {
     println(this)
 }
 
