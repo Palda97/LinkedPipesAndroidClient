@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import cz.palda97.lpclient.model.entities.execution.Execution
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao

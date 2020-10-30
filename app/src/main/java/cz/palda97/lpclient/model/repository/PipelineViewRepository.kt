@@ -9,9 +9,9 @@ import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
-import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
-import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
+import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.PipelineRetrofit.Companion.pipelineRetrofit
@@ -20,7 +20,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.io.IOException
 
-class PipelineRepository(
+class PipelineViewRepository(
     private val pipelineViewDao: PipelineViewDao,
     private val serverInstanceDao: ServerInstanceDao,
     private val deleteDao: MarkForDeletionDao

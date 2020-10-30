@@ -3,7 +3,7 @@ package cz.palda97.lpclient.model.entities.execution
 import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
-import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants

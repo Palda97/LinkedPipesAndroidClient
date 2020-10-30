@@ -15,7 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel

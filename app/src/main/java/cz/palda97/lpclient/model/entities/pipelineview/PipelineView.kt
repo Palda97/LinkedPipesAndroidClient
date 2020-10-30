@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.model.entities.pipeline
+package cz.palda97.lpclient.model.entities.pipelineview
 
 import androidx.room.Entity
 import androidx.room.Ignore

@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 class RepositoryRoutines {
 
     private val serverRepository: ServerRepository = Injector.serverRepository
-    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val pipelineViewRepository: PipelineViewRepository = Injector.pipelineViewRepository
     private val executionRepository: ExecutionRepository = Injector.executionRepository
 
     companion object {
@@ -23,7 +23,7 @@ class RepositoryRoutines {
     fun update(serverInstance: ServerInstance) {
         CoroutineScope(Dispatchers.IO).launch {
             launch {
-                pipelineRepository.update(serverInstance)
+                pipelineViewRepository.update(serverInstance)
             }
             launch {
                 executionRepository.update(serverInstance)
@@ -34,7 +34,7 @@ class RepositoryRoutines {
     suspend fun refresh() = withContext(Dispatchers.IO) {
         val servers = serverRepository.activeServers()
         listOf(
-            launch { pipelineRepository.refreshPipelineViews(Either.Right(servers)) },
+            launch { pipelineViewRepository.refreshPipelineViews(Either.Right(servers)) },
             launch { executionRepository.cacheExecutions(Either.Right<ServerInstance, List<ServerInstance>?>(servers), false) }
         ).forEach {
             it.join()
@@ -44,8 +44,8 @@ class RepositoryRoutines {
     suspend fun cleanDb() = withContext(Dispatchers.IO) {
         val jobs = listOf(
             launch {
-                pipelineRepository.cleanDb()
-                l("pipelineRepository.cleanDb() should be completed")
+                pipelineViewRepository.cleanDb()
+                l("pipelineViewRepository.cleanDb() should be completed")
             },
             launch {
                 executionRepository.cleanDb()
@@ -58,7 +58,7 @@ class RepositoryRoutines {
     }
 
     fun onServerToFilterChange() {
-        pipelineRepository.onServerToFilterChange()
+        pipelineViewRepository.onServerToFilterChange()
         executionRepository.onServerToFilterChange()
     }
 }

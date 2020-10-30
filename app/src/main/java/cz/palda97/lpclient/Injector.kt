@@ -14,9 +14,9 @@ object Injector {
     val editServerRepository: EditServerRepository by lazy {
         EditServerRepository()
     }
-    val pipelineRepository: PipelineRepository by lazy {
+    val pipelineViewRepository: PipelineViewRepository by lazy {
         val db = AppDatabase.getInstance(context)
-        PipelineRepository(db.pipelineViewDao(), db.serverDao(), db.markForDeletionDao())
+        PipelineViewRepository(db.pipelineViewDao(), db.serverDao(), db.markForDeletionDao())
     }
     val executionRepository: ExecutionRepository by lazy {
         val db = AppDatabase.getInstance(context)

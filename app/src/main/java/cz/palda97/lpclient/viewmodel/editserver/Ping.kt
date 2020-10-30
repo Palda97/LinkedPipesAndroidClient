@@ -19,7 +19,7 @@ class Ping(private val server: ServerInstance) {
     }
 
     suspend fun tryApiCall(): Status = withContext(Dispatchers.IO) {
-        val pipelineRepository = Injector.pipelineRepository
+        val pipelineRepository = Injector.pipelineViewRepository
         val mail = pipelineRepository.downloadPipelineViews(server)
         if (mail.isOk)
             Status.API_OK
