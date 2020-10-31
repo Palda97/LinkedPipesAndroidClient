@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.network
 
-import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import okhttp3.*
@@ -10,7 +9,7 @@ import java.io.IOException
 
 object RetrofitHelper {
     private val TAG = Injector.tag(this)
-    private fun l(msg: String) = Log.d(TAG, msg)
+    private val l = Injector.generateLogFunction(TAG)
 
     suspend fun getStringFromCall(call: Call<ResponseBody>): String? = try {
         val executedCall = call.execute()

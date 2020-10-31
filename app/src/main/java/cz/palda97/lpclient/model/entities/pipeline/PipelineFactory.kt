@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
-import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
@@ -33,8 +32,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
     constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: Any?) = Log.d(TAG, msg.toString())
+        private val l = Injector.generateLogFunction(this)
 
         private fun fromJson(server: ServerInstance, string: String?): MailPackage<Pipeline> {
             return when (val res = CommonFunctions.getRootArrayList(string)) {

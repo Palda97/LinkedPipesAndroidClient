@@ -2,11 +2,9 @@ package cz.palda97.lpclient.view.editserver
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Button
-import android.widget.ScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,8 +26,7 @@ import java.lang.NumberFormatException
 class EditServerFragment : Fragment() {
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
         fun newInstance() =
             EditServerFragment()
         private const val BARCODE_READER_REQUEST_CODE = 1
@@ -101,7 +98,7 @@ class EditServerFragment : Fragment() {
                     //textView.setText(R.string.no_barcode_captured)
                 }
             } else {
-                Log.d(TAG, "result code: ${CommonStatusCodes.getStatusCodeString(resultCode)}")
+                l("result code: ${CommonStatusCodes.getStatusCodeString(resultCode)}")
             }
         } else
             super.onActivityResult(requestCode, resultCode, data)

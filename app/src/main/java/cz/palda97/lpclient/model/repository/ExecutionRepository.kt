@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
@@ -15,7 +14,6 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import cz.palda97.lpclient.model.services.ExecutionMonitor
 import kotlinx.coroutines.*
 
 class ExecutionRepository(
@@ -257,8 +255,7 @@ class ExecutionRepository(
     }
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
         private const val MONITOR_DELAY = 1000L
     }
 }

@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.repository
 
-import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.entities.server.ServerInstance
@@ -16,8 +15,7 @@ class RepositoryRoutines {
     private val executionRepository: ExecutionRepository = Injector.executionRepository
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 
     fun update(serverInstance: ServerInstance) {

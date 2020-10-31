@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
@@ -160,8 +160,6 @@ class PipelinesFragment : Fragment() {
     }
 
     companion object {
-        private const val TAG = "PipelinesFragment"
-        private fun l(msg: String) = Log.d(TAG, msg)
-        private fun divLog(dashCount: Int = 100) = Log.d(TAG, "-".repeat(dashCount))
+        private val l = Injector.generateLogFunction(this)
     }
 }

@@ -1,6 +1,7 @@
 package cz.palda97.lpclient
 
 import android.content.Context
+import android.util.Log
 import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.repository.*
 
@@ -25,4 +26,15 @@ object Injector {
 
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
+
+    fun generateLogFunction(tag: String): (Any?) -> Int {
+        return {
+            Log.d(tag, it.toString())
+        }
+    }
+
+    fun generateLogFunction(companion: Any): (Any?) -> Int {
+        val t = tag(companion)
+        return generateLogFunction(t)
+    }
 }

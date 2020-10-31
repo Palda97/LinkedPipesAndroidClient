@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.viewmodel.executions
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
@@ -127,8 +126,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
         private const val DELETE_DELAY: Long = 5000L
         const val SCROLL = "SCROLL"
     }

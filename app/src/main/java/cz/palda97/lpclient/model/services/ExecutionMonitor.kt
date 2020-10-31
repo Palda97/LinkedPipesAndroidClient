@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.model.services
 
 import android.content.Context
-import android.util.Log
 import androidx.work.*
 import cz.palda97.lpclient.AppInit
 import cz.palda97.lpclient.Injector
@@ -20,7 +19,6 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
     private lateinit var repo: ExecutionRepository
 
     override suspend fun doWork(): Result {
-        //return startMonitor()
         return monitor()
     }
 
@@ -82,28 +80,8 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         return@withContext Result.success()
     }
 
-    /*private suspend fun startMonitor(): Result = withContext(Dispatchers.IO) {
-        l("startMonitor thread: ${Thread.currentThread().name}")
-        AppInit.init(applicationContext)
-        val executionId =
-            params.inputData.getString(EXECUTION_ID) ?: return@withContext Result.failure()
-        val serverId = params.inputData.getLong(SERVER_ID, 0L)
-        if (serverId == 0L) {
-            return@withContext Result.failure()
-        }
-        val pipelineName =
-            params.inputData.getString(PIPELINE_NAME) ?: return@withContext Result.failure()
-        val repo = Injector.executionRepository
-        l("monitor start $executionId")
-        val status = repo.monitor(serverId, executionId)
-        l("monitor done $executionId")
-        Notifications.executionNotification(applicationContext, pipelineName, status)
-        return@withContext Result.success()
-    }*/
-
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
         const val EXECUTION_ID = "EXECUTION_ID"
         const val SERVER_ID = "SERVER_ID"
         const val PIPELINE_NAME = "PIPELINE_NAME"

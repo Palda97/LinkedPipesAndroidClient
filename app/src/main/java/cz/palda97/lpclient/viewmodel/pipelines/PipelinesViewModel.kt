@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.viewmodel.pipelines
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import com.google.gson.Gson
 import cz.palda97.lpclient.Injector
@@ -205,8 +204,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     class Iri(val iri: String)
 
     companion object {
-        private const val TAG = "PipelinesViewModel"
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
 
         private const val DELETE_DELAY: Long = 5000L
     }

@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.viewmodel.settings
 
 import android.app.Application
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -90,7 +89,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
 
     companion object {
-        private const val TAG = "SettingsViewModel"
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 }
