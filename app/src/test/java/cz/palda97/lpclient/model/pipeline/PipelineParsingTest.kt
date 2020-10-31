@@ -1,7 +1,8 @@
 package cz.palda97.lpclient.model.pipeline
 
-import com.google.gson.Gson
 import cz.palda97.lpclient.*
+import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
+import cz.palda97.lpclient.model.entities.server.ServerInstance
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -12,13 +13,30 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class PipelineParsingTest {
+
     @Test
-    fun parseOk() {
-        val jsonObject = Gson().fromJson(ABC_PIPELINE, Any::class.java)
-        println("done")
+    fun parseAbc() {
+        val mail = PipelineFactory(server, ABC_PIPELINE).pipeline
+        assertTrue("Mail is not ok!", mail.isOk)
+        val pipeline = mail.mailContent!!
+        assertEquals(2, pipeline.components.size)
+        assertEquals(1, pipeline.connections.size)
+        assertEquals(2, pipeline.configurations.size)
+    }
+
+    @Test
+    fun parseCrab() {
+        val mail = PipelineFactory(server, CRAB_PIPELINE).pipeline
+        assertTrue("Mail is not ok!", mail.isOk)
+        val pipeline = mail.mailContent!!
+        assertEquals(1, pipeline.components.size)
+        assertEquals(0, pipeline.connections.size)
+        assertEquals(1, pipeline.configurations.size)
     }
 
     companion object {
+
+        val server = ServerInstance("Home Server", "http://localhost:8080/")
 
         const val ABC_PIPELINE = "[\n" +
                 "    {\n" +
