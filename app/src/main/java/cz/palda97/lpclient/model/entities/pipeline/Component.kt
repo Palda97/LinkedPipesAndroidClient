@@ -6,5 +6,6 @@ data class Component(
     val x: Int,
     val y: Int,
     val prefLabel: String,
+    val description: String?,
     val id: String
 )

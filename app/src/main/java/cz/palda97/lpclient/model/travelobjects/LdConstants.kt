@@ -19,6 +19,7 @@ object LdConstants {
     const val TARGET_COMPONENT = "http://linkedpipes.com/ontology/targetComponent"
     const val REPO_POLICY = "http://linkedpipes.com/ontology/rdfRepositoryPolicy"
     const val REPO_TYPE = "http://linkedpipes.com/ontology/rdfRepositoryType"
+    const val DESCRIPTION = "http://purl.org/dc/terms/description"
 
     const val TYPE_PIPELINE = "http://linkedpipes.com/ontology/Pipeline"
     const val TYPE_COMPONENT = "http://linkedpipes.com/ontology/Component"

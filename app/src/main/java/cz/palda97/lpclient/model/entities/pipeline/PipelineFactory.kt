@@ -118,6 +118,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             val prefLabel =
                 CommonFunctions.giveMeThatString(map, LdConstants.PREF_LABEL, LdConstants.VALUE)
                     ?: return false
+            val description =
+                CommonFunctions.giveMeThatString(map, LdConstants.DESCRIPTION, LdConstants.VALUE)
             val id = CommonFunctions.giveMeThatId(map) ?: return false
 
             val x = xString.toIntOrNull() ?: return false
@@ -130,6 +132,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                     x,
                     y,
                     prefLabel,
+                    description,
                     id
                 )
             )
