@@ -15,4 +15,7 @@ data class PipelineView(
 
     val idNumber: String
         get() = id.split("/").last()
+
+    @Ignore
+    var version: Int? = null
 }

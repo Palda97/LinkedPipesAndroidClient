@@ -8,6 +8,7 @@ import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.prepareSemiRootElement
+import cz.palda97.lpclient.model.travelobjects.LdConstants
 import cz.palda97.lpclient.model.travelobjects.LdConstants.PREF_LABEL
 import cz.palda97.lpclient.model.travelobjects.LdConstants.VALUE
 
@@ -88,7 +89,9 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
                 prefLabel,
                 id,
                 server.id
-            )
+            ).apply {
+                version = giveMeThatString(map, LdConstants.VERSION, VALUE)?.toIntOrNull()
+            }
         }
     }
 }

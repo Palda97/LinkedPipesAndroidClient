@@ -46,4 +46,6 @@ object LdConstants {
     const val EXECUTION_STATUS_CANCELLING = "http://etl.linkedpipes.com/resources/status/cancelling"
     const val EXECUTION_STATUS_QUEUED = "http://etl.linkedpipes.com/resources/status/queued"
 
+    const val SCHEMA_INT = "http://www.w3.org/2001/XMLSchema#int"
+    const val SCHEMA_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
 }
