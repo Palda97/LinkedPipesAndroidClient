@@ -23,6 +23,9 @@ object Injector {
         val db = AppDatabase.getInstance(context)
         ExecutionRepository(db.executionDao(), db.serverDao(), db.markForDeletionDao())
     }
+    val pipelineRepository: PipelineRepository by lazy {
+        PipelineRepository(AppDatabase.getInstance(context).serverDao())
+    }
 
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
