@@ -34,7 +34,6 @@ class CreatePipelineDialog : DialogFragment() {
 
         val builder = MaterialAlertDialogBuilder(requireContext())
             .setView(binding.root)
-            .setTitle(R.string.choose_a_server_instance)
             .setNeutralButton(R.string.cancel) { _, _ ->
                 //
             }

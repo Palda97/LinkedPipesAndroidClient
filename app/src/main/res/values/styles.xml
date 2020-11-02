@@ -15,6 +15,10 @@
         <!-- Regular 12 54 % -->
     </style>
 
+    <style name="ta_medium20_primary" parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <!-- Medium 20 100 % -->
+    </style>
+
     <!-- Components -->
 
     <style name="do_not_auto_focus_child_components">
