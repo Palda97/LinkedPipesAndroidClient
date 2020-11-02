@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -40,10 +39,10 @@ class ExecutionsFragment : Fragment() {
         //return inflater.inflate(R.layout.fragment_executions, container, false)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_executions, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(ExecutionsViewModel::class.java)
-        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
-        pipelineViewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
-        commonViewModel = ViewModelProvider(this).get(CommonViewModel::class.java)
+        viewModel = ExecutionsViewModel.getInstance(this)
+        settingsViewModel = SettingsViewModel.getInstance(this)
+        pipelineViewModel = PipelinesViewModel.getInstance(this)
+        commonViewModel = CommonViewModel.getInstance(this)
         setUpComponents()
         return root
     }

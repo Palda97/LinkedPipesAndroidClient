@@ -110,5 +110,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         private val l = Injector.generateLogFunction(this)
         private const val DELETE_DELAY: Long = 5000L
         const val SCROLL = "SCROLL"
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(ExecutionsViewModel::class.java)
     }
 }

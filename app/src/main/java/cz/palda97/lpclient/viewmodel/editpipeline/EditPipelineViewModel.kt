@@ -2,6 +2,8 @@ package cz.palda97.lpclient.viewmodel.editpipeline
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
@@ -18,5 +20,7 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(EditPipelineViewModel::class.java)
     }
 }

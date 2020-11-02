@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditPipelineBinding
@@ -28,7 +27,7 @@ class EditPipelineFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_pipeline, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(EditPipelineViewModel::class.java)
+        viewModel = EditPipelineViewModel.getInstance(this)
         setUpComponents()
         MainActivity.switchToFragment = R.id.navigation_pipelines
         return root

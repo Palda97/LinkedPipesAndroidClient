@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
@@ -39,9 +38,9 @@ class PipelinesFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_pipelines, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
-        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
-        commonViewModel = ViewModelProvider(this).get(CommonViewModel::class.java)
+        viewModel = PipelinesViewModel.getInstance(this)
+        settingsViewModel = SettingsViewModel.getInstance(this)
+        commonViewModel = CommonViewModel.getInstance(this)
         setUpComponents()
         return root
     }

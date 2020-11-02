@@ -105,6 +105,8 @@ class EditServerViewModel : ViewModel() {
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(EditServerViewModel::class.java)
     }
 
     enum class SaveStatus {

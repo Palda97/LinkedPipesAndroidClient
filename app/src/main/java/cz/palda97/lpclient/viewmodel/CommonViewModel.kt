@@ -2,6 +2,8 @@ package cz.palda97.lpclient.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
@@ -31,5 +33,9 @@ class CommonViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setServerToFilterFun(serverInstance: ServerInstance?) {
         serverToFilter = serverInstance
+    }
+
+    companion object {
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(CommonViewModel::class.java)
     }
 }

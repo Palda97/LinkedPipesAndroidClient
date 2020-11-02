@@ -188,5 +188,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         private val l = Injector.generateLogFunction(this)
 
         private const val DELETE_DELAY: Long = 5000L
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(PipelinesViewModel::class.java)
     }
 }

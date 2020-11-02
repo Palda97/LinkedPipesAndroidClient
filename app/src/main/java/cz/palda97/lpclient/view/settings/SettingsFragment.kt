@@ -9,7 +9,6 @@ import android.widget.Filter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
@@ -38,7 +37,7 @@ class SettingsFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        viewModel = SettingsViewModel.getInstance(this)
         setUpComponents()
         //tmpButtons()
         return root

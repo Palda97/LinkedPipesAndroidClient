@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.widget.Button
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.material.snackbar.Snackbar
@@ -49,7 +48,7 @@ class EditServerFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_server, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(EditServerViewModel::class.java)
+        viewModel = EditServerViewModel.getInstance(this)
         setUpComponents()
         MainActivity.switchToFragment = R.id.navigation_settings
         return root
