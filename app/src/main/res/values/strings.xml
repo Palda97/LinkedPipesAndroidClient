@@ -58,4 +58,7 @@
     <string name="execution_notification_cancelling">Execution cancelling</string>
     <string name="execution_notification_queued">Execution queued</string>
     <string name="execution_notification_null_status">Execution completed</string>
+    <string name="choose_a_server_instance">Choose a server instance</string>
+    <string name="cancel">Cancel</string>
+    <string name="continue_string">Continue</string>
 </resources>

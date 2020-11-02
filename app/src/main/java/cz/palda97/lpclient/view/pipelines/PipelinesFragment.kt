@@ -20,6 +20,7 @@ import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
+import cz.palda97.lpclient.view.editpipeline.CreatePipelineDialog
 
 class PipelinesFragment : Fragment() {
 
@@ -127,8 +128,7 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun createPipeline() {
-        //TODO()
-        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+        CreatePipelineDialog.appear(parentFragmentManager)
     }
 
     private fun refreshPipelines() {
