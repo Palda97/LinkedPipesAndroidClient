@@ -64,25 +64,6 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-    private fun onServerToFilterChange() {
-        //executionRepository.onServerToFilterChange()
-        RepositoryRoutines().onServerToFilterChange()
-    }
-
-    var serverToFilter: ServerInstance?
-        get() = serverRepository.serverToFilter
-        private set(value) {
-            val changed = value != serverRepository.serverToFilter
-            serverRepository.serverToFilter = value
-            if (changed) {
-                onServerToFilterChange()
-            }
-        }
-
-    fun setServerToFilterFun(serverInstance: ServerInstance?) {
-        serverToFilter = serverInstance
-    }
-
     private suspend fun downloadAllExecutions(silent: Boolean = false) {
         executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
     }

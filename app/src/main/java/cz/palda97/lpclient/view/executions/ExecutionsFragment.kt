@@ -20,6 +20,7 @@ import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 
 class ExecutionsFragment : Fragment() {
@@ -29,6 +30,7 @@ class ExecutionsFragment : Fragment() {
     private lateinit var refreshFab: FloatingActionButton
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var pipelineViewModel: PipelinesViewModel
+    private lateinit var commonViewModel: CommonViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +43,7 @@ class ExecutionsFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(ExecutionsViewModel::class.java)
         settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
         pipelineViewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
+        commonViewModel = ViewModelProvider(this).get(CommonViewModel::class.java)
         setUpComponents()
         return root
     }
@@ -60,8 +63,8 @@ class ExecutionsFragment : Fragment() {
                 requireContext(),
                 settingsViewModel,
                 viewLifecycleOwner,
-                { viewModel.setServerToFilterFun(it) },
-                viewModel.serverToFilter
+                { commonViewModel.setServerToFilterFun(it) },
+                commonViewModel.serverToFilter
             )
         }
 

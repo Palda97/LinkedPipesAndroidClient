@@ -21,6 +21,7 @@ import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.view.editpipeline.CreatePipelineDialog
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 
 class PipelinesFragment : Fragment() {
 
@@ -29,6 +30,7 @@ class PipelinesFragment : Fragment() {
     private lateinit var refreshFab: FloatingActionButton
     private lateinit var viewModel: PipelinesViewModel
     private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var commonViewModel: CommonViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +41,7 @@ class PipelinesFragment : Fragment() {
         val root = binding.root
         viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
         settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        commonViewModel = ViewModelProvider(this).get(CommonViewModel::class.java)
         setUpComponents()
         return root
     }
@@ -65,8 +68,8 @@ class PipelinesFragment : Fragment() {
                 requireContext(),
                 settingsViewModel,
                 viewLifecycleOwner,
-                { viewModel.setServerToFilterFun(it) },
-                viewModel.serverToFilter
+                { commonViewModel.setServerToFilterFun(it) },
+                commonViewModel.serverToFilter
             )
         }
 

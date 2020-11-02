@@ -77,25 +77,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun onServerToFilterChange() {
-        //pipelineViewRepository.onServerToFilterChange()
-        RepositoryRoutines().onServerToFilterChange()
-    }
-
-    var serverToFilter: ServerInstance?
-        get() = serverRepository.serverToFilter
-        private set(value) {
-            val changed = value != serverRepository.serverToFilter
-            serverRepository.serverToFilter = value
-            if (changed) {
-                onServerToFilterChange()
-            }
-        }
-
-    fun setServerToFilterFun(serverInstance: ServerInstance?) {
-        serverToFilter = serverInstance
-    }
-
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
         pipelineViewRepository.markForDeletion(pipelineView)
         pipelineViewRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
