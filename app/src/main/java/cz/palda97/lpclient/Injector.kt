@@ -2,6 +2,7 @@ package cz.palda97.lpclient
 
 import android.content.Context
 import android.util.Log
+import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.repository.*
 
@@ -24,7 +25,9 @@ object Injector {
         ExecutionRepository(db.executionDao(), db.serverDao(), db.markForDeletionDao())
     }
     val pipelineRepository: PipelineRepository by lazy {
-        PipelineRepository(AppDatabase.getInstance(context).serverDao())
+        val db = AppDatabase.getInstance(context)
+        val sharedPreferences = SharedPreferencesFactory.sharedPreferences(context)
+        PipelineRepository(db.serverDao(), sharedPreferences)
     }
 
     fun tag(companion: Any): String =
