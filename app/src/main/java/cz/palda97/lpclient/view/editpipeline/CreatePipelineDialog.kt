@@ -2,6 +2,7 @@ package cz.palda97.lpclient.view.editpipeline
 
 import android.app.Dialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -39,7 +40,7 @@ class CreatePipelineDialog : DialogFragment() {
             }
             .setPositiveButton(R.string.continue_string) { _, _ ->
                 if (commonViewModel.serverToFilter == null) {
-                    //Maybe show some toast or something
+                    Toast.makeText(requireContext(), R.string.no_server_selected, Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
                 EditPipelineActivity.start(requireContext())
