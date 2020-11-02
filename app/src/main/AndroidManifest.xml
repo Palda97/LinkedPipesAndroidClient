@@ -19,7 +19,8 @@
             android:label="@string/server_instance"
             android:parentActivityName=".view.MainActivity" />
         <activity
-            android:name=".view.EditPipelineActivity" />
+            android:name=".view.EditPipelineActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".view.MainActivity"
             android:label="@string/app_name"
