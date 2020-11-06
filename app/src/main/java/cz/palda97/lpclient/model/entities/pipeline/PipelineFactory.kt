@@ -98,6 +98,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 LdConstants.TYPE_COMPONENT -> parseComponent(item, mutablePipeline)
                 LdConstants.TYPE_CONNECTION -> parseConnection(item, mutablePipeline)
                 LdConstants.TYPE_EXECUTION_PROFILE -> parseProfile(item, mutablePipeline)
+                //TODO("vertex")
                 else -> false
             }
         }

@@ -9,10 +9,7 @@ import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import cz.palda97.lpclient.model.repository.ExecutionRepository
-import cz.palda97.lpclient.model.repository.PipelineViewRepository
-import cz.palda97.lpclient.model.repository.RepositoryRoutines
-import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.model.repository.*
 import cz.palda97.lpclient.model.services.ExecutionMonitor
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
@@ -22,6 +19,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     private val pipelineViewRepository: PipelineViewRepository = Injector.pipelineViewRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
     private val executionRepository: ExecutionRepository = Injector.executionRepository
+    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -179,6 +177,12 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 return@launch
             }
             launchPipelineRoutine(pipelineView)
+        }
+    }
+
+    fun editPipeline(pipelineView: PipelineView) {
+        retrofitScope.launch {
+            pipelineRepository.cachePipeline(pipelineView)
         }
     }
 

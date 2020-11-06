@@ -15,6 +15,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.view.EditPipelineActivity
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
@@ -138,8 +139,9 @@ class PipelinesFragment : Fragment() {
     }
 
     private fun editPipeline(pipelineView: PipelineView) {
-        //TODO()
-        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+        viewModel.editPipeline(pipelineView)
+        //Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+        EditPipelineActivity.start(requireContext())
     }
 
     private fun launchPipeline(pipelineView: PipelineView) {
