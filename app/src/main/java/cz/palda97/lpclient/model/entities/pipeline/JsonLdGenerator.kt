@@ -67,7 +67,7 @@ fun Pipeline.jsonLd(): String {
         sb.append("}")
     }
 
-    fun secondPart(sb: StringBuilder) {
+    /*fun secondPart(sb: StringBuilder) {
         configurations.forEach {
             sb.append(",{\"${LdConstants.GRAPH}\":[{")
             sb.append("\"${LdConstants.ID}\":\"${it.id}\",")
@@ -75,6 +75,16 @@ fun Pipeline.jsonLd(): String {
             val settings = Gson().toJson(it.settings) ?: "{"
             sb.append(settings.drop(1))
             sb.append("],")
+            sb.append("\"${LdConstants.ID}\":\"${it.id}\"")
+            sb.append("}")
+        }
+    }*/
+    fun secondPart(sb: StringBuilder) {
+        configurations.forEach {
+            sb.append(",{\"${LdConstants.GRAPH}\":")
+            val settings = Gson().toJson(it.settings) ?: "[]"
+            sb.append(settings)
+            sb.append(",")
             sb.append("\"${LdConstants.ID}\":\"${it.id}\"")
             sb.append("}")
         }

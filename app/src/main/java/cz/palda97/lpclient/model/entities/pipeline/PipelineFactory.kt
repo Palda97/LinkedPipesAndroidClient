@@ -69,12 +69,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
 
             rootArrayList.forEachIndexed { index, it ->
                 if (index > 0) {
-                    val graph = CommonFunctions.prepareSemiRootElement(it)
-                        ?: return Either.Left("element not arraylist while parsing configurations")
-                    if (graph.size != 1)
-                        return Either.Left("configuration graph.size != 1")
-                    val map = graph[0] as? Map<*, *>
-                        ?: return Either.Left("configuration graph[0] is not map")
+                    val map = it as? Map<*, *> ?: return Either.Left("configuration is not map")
                     if (!parseConfiguration(map, mutablePipeline)) {
                         return Either.Left("some configuration could not be parsed")
                     }
@@ -200,18 +195,19 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
 
         private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val id = CommonFunctions.giveMeThatId(map) ?: return false
-            val type = CommonFunctions.giveMeThatType(map) ?: return false
-            val configurationMap = map.filterNot {
-                it.key == LdConstants.ID || it.key == LdConstants.TYPE
-            }
-            mutablePipeline.configurations.add(Configuration(configurationMap, type, id))
+            val settings = CommonFunctions.prepareSemiRootElement(map) ?: return false
+            mutablePipeline.configurations.add(Configuration(settings, id))
             return true
         }
 
         private fun parseVertex(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
-            val orderString = CommonFunctions.giveMeThatString(map, LdConstants.ORDER, LdConstants.VALUE) ?: return false
-            val xString = CommonFunctions.giveMeThatString(map, LdConstants.X, LdConstants.VALUE) ?: return false
-            val yString = CommonFunctions.giveMeThatString(map, LdConstants.Y, LdConstants.VALUE) ?: return false
+            val orderString =
+                CommonFunctions.giveMeThatString(map, LdConstants.ORDER, LdConstants.VALUE)
+                    ?: return false
+            val xString = CommonFunctions.giveMeThatString(map, LdConstants.X, LdConstants.VALUE)
+                ?: return false
+            val yString = CommonFunctions.giveMeThatString(map, LdConstants.Y, LdConstants.VALUE)
+                ?: return false
             val id = CommonFunctions.giveMeThatId(map) ?: return false
             val order = orderString.toIntOrNull() ?: return false
             val x = xString.toIntOrNull() ?: return false
