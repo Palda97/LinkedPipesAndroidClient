@@ -7,5 +7,6 @@ data class Pipeline(
     val profile: Profile,
     val components: List<Component>,
     val connections: List<Connection>,
-    val configurations: List<Configuration>
+    val configurations: List<Configuration>,
+    val vertexes: List<Vertex>
 )

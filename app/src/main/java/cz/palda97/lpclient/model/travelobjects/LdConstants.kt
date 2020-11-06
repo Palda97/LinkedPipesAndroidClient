@@ -20,6 +20,8 @@ object LdConstants {
     const val REPO_POLICY = "http://linkedpipes.com/ontology/rdfRepositoryPolicy"
     const val REPO_TYPE = "http://linkedpipes.com/ontology/rdfRepositoryType"
     const val DESCRIPTION = "http://purl.org/dc/terms/description"
+    const val ORDER = "http://linkedpipes.com/ontology/order"
+    const val VERTEX = "http://linkedpipes.com/ontology/vertex"
 
     const val TYPE_PIPELINE = "http://linkedpipes.com/ontology/Pipeline"
     const val TYPE_COMPONENT = "http://linkedpipes.com/ontology/Component"
@@ -27,6 +29,7 @@ object LdConstants {
     const val TYPE_EXECUTION_PROFILE = "http://linkedpipes.com/ontology/ExecutionProfile"
     const val TYPE_EXECUTION = "http://etl.linkedpipes.com/ontology/Execution"
     const val TYPE_TOMBSTONE = "http://linkedpipes.com/ontology/Tombstone"
+    const val TYPE_VERTEX = "http://linkedpipes.com/ontology/Vertex"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"

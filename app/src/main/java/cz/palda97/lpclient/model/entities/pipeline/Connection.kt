@@ -5,5 +5,6 @@ data class Connection(
     val sourceComponentId: String,
     val targetBinding: String,
     val targetComponentId: String,
+    val vertexIds: List<String>,
     val id: String
 )

@@ -16,7 +16,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
         var profile: Profile? = null,
         var components: MutableList<Component> = mutableListOf(),
         var connections: MutableList<Connection> = mutableListOf(),
-        var configurations: MutableList<Configuration> = mutableListOf()
+        var configurations: MutableList<Configuration> = mutableListOf(),
+        var vertexes: MutableList<Vertex> = mutableListOf()
     ) {
         fun toPipeline(): Pipeline? {
             return Pipeline(
@@ -24,7 +25,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 profile ?: return null,
                 components,
                 connections,
-                configurations
+                configurations,
+                vertexes
             )
         }
     }
@@ -38,7 +40,10 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             return when (val res = CommonFunctions.getRootArrayList(string)) {
                 is Either.Left -> MailPackage.brokenPackage(res.value)
                 is Either.Right -> when (val res = parsePipeline(server, res.value)) {
-                    is Either.Left -> MailPackage.brokenPackage(res.value)
+                    is Either.Left -> {
+                        l(res.value)
+                        MailPackage.brokenPackage(res.value)
+                    }
                     is Either.Right -> MailPackage(res.value)
                 }
             }
@@ -98,7 +103,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 LdConstants.TYPE_COMPONENT -> parseComponent(item, mutablePipeline)
                 LdConstants.TYPE_CONNECTION -> parseConnection(item, mutablePipeline)
                 LdConstants.TYPE_EXECUTION_PROFILE -> parseProfile(item, mutablePipeline)
-                //TODO("vertex")
+                LdConstants.TYPE_VERTEX -> parseVertex(item, mutablePipeline)
                 else -> false
             }
         }
@@ -140,6 +145,17 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             return true
         }
 
+        private fun parseVertexIds(connectionMap: Map<*, *>): List<String>? {
+            if (!connectionMap.contains(LdConstants.VERTEX)) {
+                return emptyList()
+            }
+            val arrayList = connectionMap[LdConstants.VERTEX] as? ArrayList<*> ?: return null
+            return arrayList.map {
+                val map = it as? Map<*, *> ?: return null
+                CommonFunctions.giveMeThatId(map) ?: return null
+            }
+        }
+
         private fun parseConnection(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val sourceBinding =
                 CommonFunctions.giveMeThatString(map, LdConstants.SOURCE_BINDING, LdConstants.VALUE)
@@ -154,12 +170,16 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 CommonFunctions.giveMeThatString(map, LdConstants.TARGET_COMPONENT, LdConstants.ID)
                     ?: return false
             val id = CommonFunctions.giveMeThatId(map) ?: return false
+
+            val vertexIds = parseVertexIds(map) ?: return false
+
             mutablePipeline.connections.add(
                 Connection(
                     sourceBinding,
                     sourceComponentId,
                     targetBinding,
                     targetComponentId,
+                    vertexIds,
                     id
                 )
             )
@@ -185,6 +205,18 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 it.key == LdConstants.ID || it.key == LdConstants.TYPE
             }
             mutablePipeline.configurations.add(Configuration(configurationMap, type, id))
+            return true
+        }
+
+        private fun parseVertex(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
+            val orderString = CommonFunctions.giveMeThatString(map, LdConstants.ORDER, LdConstants.VALUE) ?: return false
+            val xString = CommonFunctions.giveMeThatString(map, LdConstants.X, LdConstants.VALUE) ?: return false
+            val yString = CommonFunctions.giveMeThatString(map, LdConstants.Y, LdConstants.VALUE) ?: return false
+            val id = CommonFunctions.giveMeThatId(map) ?: return false
+            val order = orderString.toIntOrNull() ?: return false
+            val x = xString.toIntOrNull() ?: return false
+            val y = yString.toIntOrNull() ?: return false
+            mutablePipeline.vertexes.add(Vertex(order, x, y, id))
             return true
         }
     }
