@@ -193,10 +193,26 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             return true
         }
 
+        private fun parseConfig(map: Map<*, *>): Config? {
+            val id = CommonFunctions.giveMeThatId(map) ?: return null
+            val type = CommonFunctions.giveMeThatType(map) ?: return null
+            val configMap = map.filterNot {
+                it.key == LdConstants.ID || it.key == LdConstants.TYPE
+            }
+            return Config(configMap, type, id)
+        }
+
         private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val id = CommonFunctions.giveMeThatId(map) ?: return false
-            val settings = CommonFunctions.prepareSemiRootElement(map) ?: return false
-            mutablePipeline.configurations.add(Configuration(settings, id))
+            val arrayList = CommonFunctions.prepareSemiRootElement(map) ?: return false
+            val configs = arrayList.map {
+                val configMap = it as? Map<*, *> ?: return false
+                val config = parseConfig(configMap) ?: return false
+                config
+            }
+            mutablePipeline.configurations.add(
+                Configuration(configs, id)
+            )
             return true
         }
 

@@ -67,24 +67,28 @@ fun Pipeline.jsonLd(): String {
         sb.append("}")
     }
 
-    /*fun secondPart(sb: StringBuilder) {
-        configurations.forEach {
-            sb.append(",{\"${LdConstants.GRAPH}\":[{")
-            sb.append("\"${LdConstants.ID}\":\"${it.id}\",")
-            sb.append("\"${LdConstants.TYPE}\":[\"${it.type}\"],")
-            val settings = Gson().toJson(it.settings) ?: "{"
-            sb.append(settings.drop(1))
-            sb.append("],")
-            sb.append("\"${LdConstants.ID}\":\"${it.id}\"")
-            sb.append("}")
+    fun parseConfig(sb: StringBuilder, config: Config) {
+        sb.append("{")
+        sb.append("\"${LdConstants.ID}\":\"${config.id}\",")
+        sb.append("\"${LdConstants.TYPE}\":[\"${config.type}\"]")
+        if (config.settings.isNotEmpty()) {
+            sb.append(",")
         }
-    }*/
+        val settings = Gson().toJson(config.settings) ?: "{}"
+        sb.append(settings.drop(1))
+    }
+
     fun secondPart(sb: StringBuilder) {
         configurations.forEach {
-            sb.append(",{\"${LdConstants.GRAPH}\":")
-            val settings = Gson().toJson(it.settings) ?: "[]"
-            sb.append(settings)
-            sb.append(",")
+            sb.append(",{\"${LdConstants.GRAPH}\":[")
+            it.settings.forEachIndexed { i, it ->
+                if (i > 0) {
+                    sb.append(",")
+                }
+                parseConfig(sb, it)
+            }
+
+            sb.append("],")
             sb.append("\"${LdConstants.ID}\":\"${it.id}\"")
             sb.append("}")
         }
