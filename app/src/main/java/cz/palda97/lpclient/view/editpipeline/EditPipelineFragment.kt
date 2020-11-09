@@ -65,8 +65,10 @@ class EditPipelineFragment : Fragment() {
                         PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> getString(R.string.error_while_loading_pipeline)
                         PipelineRepository.CacheStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
                     }
-                    Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
-                        .setAction(null.toString(), null)
+                    Snackbar.make(binding.root, text, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(getString(R.string.try_again)) {
+                            tryAgain()
+                        }
                         .setAnchorView(binding.editPipelineBottomButtons)
                         .show()
                 }
@@ -81,6 +83,10 @@ class EditPipelineFragment : Fragment() {
             binding.mail = mail
             binding.executePendingBindings()
         })
+    }
+
+    private fun tryAgain() {
+        viewModel.retryCachePipeline()
     }
 
     override fun onPause() {
