@@ -58,11 +58,11 @@ class EditPipelineFragment : Fragment() {
                 }
                 MailPackage.Status.ERROR -> {
                     val text: String = when(mail.msg.toStatus) {
-                        PipelineRepository.CacheStatus.SERVER_NOT_FOUND -> "The server instance is no longer registered here!"
-                        PipelineRepository.CacheStatus.DOWNLOAD_ERROR -> "Error while downloading the pipeline!"
-                        PipelineRepository.CacheStatus.PARSING_ERROR -> "Pipeline could not be parsed!"
-                        PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> "Error while loading pipeline!"
-                        PipelineRepository.CacheStatus.INTERNAL_ERROR -> "Internal error."
+                        PipelineRepository.CacheStatus.SERVER_NOT_FOUND -> getString(R.string.server_instance_no_longer_registered)
+                        PipelineRepository.CacheStatus.DOWNLOAD_ERROR -> getString(R.string.error_while_downloading_pipeline)
+                        PipelineRepository.CacheStatus.PARSING_ERROR -> getString(R.string.pipeline_could_not_be_parsed)
+                        PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> getString(R.string.error_while_loading_pipeline)
+                        PipelineRepository.CacheStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
                     }
                     Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
                         .setAction(null.toString(), null)
