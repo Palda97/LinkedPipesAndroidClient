@@ -16,6 +16,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
 import cz.palda97.lpclient.view.MainActivity
+import cz.palda97.lpclient.view.editpipeline.CoordinateConverter.resize
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import io.github.hyuwah.draggableviewlib.DraggableListener
 import io.github.hyuwah.draggableviewlib.makeDraggable
@@ -28,10 +29,6 @@ class EditPipelineFragment : Fragment() {
         private val l = Injector.generateLogFunction(this)
         fun newInstance() =
             EditPipelineFragment()
-        private const val XSCALE: Float = 2.toFloat()
-        private const val YSCALE: Float = 1.5.toFloat()
-        private const val XOFFSET = 1000
-        private const val YOFFSET = 1000
     }
 
     private lateinit var viewModel: EditPipelineViewModel
@@ -99,20 +96,7 @@ class EditPipelineFragment : Fragment() {
     private fun displayPipeline() {
         binding.frameLayout.removeAllViews()
 
-        currentPipeline!!.components.maxBy {
-            it.x
-        }?.let {
-            val params = binding.frameLayout.layoutParams ?: return@let
-            params.width = (it.x * XSCALE).roundToInt() + XOFFSET
-            binding.frameLayout.layoutParams = params
-        }
-        currentPipeline!!.components.maxBy {
-            it.y
-        }?.let {
-            val params = binding.frameLayout.layoutParams ?: return@let
-            params.height = (it.y * YSCALE).roundToInt() + YOFFSET
-            binding.frameLayout.layoutParams = params
-        }
+        binding.frameLayout.resize(currentPipeline!!.components)
 
         currentPipeline!!.components.forEach {
             val buttonBinding: DynamicButtonBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_button, null, false)
@@ -121,31 +105,27 @@ class EditPipelineFragment : Fragment() {
                     override fun onPositionChanged(view: View) {
                         binding.scrollView.requestDisallowInterceptTouchEvent(true)
                         binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
-                        it.x = (view.x / XSCALE).toInt()
-                        it.y = (view.y / YSCALE).toInt()
+                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
+                        it.x = x
+                        it.y = y
                     }
                 }
             )
             with(buttonBinding.button) {
-                x = it.x.toFloat() * XSCALE
-                y = it.y.toFloat() * YSCALE
+                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y)
+                this.x = x
+                this.y = y
                 text = it.prefLabel
             }
             binding.frameLayout.addView(buttonBinding.root)
         }
 
-        val minX = currentPipeline!!.components.minBy {
-                it.x
-            }?.x
-        val minY = currentPipeline!!.components.minBy {
-            it.y
-        }?.y
-
-        if (minX != null && minY != null) {
+        CoordinateConverter.coordsToScrollTo(currentPipeline!!.components)?.let {
+            val (x, y) = it
             lifecycleScope.launch {
                 delay(50L)
-                binding.horizontalScrollView.scrollX = (minX * XSCALE).roundToInt()
-                binding.scrollView.scrollY = (minY * YSCALE).roundToInt()
+                binding.horizontalScrollView.scrollX = x
+                binding.scrollView.scrollY = y
             }
         }
     }
