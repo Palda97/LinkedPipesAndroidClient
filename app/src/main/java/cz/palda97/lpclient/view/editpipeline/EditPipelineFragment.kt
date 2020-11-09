@@ -106,20 +106,19 @@ class EditPipelineFragment : Fragment() {
         setUpFAB()
     }
 
-    private fun displayPipeline() {
-        binding.pipelineLayout.removeAllViews()
+    private fun disableScrollViewsForAWhile() {
+        binding.scrollView.requestDisallowInterceptTouchEvent(true)
+        binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
+    }
 
-        binding.pipelineLayout.resize(currentPipeline!!.components)
-
+    private fun displayComponents() {
         val buttonMap: MutableMap<Component, View> = HashMap()
-
         currentPipeline!!.components.forEach {
             val buttonBinding: DynamicButtonBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_button, null, false)
             buttonBinding.button.makeDraggable(
                 draggableListener = object : DraggableListener {
                     override fun onPositionChanged(view: View) {
-                        binding.scrollView.requestDisallowInterceptTouchEvent(true)
-                        binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
+                        disableScrollViewsForAWhile()
                         val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
                         it.x = x
                         it.y = y
@@ -139,7 +138,10 @@ class EditPipelineFragment : Fragment() {
             binding.pipelineLayout.addView(buttonBinding.root)
             buttonMap[it] = buttonBinding.button
         }
+        binding.pipelineLayout.componentsAndButtons = buttonMap
+    }
 
+    private fun scrollToComponents() {
         CoordinateConverter.coordsToScrollTo(currentPipeline!!.components)?.let {
             val (x, y) = it
             lifecycleScope.launch {
@@ -148,8 +150,13 @@ class EditPipelineFragment : Fragment() {
                 binding.scrollView.scrollY = y
             }
         }
+    }
 
+    private fun displayPipeline() {
+        binding.pipelineLayout.removeAllViews()
+        binding.pipelineLayout.resize(currentPipeline!!.components)
+        displayComponents()
+        scrollToComponents()
         binding.pipelineLayout.currentPipeline = currentPipeline
-        binding.pipelineLayout.componentsAndButtons = buttonMap
     }
 }
