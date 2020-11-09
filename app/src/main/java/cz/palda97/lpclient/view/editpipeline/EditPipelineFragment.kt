@@ -12,6 +12,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.DynamicButtonBinding
 import cz.palda97.lpclient.databinding.FragmentEditPipelineBinding
 import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
@@ -94,9 +95,11 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun displayPipeline() {
-        binding.frameLayout.removeAllViews()
+        binding.pipelineLayout.removeAllViews()
 
-        binding.frameLayout.resize(currentPipeline!!.components)
+        binding.pipelineLayout.resize(currentPipeline!!.components)
+
+        val buttonMap: MutableMap<Component, View> = HashMap()
 
         currentPipeline!!.components.forEach {
             val buttonBinding: DynamicButtonBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_button, null, false)
@@ -108,6 +111,10 @@ class EditPipelineFragment : Fragment() {
                         val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
                         it.x = x
                         it.y = y
+                        binding.pipelineLayout.componentsAndButtons?.let { map ->
+                            map[it] = view
+                            binding.pipelineLayout.invalidate()
+                        }
                     }
                 }
             )
@@ -117,7 +124,8 @@ class EditPipelineFragment : Fragment() {
                 this.y = y
                 text = it.prefLabel
             }
-            binding.frameLayout.addView(buttonBinding.root)
+            binding.pipelineLayout.addView(buttonBinding.root)
+            buttonMap[it] = buttonBinding.button
         }
 
         CoordinateConverter.coordsToScrollTo(currentPipeline!!.components)?.let {
@@ -128,5 +136,8 @@ class EditPipelineFragment : Fragment() {
                 binding.scrollView.scrollY = y
             }
         }
+
+        binding.pipelineLayout.currentPipeline = currentPipeline
+        binding.pipelineLayout.componentsAndButtons = buttonMap
     }
 }

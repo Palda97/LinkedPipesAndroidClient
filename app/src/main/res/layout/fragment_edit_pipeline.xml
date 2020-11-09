@@ -51,12 +51,12 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
-                            <FrameLayout
-                                android:id="@+id/frameLayout"
+                            <cz.palda97.lpclient.view.editpipeline.PipelineLayout
+                                android:id="@+id/pipelineLayout"
                                 android:layout_width="2000dp"
                                 android:layout_height="2000dp">
 
-                            </FrameLayout>
+                            </cz.palda97.lpclient.view.editpipeline.PipelineLayout>
                         </LinearLayout>
                     </ScrollView>
                 </HorizontalScrollView>
