@@ -22,7 +22,6 @@ import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import io.github.hyuwah.draggableviewlib.DraggableListener
 import io.github.hyuwah.draggableviewlib.makeDraggable
 import kotlinx.coroutines.*
-import kotlin.math.roundToInt
 
 class EditPipelineFragment : Fragment() {
 
@@ -97,7 +96,14 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun setUpComponents() {
-        //
+
+        fun setUpFAB() {
+            binding.fab.setOnClickListener {
+                l("click")
+            }
+        }
+
+        setUpFAB()
     }
 
     private fun displayPipeline() {
