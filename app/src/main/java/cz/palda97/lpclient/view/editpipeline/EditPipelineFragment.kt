@@ -191,7 +191,8 @@ class EditPipelineFragment : Fragment() {
         binding.pipelineLayout.removeAllViews()
         binding.pipelineLayout.resize(currentPipeline!!.components)
         displayComponents()
-        scrollToComponents()
+        if (viewModel.shouldScroll)
+            scrollToComponents()
         displayVertexes()
         binding.pipelineLayout.currentPipeline = currentPipeline
     }
