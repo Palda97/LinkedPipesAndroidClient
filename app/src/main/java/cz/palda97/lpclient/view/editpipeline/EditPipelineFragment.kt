@@ -10,10 +10,12 @@ import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.DynamicButtonBinding
+import cz.palda97.lpclient.databinding.DynamicImageviewBinding
 import cz.palda97.lpclient.databinding.FragmentEditPipelineBinding
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
+import cz.palda97.lpclient.model.entities.pipeline.Vertex
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
 import cz.palda97.lpclient.view.MainActivity
@@ -152,11 +154,41 @@ class EditPipelineFragment : Fragment() {
         }
     }
 
+    private fun displayVertexes() {
+        val vertexMap: MutableMap<Vertex, View> = HashMap()
+        currentPipeline!!.vertexes.forEach {
+            val vertexBinding: DynamicImageviewBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_imageview, null, false)
+            vertexBinding.imageView.makeDraggable(
+                draggableListener = object : DraggableListener {
+                    override fun onPositionChanged(view: View) {
+                        disableScrollViewsForAWhile()
+                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
+                        it.x = x
+                        it.y = y
+                        binding.pipelineLayout.vertexesAndButtons?.let { map ->
+                            map[it] = view
+                            binding.pipelineLayout.invalidate()
+                        }
+                    }
+                }
+            )
+            with(vertexBinding.imageView) {
+                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y)
+                this.x = x
+                this.y = y
+            }
+            binding.pipelineLayout.addView(vertexBinding.root)
+            vertexMap[it] = vertexBinding.imageView
+        }
+        binding.pipelineLayout.vertexesAndButtons = vertexMap
+    }
+
     private fun displayPipeline() {
         binding.pipelineLayout.removeAllViews()
         binding.pipelineLayout.resize(currentPipeline!!.components)
         displayComponents()
         scrollToComponents()
+        displayVertexes()
         binding.pipelineLayout.currentPipeline = currentPipeline
     }
 }
