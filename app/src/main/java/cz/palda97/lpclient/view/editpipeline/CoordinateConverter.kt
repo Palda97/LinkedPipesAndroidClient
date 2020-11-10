@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package cz.palda97.lpclient.view.editpipeline
 
 import android.view.ViewGroup
@@ -6,18 +8,26 @@ import kotlin.math.roundToInt
 
 object CoordinateConverter {
 
-    private const val XSCALE: Float = 2.toFloat()
-    private const val YSCALE: Float = 1.5.toFloat()
-    private const val XOFFSET = 1000
-    private const val YOFFSET = 1000
+    private const val XSCALE: Float = 1.toFloat()
+    private const val YSCALE: Float = 0.75.toFloat()
+    private const val XOFFSET = 500
+    private const val YOFFSET = 500
+    const val DEFAULT_DENSITY: Float = 2.toFloat()
 
-    fun toDisplay(x: Int, y: Int): Pair<Float, Float> = x * XSCALE to y * YSCALE
+    fun toDisplay(x: Int, y: Int, density: Float?): Pair<Float, Float> {
+        val density = density ?: DEFAULT_DENSITY
+        return x * XSCALE * density to y * YSCALE * density
+    }
 
-    fun fromDisplay(x: Float, y: Float): Pair<Int, Int> = (x / XSCALE).roundToInt() to (y / YSCALE).roundToInt()
+    fun fromDisplay(x: Float, y: Float, density: Float?): Pair<Int, Int> {
+        val density = density ?: DEFAULT_DENSITY
+        return (x / (XSCALE * density)).roundToInt() to (y / (YSCALE * density)).roundToInt()
+    }
 
-    private fun toLayoutSize(x: Int, y: Int): Pair<Int, Int> {
-        val (x, y) = toDisplay(x, y)
-        return (x + XOFFSET).roundToInt() to (y + YOFFSET).roundToInt()
+    private fun toLayoutSize(x: Int, y: Int, density: Float?): Pair<Int, Int> {
+        val density = density ?: DEFAULT_DENSITY
+        val (x, y) = toDisplay(x, y, density)
+        return (x + XOFFSET * density).roundToInt() to (y + YOFFSET * density).roundToInt()
     }
 
     fun ViewGroup.resize(components: List<Component>) {
@@ -29,13 +39,14 @@ object CoordinateConverter {
         }?.y ?: return
 
         val params = layoutParams ?: return
-        val (x, y) = toLayoutSize(maxX, maxY)
+        val (x, y) = toLayoutSize(maxX, maxY, resources?.displayMetrics?.density ?: DEFAULT_DENSITY)
         params.width = x
         params.height = y
         layoutParams = params
     }
 
-    fun coordsToScrollTo(components: List<Component>): Pair<Int, Int>? {
+    fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
+        val density = density ?: DEFAULT_DENSITY
         val minX = components.minBy {
             it.x
         }?.x ?: return null
@@ -43,6 +54,6 @@ object CoordinateConverter {
             it.y
         }?.y ?: return null
 
-        return (minX * XSCALE).roundToInt() to (minY * YSCALE).roundToInt()
+        return (minX * XSCALE * density).roundToInt() to (minY * YSCALE * density).roundToInt()
     }
 }

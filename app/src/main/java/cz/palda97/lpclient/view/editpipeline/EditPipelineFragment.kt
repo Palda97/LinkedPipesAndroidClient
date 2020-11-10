@@ -113,6 +113,10 @@ class EditPipelineFragment : Fragment() {
         binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
     }
 
+    private val density: Float? by lazy {
+        resources.displayMetrics?.density
+    }
+
     private fun displayComponents() {
         val buttonMap: MutableMap<Component, View> = HashMap()
         currentPipeline!!.components.forEach {
@@ -121,7 +125,7 @@ class EditPipelineFragment : Fragment() {
                 draggableListener = object : DraggableListener {
                     override fun onPositionChanged(view: View) {
                         disableScrollViewsForAWhile()
-                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
+                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y, density)
                         it.x = x
                         it.y = y
                         binding.pipelineLayout.componentsAndButtons?.let { map ->
@@ -132,7 +136,7 @@ class EditPipelineFragment : Fragment() {
                 }
             )
             with(buttonBinding.button) {
-                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y)
+                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y, density)
                 this.x = x
                 this.y = y
                 text = it.prefLabel
@@ -144,7 +148,7 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun scrollToComponents() {
-        CoordinateConverter.coordsToScrollTo(currentPipeline!!.components)?.let {
+        CoordinateConverter.coordsToScrollTo(currentPipeline!!.components, density)?.let {
             val (x, y) = it
             lifecycleScope.launch {
                 delay(50L)
@@ -162,7 +166,7 @@ class EditPipelineFragment : Fragment() {
                 draggableListener = object : DraggableListener {
                     override fun onPositionChanged(view: View) {
                         disableScrollViewsForAWhile()
-                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y)
+                        val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y, density)
                         it.x = x
                         it.y = y
                         binding.pipelineLayout.vertexesAndButtons?.let { map ->
@@ -173,7 +177,7 @@ class EditPipelineFragment : Fragment() {
                 }
             )
             with(vertexBinding.imageView) {
-                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y)
+                val (x, y) = CoordinateConverter.toDisplay(it.x, it.y, density)
                 this.x = x
                 this.y = y
             }

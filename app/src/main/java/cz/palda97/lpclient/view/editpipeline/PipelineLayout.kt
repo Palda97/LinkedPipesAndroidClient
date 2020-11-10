@@ -23,7 +23,7 @@ class PipelineLayout @JvmOverloads constructor(
 
     companion object {
         private val l = Injector.generateLogFunction(this)
-        private const val STROKE_WIDTH: Float = 5.toFloat()
+        private const val STROKE_WIDTH: Float = 2.5.toFloat()
     }
 
     init {
@@ -38,7 +38,7 @@ class PipelineLayout @JvmOverloads constructor(
 
     private val paint = Paint().apply {
         color = Color.BLACK
-        strokeWidth = STROKE_WIDTH
+        strokeWidth = STROKE_WIDTH * (resources?.displayMetrics?.density ?: CoordinateConverter.DEFAULT_DENSITY)
         style = Paint.Style.STROKE
     }
 
