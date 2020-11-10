@@ -30,6 +30,7 @@ object LdConstants {
     const val TYPE_EXECUTION = "http://etl.linkedpipes.com/ontology/Execution"
     const val TYPE_TOMBSTONE = "http://linkedpipes.com/ontology/Tombstone"
     const val TYPE_VERTEX = "http://linkedpipes.com/ontology/Vertex"
+    const val TYPE_TEMPLATE = "http://linkedpipes.com/ontology/Template"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"

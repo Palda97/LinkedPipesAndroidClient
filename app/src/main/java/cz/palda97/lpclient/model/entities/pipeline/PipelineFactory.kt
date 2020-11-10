@@ -17,8 +17,9 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
         var components: MutableList<Component> = mutableListOf(),
         var connections: MutableList<Connection> = mutableListOf(),
         var configurations: MutableList<Configuration> = mutableListOf(),
-        var vertexes: MutableList<Vertex> = mutableListOf()
-    ) {
+        var vertexes: MutableList<Vertex> = mutableListOf(),
+        var templates: MutableList<Template> = mutableListOf()
+        ) {
         fun toPipeline(): Pipeline? {
             return Pipeline(
                 pipelineView ?: return null,
@@ -26,7 +27,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 components,
                 connections,
                 configurations,
-                vertexes
+                vertexes,
+                templates
             )
         }
     }
@@ -58,21 +60,10 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
 
             val mutablePipeline = MutablePipeline()
 
-            val firstPartArrayList = CommonFunctions.prepareSemiRootElement(rootArrayList[0])
-                ?: return Either.Left("firstPartArrayList not found")
-
-            firstPartArrayList.forEach {
-                if (!parseFirstPartItem(it, mutablePipeline, server)) {
+            rootArrayList.forEach {
+                val map = it as? Map<*, *> ?: return Either.Left("semiroot element is not map")
+                if (!parseItem(map, mutablePipeline, server)) {
                     return Either.Left("some first part item could not be parsed")
-                }
-            }
-
-            rootArrayList.forEachIndexed { index, it ->
-                if (index > 0) {
-                    val map = it as? Map<*, *> ?: return Either.Left("configuration is not map")
-                    if (!parseConfiguration(map, mutablePipeline)) {
-                        return Either.Left("some configuration could not be parsed")
-                    }
                 }
             }
 
@@ -81,60 +72,78 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             return Either.Right(pipeline)
         }
 
-        private fun parseFirstPartItem(
-            item: Any?,
+        private fun parseItem(
+            item: Map<*, *>,
             mutablePipeline: MutablePipeline,
             server: ServerInstance
         ): Boolean {
-            if (item !is Map<*, *>)
-                return false
-            val type = CommonFunctions.giveMeThatType(item) ?: return false
-            return when (type) {
-                LdConstants.TYPE_PIPELINE -> {
-                    val pipelineView = PipelineViewFactory.makePipelineView(item, server)
-                    mutablePipeline.pipelineView = pipelineView
-                    pipelineView != null
+            val graph = CommonFunctions.prepareSemiRootElement(item) ?: return false.also { l("no graph") }
+            graph.forEach {
+                val map = it as? Map<*, *> ?: return false.also {
+                    l("no map")
                 }
-                LdConstants.TYPE_COMPONENT -> parseComponent(item, mutablePipeline)
-                LdConstants.TYPE_CONNECTION -> parseConnection(item, mutablePipeline)
-                LdConstants.TYPE_EXECUTION_PROFILE -> parseProfile(item, mutablePipeline)
-                LdConstants.TYPE_VERTEX -> parseVertex(item, mutablePipeline)
-                else -> false
+                val type = CommonFunctions.giveMeThatType(map) ?: return false.also { l("no type") }
+                val ok: Boolean = when(type) {
+                    LdConstants.TYPE_PIPELINE -> {
+                        val pipelineView = PipelineViewFactory.makePipelineView(map, server)
+                        mutablePipeline.pipelineView = pipelineView
+                        (pipelineView != null).also { if (!it) l("TYPE_PIPELINE") }
+                    }
+                    LdConstants.TYPE_COMPONENT -> parseComponent(map, mutablePipeline).also { if (!it) l("TYPE_COMPONENT") }
+                    LdConstants.TYPE_CONNECTION -> parseConnection(map, mutablePipeline).also { if (!it) l("TYPE_CONNECTION") }
+                    LdConstants.TYPE_EXECUTION_PROFILE -> parseProfile(map, mutablePipeline).also { if (!it) l("TYPE_EXECUTION_PROFILE") }
+                    LdConstants.TYPE_VERTEX -> parseVertex(map, mutablePipeline).also { if (!it) l("TYPE_VERTEX") }
+                    LdConstants.TYPE_TEMPLATE -> parseTemplate(map, mutablePipeline).also { if (!it) l("TYPE_TEMPLATE") }
+                    else -> return parseConfiguration(item, mutablePipeline).also { if (!it) l("Configuration") }
+                }
+                if (!ok) {
+                    return false.also { l("!ok") }
+                }
             }
+            return true
         }
 
-        private fun parseComponent(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
+        private fun parseTemplate(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
+            val template = makeTemplate(map) ?: return false
+            mutablePipeline.templates.add(template)
+            return true
+        }
+
+        private fun makeTemplate(map: Map<*, *>): Template? {
             val configurationId = CommonFunctions.giveMeThatString(
                 map,
                 LdConstants.CONFIGURATION_GRAPH,
                 LdConstants.ID
-            ) ?: return false
+            ) ?: return null
             val templateId =
                 CommonFunctions.giveMeThatString(map, LdConstants.TEMPLATE, LdConstants.ID)
-                    ?: return false
+                    ?: return null
+            val prefLabel =
+                CommonFunctions.giveMeThatString(map, LdConstants.PREF_LABEL, LdConstants.VALUE)
+                    ?: return null
+            val description =
+                CommonFunctions.giveMeThatString(map, LdConstants.DESCRIPTION, LdConstants.VALUE)
+            val id = CommonFunctions.giveMeThatId(map) ?: return null
+
+            return Template(configurationId, templateId, prefLabel, description, id)
+        }
+
+        private fun parseComponent(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val xString = CommonFunctions.giveMeThatString(map, LdConstants.X, LdConstants.VALUE)
                 ?: return false
             val yString = CommonFunctions.giveMeThatString(map, LdConstants.Y, LdConstants.VALUE)
                 ?: return false
-            val prefLabel =
-                CommonFunctions.giveMeThatString(map, LdConstants.PREF_LABEL, LdConstants.VALUE)
-                    ?: return false
-            val description =
-                CommonFunctions.giveMeThatString(map, LdConstants.DESCRIPTION, LdConstants.VALUE)
-            val id = CommonFunctions.giveMeThatId(map) ?: return false
 
             val x = xString.toIntOrNull() ?: return false
             val y = yString.toIntOrNull() ?: return false
 
+            val template = makeTemplate(map) ?: return false
+
             mutablePipeline.components.add(
                 Component(
-                    configurationId,
-                    templateId,
                     x,
                     y,
-                    prefLabel,
-                    description,
-                    id
+                    template
                 )
             )
             return true
