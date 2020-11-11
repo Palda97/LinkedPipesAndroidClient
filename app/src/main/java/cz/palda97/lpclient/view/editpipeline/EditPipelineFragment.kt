@@ -105,6 +105,13 @@ class EditPipelineFragment : Fragment() {
             }
         }
 
+        fun setUpCancelButton() {
+            binding.cancelButton.setOnClickListener {
+                requireActivity().finish()
+            }
+        }
+
+        setUpCancelButton()
         setUpFAB()
     }
 
