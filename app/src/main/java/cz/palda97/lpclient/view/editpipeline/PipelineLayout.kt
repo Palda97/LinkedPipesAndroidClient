@@ -8,7 +8,9 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
+import com.google.android.material.color.MaterialColors
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.R
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.Vertex
@@ -37,7 +39,7 @@ class PipelineLayout @JvmOverloads constructor(
     val path = Path()
 
     private val paint = Paint().apply {
-        color = Color.BLACK
+        color = MaterialColors.getColor(this@PipelineLayout, R.attr.textColorSecondary, Color.BLACK)
         strokeWidth = STROKE_WIDTH * (resources?.displayMetrics?.density ?: CoordinateConverter.DEFAULT_DENSITY)
         style = Paint.Style.STROKE
     }
