@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
-import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +25,6 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         pipelineRepository.savePipeline(pipeline)
     }
 
-    fun cachePipeline(pipelineView: PipelineView) {
-        retrofitScope.launch {
-            pipelineRepository.cachePipeline(pipelineView)
-        }
-    }
-
     fun retryCachePipeline() {
         retrofitScope.launch {
             pipelineRepository.retryCachePipeline()
@@ -46,6 +40,10 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         set(value) {
             scroll = value
         }
+
+    fun editComponent(component: Component) {
+        TODO()
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

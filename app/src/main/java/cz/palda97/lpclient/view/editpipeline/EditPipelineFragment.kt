@@ -150,8 +150,15 @@ class EditPipelineFragment : Fragment() {
             }
             binding.pipelineLayout.addView(buttonBinding.root)
             buttonMap[it] = buttonBinding.button
+            buttonBinding.button.setOnClickListener {_ ->
+                editComponent(it)
+            }
         }
         binding.pipelineLayout.componentsAndButtons = buttonMap
+    }
+
+    private fun editComponent(component: Component) {
+        //TODO()
     }
 
     private fun scrollToComponents() {
