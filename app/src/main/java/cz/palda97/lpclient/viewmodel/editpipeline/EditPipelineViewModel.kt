@@ -37,10 +37,22 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    var shouldScroll: Boolean
+        get() {
+            val res = scroll
+            scroll = false
+            return res
+        }
+        set(value) {
+            scroll = value
+        }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
 
         fun getInstance(owner: ViewModelStoreOwner) =
             ViewModelProvider(owner).get(EditPipelineViewModel::class.java)
+
+        var scroll = false
     }
 }

@@ -11,6 +11,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.*
 import cz.palda97.lpclient.model.services.ExecutionMonitor
+import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
 
@@ -184,6 +185,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         retrofitScope.launch {
             pipelineRepository.cachePipeline(pipelineView)
         }
+        EditPipelineViewModel.scroll = true
     }
 
     class Iri(val iri: String)
