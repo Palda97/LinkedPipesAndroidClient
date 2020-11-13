@@ -30,6 +30,10 @@ object Injector {
         PipelineRepository(db.serverDao(), sharedPreferences)
     }
 
+    val componentRepository: ComponentRepository by lazy {
+        ComponentRepository()
+    }
+
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
 
