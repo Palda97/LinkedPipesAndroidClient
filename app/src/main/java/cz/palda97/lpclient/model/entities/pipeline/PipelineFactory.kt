@@ -31,6 +31,15 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 templates
             )
         }
+        constructor(pipeline: Pipeline): this(
+            pipeline.pipelineView,
+            pipeline.profile,
+            pipeline.components.toMutableList(),
+            pipeline.connections.toMutableList(),
+            pipeline.configurations.toMutableList(),
+            pipeline.vertexes.toMutableList(),
+            pipeline.templates.toMutableList()
+        )
     }
 
     constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
