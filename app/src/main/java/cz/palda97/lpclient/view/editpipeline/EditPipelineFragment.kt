@@ -18,6 +18,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.Vertex
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
+import cz.palda97.lpclient.view.EditComponentActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.editpipeline.CoordinateConverter.resize
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
@@ -158,7 +159,8 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun editComponent(component: Component) {
-        //TODO()
+        viewModel.editComponent(component)
+        EditComponentActivity.start(requireContext())
     }
 
     private fun scrollToComponents() {

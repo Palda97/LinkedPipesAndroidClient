@@ -6,6 +6,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
+import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class EditPipelineViewModel(application: Application) : AndroidViewModel(application) {
 
     private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val componentRepository: ComponentRepository = Injector.componentRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -42,7 +44,8 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         }
 
     fun editComponent(component: Component) {
-        TODO()
+        componentRepository.currentComponent = component
+        scroll = true
     }
 
     companion object {
