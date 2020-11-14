@@ -67,4 +67,6 @@
     <string name="pipeline_could_not_be_parsed">Pipeline could not be parsed!</string>
     <string name="error_while_loading_pipeline">Error while loading pipeline!</string>
     <string name="try_again">Try again</string>
+    <string name="tab_text_1">Configuration</string>
+    <string name="tab_text_2">I/O</string>
 </resources>
