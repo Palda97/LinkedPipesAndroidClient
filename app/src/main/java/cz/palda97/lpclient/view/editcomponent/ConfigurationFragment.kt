@@ -21,7 +21,6 @@ class ConfigurationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        //return inflater.inflate(R.layout.fragment_executions, container, false)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_component_configuration, container, false)
         val root = binding.root
         viewModel = EditComponentViewModel.getInstance(this)

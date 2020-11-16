@@ -31,7 +31,8 @@ object Injector {
     }
 
     val componentRepository: ComponentRepository by lazy {
-        ComponentRepository()
+        val db = AppDatabase.getInstance(context)
+        ComponentRepository(db.serverDao())
     }
 
     fun tag(companion: Any): String =
