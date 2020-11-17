@@ -25,6 +25,9 @@ class PipelineRepository(
     private val sharedPreferences: SharedPreferences
 ) {
 
+    private val retrofitScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
+
     private suspend fun getPipelineRetrofit(server: ServerInstance): Either<PipelineViewRepository.StatusCode, PipelineRetrofit> =
         Injector.pipelineViewRepository.getPipelineRetrofit(server)
 
@@ -112,6 +115,9 @@ class PipelineRepository(
     fun savePipeline(pipeline: Pipeline) {
         persistPipeline(pipeline)
         persistStatus(null)
+        retrofitScope.launch {
+            Injector.componentRepository.cacheConfigInput(pipeline.components, pipeline.pipelineView.serverId)
+        }
         _currentPipeline.postValue(MailPackage(pipeline))
     }
 
@@ -171,7 +177,7 @@ class PipelineRepository(
     }
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        retrofitScope.launch {
             recover()
         }
     }

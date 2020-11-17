@@ -2,7 +2,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <!-- -->
+
+        <import type="android.view.View" />
+
+        <variable
+            name="mail"
+            type="cz.palda97.lpclient.model.MailPackage" />
     </data>
 
     <LinearLayout

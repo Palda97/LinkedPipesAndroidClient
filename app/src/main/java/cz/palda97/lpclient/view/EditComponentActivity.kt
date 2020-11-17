@@ -38,11 +38,13 @@ class EditComponentActivity : AppCompatActivity() {
     private fun setUpComponents() {
 
         fun setUpTitle() {
-            viewModel.liveComponent.observe(this, Observer {
+            /*viewModel.liveComponent.observe(this, Observer {
                 val component = it ?: return@Observer
                 binding.title = component.prefLabel
                 binding.executePendingBindings()
-            })
+            })*/
+            val text = viewModel.currentComponent?.prefLabel ?: getString(R.string.app_name)
+            binding.title = text
         }
 
         setUpTitle()

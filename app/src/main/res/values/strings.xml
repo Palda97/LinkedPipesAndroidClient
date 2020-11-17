@@ -69,4 +69,6 @@
     <string name="try_again">Try again</string>
     <string name="tab_text_1">Configuration</string>
     <string name="tab_text_2">I/O</string>
+    <string name="error_while_downloading_component_configuration">Error while downloading component configuration!</string>
+    <string name="error_while_parsing_configuration">Error while parsing configuration!</string>
 </resources>

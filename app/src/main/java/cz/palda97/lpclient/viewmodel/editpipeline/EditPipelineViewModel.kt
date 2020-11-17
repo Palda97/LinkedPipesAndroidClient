@@ -44,8 +44,9 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         }
 
     fun editComponent(component: Component) {
-        componentRepository.currentComponent = component
         scroll = true
+        componentRepository.currentComponentId = component.id
+        componentRepository.prepareConfigInput(component)
     }
 
     companion object {

@@ -33,11 +33,16 @@ class ConfigInputFactory(private val html: String) {
         val containers = doc.getElementsByTag(MD_INPUT_CONTAINER)!!
         return containers.map {
             val labels = it.getElementsByTag(LABEL)
-            if (labels.size != 1) {
+            /*if (labels.size != 1) {
                 //println("labels.size != 1")
                 return null
             }
-            val label = labels[0].text()
+            val label = labels[0].text()*/
+            val label: String = when (labels.size) {
+                0 -> it.ownText()
+                1 -> labels[0].ownText()
+                else -> return null
+            }
             val inputs = it.getElementsByAttribute(NG_MODEL)
             if (inputs.size != 1) {
                 //println("inputs.size != 1")
@@ -47,10 +52,9 @@ class ConfigInputFactory(private val html: String) {
             val id = input.attr(NG_MODEL).removeSurrounding(ID_PREFIX, ID_SUFFIX)
             when(val tag = input.tag().name) {
                 INPUT -> ConfigInput(label, ConfigInput.Type.EDIT_TEXT, id)
-                MD_SELECT -> {
-                    val options = parseOptions(input)
-                    ConfigInput(label, ConfigInput.Type.DROPDOWN, id, options)
-                }
+                MD_SELECT -> ConfigInput(label, ConfigInput.Type.DROPDOWN, id, parseOptions(input))
+                LP_YASQE -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id)
+                TEXTAREA -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id)
                 else -> return null//.also { println("else: $tag") }
             }
         }
@@ -77,5 +81,7 @@ class ConfigInputFactory(private val html: String) {
         private const val INPUT = "input"
         private const val LABEL = "label"
         private const val VALUE = "value"
+        private const val LP_YASQE = "lp-yasqe"
+        private const val TEXTAREA = "textarea"
     }
 }

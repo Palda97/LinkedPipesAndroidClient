@@ -7,6 +7,6 @@ data class ConfigInput(
     val options: MutableList<Pair<String, String>> = mutableListOf()
 ) {
     enum class Type {
-        EDIT_TEXT, SWITCH, DROPDOWN
+        EDIT_TEXT, SWITCH, DROPDOWN, TEXT_AREA
     }
 }
