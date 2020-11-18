@@ -217,7 +217,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             val configMap = map.filterNot {
                 it.key == LdConstants.ID || it.key == LdConstants.TYPE
             }
-            return Config(configMap, type, id)
+            return Config(configMap.toMutableMap(), type, id)
         }
 
         private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
