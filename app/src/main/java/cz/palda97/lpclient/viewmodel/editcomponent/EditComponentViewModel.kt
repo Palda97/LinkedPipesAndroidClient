@@ -7,6 +7,7 @@ import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
+import cz.palda97.lpclient.model.entities.pipeline.Configuration
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
@@ -23,13 +24,20 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     val liveConfigInput: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<ConfigInput>>>>
         get() = componentRepository.liveConfigInput
 
-    val componentId: String?
+    private val componentId: String?
         get() = componentRepository.currentComponentId
 
     val currentComponent: Component?
         get() = pipelineRepository.currentPipeline.value?.mailContent?.components?.find {
             it.id == componentId
         }
+
+    private val configurationId: String?
+        get() = currentComponent?.configurationId
+
+    val currentConfiguration: Configuration? = pipelineRepository.currentPipeline.value?.mailContent?.configurations?.find {
+        configurationId == it.id
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

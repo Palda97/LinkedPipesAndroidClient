@@ -10,20 +10,26 @@ import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.databinding.FragmentEditComponentConfigurationBinding
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
+import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
+import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
 class ConfigurationFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentConfigurationBinding
     private lateinit var viewModel: EditComponentViewModel
+    private lateinit var editPipelineViewModel: EditPipelineViewModel
 
-    //private var mutableComponent: MutableComponent? = null
-    private var configInputList: List<ConfigInput>? = null
+    private var currentPipeline: Pipeline? = null
+    private var currentComponent: Component? = null
+    private var configBindings: List<ConfigInputBinding>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,6 +39,7 @@ class ConfigurationFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_component_configuration, container, false)
         val root = binding.root
         viewModel = EditComponentViewModel.getInstance(this)
+        editPipelineViewModel = EditPipelineViewModel.getInstance(this)
         setUpComponents()
         return root
     }
@@ -60,8 +67,9 @@ class ConfigurationFragment : Fragment() {
                         ComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
                     }
                     is Either.Right -> {
-                        configInputList = res.value
-                        displayConfigInput()
+                        //configInputList = res.value
+                        displayConfigInput(res.value)
+                        fillConfigInput()
                         binding.mail = MailPackage.ok()
                         ""
                     }
@@ -74,18 +82,62 @@ class ConfigurationFragment : Fragment() {
             })
         }
 
+        fun setUpPipeline() {
+            editPipelineViewModel.currentPipeline.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (!mail.isOk) {
+                    return@Observer
+                }
+                currentPipeline = mail.mailContent
+                fillConfigInput()
+            })
+        }
+
         setUpConfigInputs()
+        setUpPipeline()
     }
 
-    private fun displayConfigInput() {
-        l("----------------------------------------------------------------------------------------------------")
-        val configInput = configInputList ?: return Unit.also {
-            l("null")
+    private fun displayConfigInput(configInputList: List<ConfigInput>) {
+        configBindings = configInputList.map {
+            val configInputBinding: ConfigInputBinding = DataBindingUtil.inflate(layoutInflater, R.layout.config_input, null, false)
+            configInputBinding.configInput = it
+            configInputBinding.executePendingBindings()
+            binding.insertConfigInputsHere.addView(configInputBinding.root)
+            configInputBinding
         }
-        configInput.forEach {
-            l(it)
+    }
+
+    private fun fillConfigInput() {
+        //l("fillConfigInput ${currentPipeline != null}, ${configBindings != null}, ${currentComponent != null}")
+        val pipeline = currentPipeline ?: return
+        val cBindings = configBindings ?: return
+        val component = currentComponent ?: return
+        l("fillConfigInput")
+        val configuration = pipeline.configurations.find {
+            it.id == component.configurationId
+        } ?: return Unit.also { l("configuration was not found") }
+
+        val x = cBindings.map {
+            it.configInput!!.id
         }
-        l("----------------------------------------------------------------------------------------------------")
+        l("fillConfigInput $x")
+
+        cBindings.forEach {
+            val configInput = it.configInput!!
+            val string = configuration.getString(configInput.id) ?: ""
+            when(configInput.type) {
+                ConfigInput.Type.EDIT_TEXT -> it.editText.editText!!.setText(string)
+                ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
+                ConfigInput.Type.DROPDOWN -> TODO()
+                ConfigInput.Type.TEXT_AREA -> TODO()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        currentComponent = viewModel.currentComponent
+        fillConfigInput()
     }
 
     companion object {
