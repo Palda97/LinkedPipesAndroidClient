@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.pipeline
 
-import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
 import org.junit.Test
 
@@ -10,9 +9,9 @@ class DialogJsFactoryTest {
 
     @Test
     fun parseHttpGet() {
-        val map = DialogJsFactory(HTTP_GET).parse()
-        assertNotNull(map)
-        val expected = mapOf(
+        val dialogJs = DialogJsFactory(HTTP_GET).parse()
+        assertNotNull(dialogJs)
+        val expectedMap = mapOf(
             "fileName" to "fileName",
             "utf8Redirect" to "utf8Redirect",
             "userAgent" to "userAgent",
@@ -20,13 +19,15 @@ class DialogJsFactoryTest {
             "hardRedirect" to "hardRedirect",
             "encodeUrl" to "encodeUrl"
         )
-        assertEquals(expected, map)
+        assertEquals(expectedMap, dialogJs!!.map)
+        assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#", dialogJs.namespace)
+        assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUri", dialogJs.getFullPropertyName("uri"))
     }
 
     @Test
     fun parseTabular() {
-        val map = DialogJsFactory(TABULAR_UV).parse()
-        assertNotNull(map)
+        val dialogJs = DialogJsFactory(TABULAR_UV).parse()
+        assertNotNull(dialogJs)
     }
 
     companion object {

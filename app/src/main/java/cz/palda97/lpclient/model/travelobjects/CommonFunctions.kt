@@ -19,14 +19,14 @@ object CommonFunctions {
         return innerMap[key2] as? String ?: return null
     }
 
-    fun giveMeThatConfigString(map: Map<*, *>, key1: String, key2: String): String? {
+    /*fun giveMeThatConfigString(map: Map<*, *>, key1: String, key2: String): String? {
         val updatedKeys = map.mapKeys {
             val key = it.key as? String ?: return null
             key.replaceBefore("#", "").replaceFirst("#", "")
         }
         //println("+++++++++++++++++++++++++++++++++++ ${updatedKeys.keys}")
         return giveMeThatString(updatedKeys, key1, key2)
-    }
+    }*/
 
     fun giveMeThatId(map: Map<*, *>): String? {
         return (map[ID] ?: return null) as? String ?: return null

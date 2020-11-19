@@ -16,7 +16,7 @@ data class Configuration(val settings: List<Config>, val id: String) {
     }
 }
 data class Config(val settings: MutableMap<*, *>, val type: String, val id: String) {
-    fun getString(key: String) = CommonFunctions.giveMeThatConfigString(settings, key, LdConstants.VALUE)
+    fun getString(key: String) = CommonFunctions.giveMeThatString(settings, key, LdConstants.VALUE)
     /*fun getBoolean(key: String): Boolean {
         val string = getString(key) ?: ""
         return string.toBoolean()

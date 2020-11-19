@@ -5,7 +5,7 @@ import com.google.gson.JsonSyntaxException
 
 class DialogJsFactory(private val js: String) {
 
-    fun parse(): Map<String, String>? {
+    fun parse(): DialogJs? {
         val json = js
             .substringAfter(CONST_DESC)
             .replaceAfter(JSON_END, "")
@@ -15,6 +15,7 @@ class DialogJsFactory(private val js: String) {
         } catch (e: JsonSyntaxException) {
             null
         } ?: return null
+        val namespace = jsonObject[NAMESPACE] as? String ?: return null
         val map: MutableMap<String, String> = HashMap()
         jsonObject.forEach {
             if (it.key is String) {
@@ -29,7 +30,7 @@ class DialogJsFactory(private val js: String) {
                 }
             }
         }
-        return map
+        return DialogJs(namespace, map)
     }
 
     companion object {
@@ -38,5 +39,6 @@ class DialogJsFactory(private val js: String) {
         private const val JSON_END = "};"
         private const val SEMICOLON = ";"
         private const val PROPERTY = "\$property"
+        private const val NAMESPACE = "\$namespace"
     }
 }

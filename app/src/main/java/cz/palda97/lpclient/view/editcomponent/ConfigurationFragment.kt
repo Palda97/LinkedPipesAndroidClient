@@ -17,9 +17,9 @@ import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.StatusPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
+import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.ComponentRepository
-import cz.palda97.lpclient.model.repository.JsMap
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
@@ -32,7 +32,7 @@ class ConfigurationFragment : Fragment() {
     private var currentPipeline: Pipeline? = null
     private var currentComponent: Component? = null
     private var configBindings: List<ConfigInputBinding>? = null
-    private var currentJsMap: JsMap? = null
+    private var currentDialogJs: DialogJs? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,11 +64,12 @@ class ConfigurationFragment : Fragment() {
             configInput = status
             return check()
         }
-        fun updateJsMap(status: StatusPackage): StatusPackage {
+        fun updateDialogJs(status: StatusPackage): StatusPackage {
             jsMap = status
             return check()
         }
         private fun check(): StatusPackage {
+            l("check: configInput = ${configInput.status}; jsMap = ${jsMap.status}")
             if (configInput.isError || jsMap.isError)
                 return MailPackage.error("${configInput.msg}${jsMap.msg}")
             if (configInput.isLoading || jsMap.isLoading)
@@ -115,7 +116,7 @@ class ConfigurationFragment : Fragment() {
             viewModel.liveJsMap.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (mail.isLoading) {
-                    binding.mail = loadingMediator.updateJsMap(MailPackage.loading())
+                    binding.mail = loadingMediator.updateDialogJs(MailPackage.loading())
                     return@Observer
                 }
                 if (!mail.isOk) {
@@ -125,14 +126,14 @@ class ConfigurationFragment : Fragment() {
                 val text: String = when(val res = mail.mailContent!!) {
                     is Either.Left -> res.value.errorMessage
                     is Either.Right -> {
-                        currentJsMap = res.value
+                        currentDialogJs = res.value
                         fillConfigInput()
-                        binding.mail = loadingMediator.updateJsMap(MailPackage.ok())
+                        binding.mail = loadingMediator.updateDialogJs(MailPackage.ok())
                         ""
                     }
                 }
                 if (text.isNotEmpty()) {
-                    binding.mail = loadingMediator.updateJsMap(MailPackage.error())
+                    binding.mail = loadingMediator.updateDialogJs(MailPackage.error())
                     showErrorSnackbar(text)
                 }
             })
@@ -150,6 +151,7 @@ class ConfigurationFragment : Fragment() {
         }
 
         setUpConfigInputs()
+        setUpJsMap()
         setUpPipeline()
     }
 
@@ -168,8 +170,7 @@ class ConfigurationFragment : Fragment() {
         val pipeline = currentPipeline ?: return
         val cBindings = configBindings ?: return
         val component = currentComponent ?: return
-        val jsMap = currentJsMap ?: return
-        TODO()
+        val dialogJs = currentDialogJs ?: return
         l("fillConfigInput")
         val configuration = pipeline.configurations.find {
             it.id == component.configurationId
@@ -177,7 +178,8 @@ class ConfigurationFragment : Fragment() {
 
         cBindings.forEach {
             val configInput = it.configInput!!
-            val string = configuration.getString(configInput.id) ?: ""
+            val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
+            val string = configuration.getString(translated) ?: ""
             when(configInput.type) {
                 ConfigInput.Type.EDIT_TEXT -> it.editText.editText!!.setText(string)
                 ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()

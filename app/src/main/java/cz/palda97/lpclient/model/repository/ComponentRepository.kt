@@ -6,17 +6,12 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
-import cz.palda97.lpclient.model.entities.pipeline.Component
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInputFactory
-import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
-
-typealias JsMap = Map<String, String>
 
 class ComponentRepository(
     private val serverDao: ServerInstanceDao
@@ -124,7 +119,7 @@ class ComponentRepository(
         }
     }
 
-    private suspend fun downloadDialogJs(component: Component): Either<StatusCode, JsMap> {
+    private suspend fun downloadDialogJs(component: Component): Either<StatusCode, DialogJs> {
         val retrofit = when (val res = getComponentRetrofit(component)) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
@@ -137,7 +132,7 @@ class ComponentRepository(
         return Either.Right(list)
     }
 
-    private val jsMapMap: MutableMap<String, JsMap> = HashMap()
+    private val jsMapMap: MutableMap<String, DialogJs> = HashMap()
 
     private suspend fun cacheJsMap(component: Component): StatusCode {
         if (jsMapMap.contains(component.id)) {
@@ -167,18 +162,18 @@ class ComponentRepository(
         }
     }
 
-    private val mutJsMap: MutableLiveData<MailPackage<Either<StatusCode, JsMap>>> =
+    private val mutJsMap: MutableLiveData<MailPackage<Either<StatusCode, DialogJs>>> =
         MutableLiveData()
-    val liveJsMap: LiveData<MailPackage<Either<StatusCode, JsMap>>>
+    val liveJsMap: LiveData<MailPackage<Either<StatusCode, DialogJs>>>
         get() = mutJsMap
 
     private fun prepareJsMap(component: Component) {
         mutJsMap.value = MailPackage.loadingPackage()
         retrofitScope.launch {
             val status = cacheJsMap(component)
-            val either: Either<StatusCode, JsMap> = if (status == StatusCode.OK) {
+            val either: Either<StatusCode, DialogJs> = if (status == StatusCode.OK) {
                 jsMapMap[component.id]?.let {
-                    Either.Right<StatusCode, JsMap>(it)
+                    Either.Right<StatusCode, DialogJs>(it)
                 } ?: Either.Left(StatusCode.INTERNAL_ERROR)
             } else {
                 Either.Left(status)

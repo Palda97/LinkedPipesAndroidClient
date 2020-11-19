@@ -8,8 +8,8 @@ import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.Configuration
+import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.model.repository.ComponentRepository
-import cz.palda97.lpclient.model.repository.JsMap
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +40,7 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
         configurationId == it.id
     }
 
-    val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, JsMap>>>
+    val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, DialogJs>>>
         get() = componentRepository.liveJsMap
 
     companion object {
