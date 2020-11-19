@@ -116,7 +116,7 @@ class PipelineRepository(
         persistPipeline(pipeline)
         persistStatus(null)
         retrofitScope.launch {
-            Injector.componentRepository.cacheConfigInput(pipeline.components, pipeline.pipelineView.serverId)
+            Injector.componentRepository.cache(pipeline.components, pipeline.pipelineView.serverId)
         }
         _currentPipeline.postValue(MailPackage(pipeline))
     }

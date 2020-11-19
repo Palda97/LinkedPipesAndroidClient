@@ -9,11 +9,14 @@ import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInputFactory
+import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
+
+typealias JsMap = Map<String, String>
 
 class ComponentRepository(
     private val serverDao: ServerInstanceDao
@@ -69,8 +72,13 @@ class ComponentRepository(
         return StatusCode.OK
     }
 
-    suspend fun cacheConfigInput(components: List<Component>, server: Long) = coroutineScope {
+    suspend fun cache(components: List<Component>, server: Long) {
         currentServerId = server
+        cacheConfigInput(components)
+        cacheJsMap(components)
+    }
+
+    private suspend fun cacheConfigInput(components: List<Component>) = coroutineScope {
         configInputMap.clear()
         val jobs = components.map {
             async {
@@ -96,7 +104,12 @@ class ComponentRepository(
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    fun prepareConfigInput(component: Component) {
+    fun prepare(component: Component) {
+        prepareConfigInput(component)
+        prepareJsMap(component)
+    }
+
+    private fun prepareConfigInput(component: Component) {
         mutConfigInput.value = MailPackage.loadingPackage()
         retrofitScope.launch {
             val status = cacheConfigInput(component)
@@ -108,6 +121,69 @@ class ComponentRepository(
                 Either.Left(status)
             }
             mutConfigInput.postValue(MailPackage(either))
+        }
+    }
+
+    private suspend fun downloadDialogJs(component: Component): Either<StatusCode, JsMap> {
+        val retrofit = when (val res = getComponentRetrofit(component)) {
+            is Either.Left -> return Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val call = retrofit.dialogJs(component.templateId)
+        val text = RetrofitHelper.getStringFromCall(call)
+            ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val factory = DialogJsFactory(text)
+        val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
+        return Either.Right(list)
+    }
+
+    private val jsMapMap: MutableMap<String, JsMap> = HashMap()
+
+    private suspend fun cacheJsMap(component: Component): StatusCode {
+        if (jsMapMap.contains(component.id)) {
+            return StatusCode.OK
+        }
+        val jsMap = when (val res = downloadDialogJs(component)) {
+            is Either.Left -> return res.value
+            is Either.Right -> res.value
+        }
+        jsMapMap[component.id] = jsMap
+        return StatusCode.OK
+    }
+
+    private suspend fun cacheJsMap(components: List<Component>) = coroutineScope {
+        jsMapMap.clear()
+        val jobs = components.map {
+            async {
+                it.id to cacheJsMap(it)
+            }
+        }
+        jobs.forEach {
+            val (componentId, status) = it.await()
+            if (status != StatusCode.OK) {
+                val template = Injector.pipelineRepository.currentPipeline.value?.mailContent?.components?.find { it.id == componentId }?.templateId
+                l("cacheJsMap $status: $componentId\n$template")
+            }
+        }
+    }
+
+    private val mutJsMap: MutableLiveData<MailPackage<Either<StatusCode, JsMap>>> =
+        MutableLiveData()
+    val liveJsMap: LiveData<MailPackage<Either<StatusCode, JsMap>>>
+        get() = mutJsMap
+
+    private fun prepareJsMap(component: Component) {
+        mutJsMap.value = MailPackage.loadingPackage()
+        retrofitScope.launch {
+            val status = cacheJsMap(component)
+            val either: Either<StatusCode, JsMap> = if (status == StatusCode.OK) {
+                jsMapMap[component.id]?.let {
+                    Either.Right<StatusCode, JsMap>(it)
+                } ?: Either.Left(StatusCode.INTERNAL_ERROR)
+            } else {
+                Either.Left(status)
+            }
+            mutJsMap.postValue(MailPackage(either))
         }
     }
 

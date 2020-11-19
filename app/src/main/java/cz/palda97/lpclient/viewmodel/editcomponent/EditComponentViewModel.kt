@@ -9,6 +9,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.Configuration
 import cz.palda97.lpclient.model.repository.ComponentRepository
+import cz.palda97.lpclient.model.repository.JsMap
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,9 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     val currentConfiguration: Configuration? = pipelineRepository.currentPipeline.value?.mailContent?.configurations?.find {
         configurationId == it.id
     }
+
+    val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, JsMap>>>
+        get() = componentRepository.liveJsMap
 
     companion object {
         private val l = Injector.generateLogFunction(this)

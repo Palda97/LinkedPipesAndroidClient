@@ -14,10 +14,12 @@ import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.databinding.FragmentEditComponentConfigurationBinding
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.StatusPackage
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.ComponentRepository
+import cz.palda97.lpclient.model.repository.JsMap
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
@@ -30,6 +32,7 @@ class ConfigurationFragment : Fragment() {
     private var currentPipeline: Pipeline? = null
     private var currentComponent: Component? = null
     private var configBindings: List<ConfigInputBinding>? = null
+    private var currentJsMap: JsMap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,13 +47,48 @@ class ConfigurationFragment : Fragment() {
         return root
     }
 
+    private val ComponentRepository.StatusCode.errorMessage: String
+        get() = when(this) {
+            ComponentRepository.StatusCode.NO_CONNECT -> getString(R.string.can_not_connect_to_server)
+            ComponentRepository.StatusCode.INTERNAL_ERROR -> getString(R.string.internal_error)
+            ComponentRepository.StatusCode.SERVER_NOT_FOUND -> getString(R.string.server_instance_no_longer_registered)
+            ComponentRepository.StatusCode.DOWNLOADING_ERROR -> getString(R.string.error_while_downloading_component_configuration)
+            ComponentRepository.StatusCode.PARSING_ERROR -> getString(R.string.error_while_parsing_configuration)
+            ComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
+        }
+
+    private val loadingMediator = object {
+        private var configInput: StatusPackage = MailPackage.loading()
+        private var jsMap: StatusPackage = MailPackage.loading()
+        fun updateConfigInput(status: StatusPackage): StatusPackage {
+            configInput = status
+            return check()
+        }
+        fun updateJsMap(status: StatusPackage): StatusPackage {
+            jsMap = status
+            return check()
+        }
+        private fun check(): StatusPackage {
+            if (configInput.isError || jsMap.isError)
+                return MailPackage.error("${configInput.msg}${jsMap.msg}")
+            if (configInput.isLoading || jsMap.isLoading)
+                return MailPackage.loading()
+            return MailPackage.ok()
+        }
+    }
+
+    private fun showErrorSnackbar(text: String) {
+        Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+            .show()
+    }
+
     private fun setUpComponents() {
 
         fun setUpConfigInputs() {
             viewModel.liveConfigInput.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
                 if (mail.isLoading) {
-                    binding.mail = MailPackage.loading()
+                    binding.mail = loadingMediator.updateConfigInput(MailPackage.loading())
                     return@Observer
                 }
                 if (!mail.isOk) {
@@ -58,26 +96,44 @@ class ConfigurationFragment : Fragment() {
                     return@Observer
                 }
                 val text: String = when(val res = mail.mailContent!!) {
-                    is Either.Left -> when(res.value) {
-                        ComponentRepository.StatusCode.NO_CONNECT -> getString(R.string.can_not_connect_to_server)
-                        ComponentRepository.StatusCode.INTERNAL_ERROR -> getString(R.string.internal_error)
-                        ComponentRepository.StatusCode.SERVER_NOT_FOUND -> getString(R.string.server_instance_no_longer_registered)
-                        ComponentRepository.StatusCode.DOWNLOADING_ERROR -> getString(R.string.error_while_downloading_component_configuration)
-                        ComponentRepository.StatusCode.PARSING_ERROR -> getString(R.string.error_while_parsing_configuration)
-                        ComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
-                    }
+                    is Either.Left -> res.value.errorMessage
                     is Either.Right -> {
-                        //configInputList = res.value
                         displayConfigInput(res.value)
                         fillConfigInput()
-                        binding.mail = MailPackage.ok()
+                        binding.mail = loadingMediator.updateConfigInput(MailPackage.ok())
                         ""
                     }
                 }
                 if (text.isNotEmpty()) {
-                    binding.mail = MailPackage.error()
-                    Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
-                        .show()
+                    binding.mail = loadingMediator.updateConfigInput(MailPackage.error())
+                    showErrorSnackbar(text)
+                }
+            })
+        }
+
+        fun setUpJsMap() {
+            viewModel.liveJsMap.observe(viewLifecycleOwner, Observer {
+                val mail = it ?: return@Observer
+                if (mail.isLoading) {
+                    binding.mail = loadingMediator.updateJsMap(MailPackage.loading())
+                    return@Observer
+                }
+                if (!mail.isOk) {
+                    l("mail is not ok")
+                    return@Observer
+                }
+                val text: String = when(val res = mail.mailContent!!) {
+                    is Either.Left -> res.value.errorMessage
+                    is Either.Right -> {
+                        currentJsMap = res.value
+                        fillConfigInput()
+                        binding.mail = loadingMediator.updateJsMap(MailPackage.ok())
+                        ""
+                    }
+                }
+                if (text.isNotEmpty()) {
+                    binding.mail = loadingMediator.updateJsMap(MailPackage.error())
+                    showErrorSnackbar(text)
                 }
             })
         }
@@ -112,15 +168,12 @@ class ConfigurationFragment : Fragment() {
         val pipeline = currentPipeline ?: return
         val cBindings = configBindings ?: return
         val component = currentComponent ?: return
+        val jsMap = currentJsMap ?: return
+        TODO()
         l("fillConfigInput")
         val configuration = pipeline.configurations.find {
             it.id == component.configurationId
         } ?: return Unit.also { l("configuration was not found") }
-
-        val x = cBindings.map {
-            it.configInput!!.id
-        }
-        l("fillConfigInput $x")
 
         cBindings.forEach {
             val configInput = it.configInput!!
