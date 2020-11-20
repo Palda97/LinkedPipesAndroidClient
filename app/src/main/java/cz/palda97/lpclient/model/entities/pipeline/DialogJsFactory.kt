@@ -27,8 +27,10 @@ class DialogJsFactory(private val js: String) {
                 if (!skip) {
                     val innerMap = it.value as? Map<*, *>
                     val prop = innerMap?.get(PROPERTY) as? String
-                    prop?.let {
-                        map[key] = it
+                    if (prop == null) {
+                        map[key] = key
+                    } else {
+                        map[key] = prop
                     }
                 }
             }
