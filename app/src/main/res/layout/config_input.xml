@@ -39,7 +39,20 @@
             android:layout_marginHorizontal="@dimen/edit_server_switch_horizontal_margin"
             android:text="@{configInput.label}" />
 
-        <!-- dropdown, text area -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{configInput.type == Type.DROPDOWN ? View.VISIBLE : View.GONE}"
+            android:hint="@{configInput.label}">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- text area -->
 
     </LinearLayout>
 

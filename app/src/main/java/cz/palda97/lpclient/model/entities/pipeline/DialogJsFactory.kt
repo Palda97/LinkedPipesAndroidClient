@@ -6,6 +6,9 @@ import com.google.gson.JsonSyntaxException
 class DialogJsFactory(private val js: String) {
 
     fun parse(): DialogJs? {
+        if (js.isEmpty()) {
+            return DialogJs("", mapOf())
+        }
         val json = js
             .substringAfter(CONST_DESC)
             .replaceAfter(JSON_END, "")

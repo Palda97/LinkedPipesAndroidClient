@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ConfigInputBinding
@@ -183,10 +185,28 @@ class ConfigurationFragment : Fragment() {
             when(configInput.type) {
                 ConfigInput.Type.EDIT_TEXT -> it.editText.editText!!.setText(string)
                 ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
-                ConfigInput.Type.DROPDOWN -> TODO()
-                ConfigInput.Type.TEXT_AREA -> TODO()
+                ConfigInput.Type.DROPDOWN -> {
+                    it.dropdown.fillWithOptions(configInput.options)
+                    //TODO()
+                }
+                ConfigInput.Type.TEXT_AREA -> {
+                    //TODO()
+                }
             }
         }
+    }
+
+    private fun MaterialAutoCompleteTextView.fillWithOptions(options: List<Pair<String, String>>) {
+        class PairWrapper(val pair: Pair<String, String>) {
+            override fun toString() = pair.second
+        }
+        val adapter = ArrayAdapter<PairWrapper>(requireContext(), R.layout.dropdown_item_text_view)
+        val list = options.map {
+            PairWrapper(it)
+        }
+        adapter.addAll(list)
+        adapter.notifyDataSetChanged()
+        setAdapter(adapter)
     }
 
     override fun onResume() {
