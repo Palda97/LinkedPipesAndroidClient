@@ -12,6 +12,7 @@ class DialogJsFactory(private val js: String) {
         val json = js
             .substringAfter(CONST_DESC)
             .replaceAfter(JSON_END, "")
+            .replace(",\\s*\\};".toRegex(), "\n};")
             .removeSuffix(SEMICOLON)
         val jsonObject = try {
             Gson().fromJson(json, Any::class.java) as? Map<*, *>
