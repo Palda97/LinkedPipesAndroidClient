@@ -24,7 +24,7 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         get() = pipelineRepository.currentPipeline
 
     fun savePipeline(pipeline: Pipeline) {
-        pipelineRepository.savePipeline(pipeline)
+        pipelineRepository.savePipeline(pipeline, false)
     }
 
     fun retryCachePipeline() {

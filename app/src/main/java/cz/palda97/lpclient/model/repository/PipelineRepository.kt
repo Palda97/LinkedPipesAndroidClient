@@ -112,11 +112,13 @@ class PipelineRepository(
     /**
      * This method is for saving pipeline at the end of lifecycle
      */
-    fun savePipeline(pipeline: Pipeline) {
+    fun savePipeline(pipeline: Pipeline, cacheComponents: Boolean) {
         persistPipeline(pipeline)
         persistStatus(null)
-        retrofitScope.launch {
-            Injector.componentRepository.cache(pipeline.components, pipeline.pipelineView.serverId)
+        if (cacheComponents) {
+            retrofitScope.launch {
+                Injector.componentRepository.cache(pipeline.components, pipeline.pipelineView.serverId)
+            }
         }
         _currentPipeline.postValue(MailPackage(pipeline))
     }
@@ -129,7 +131,7 @@ class PipelineRepository(
 
     private fun save(wrappedPipeline: WrappedPipeline) = when (wrappedPipeline) {
         is Either.Left -> saveStatus(wrappedPipeline.value)
-        is Either.Right -> savePipeline(wrappedPipeline.value)
+        is Either.Right -> savePipeline(wrappedPipeline.value, true)
     }
 
     private fun persistIds(pipelineView: PipelineView) {
