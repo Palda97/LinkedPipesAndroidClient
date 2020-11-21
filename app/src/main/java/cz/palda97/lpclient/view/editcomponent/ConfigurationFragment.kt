@@ -187,10 +187,9 @@ class ConfigurationFragment : Fragment() {
                 ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
                 ConfigInput.Type.DROPDOWN -> {
                     it.dropdown.fillWithOptions(configInput.options)
-                    //TODO()
                 }
                 ConfigInput.Type.TEXT_AREA -> {
-                    //TODO()
+                    it.textArea.setText(string)
                 }
             }
         }

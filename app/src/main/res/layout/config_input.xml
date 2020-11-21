@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/edit_server_input_components_vertical_margin"
+        style="@style/do_not_auto_focus_child_components"
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -52,7 +53,19 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- text area -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:visibility="@{configInput.type == Type.TEXT_AREA ? View.VISIBLE : View.GONE}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@{configInput.label}">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
