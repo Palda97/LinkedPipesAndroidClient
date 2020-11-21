@@ -43,9 +43,13 @@ fun Pipeline.jsonLd(): String {
     fun parseProfile(sb: StringBuilder) {
         sb.append("{")
         sb.append("\"${LdConstants.ID}\":\"${profile.id}\",")
-        sb.append("\"${LdConstants.TYPE}\":[\"${LdConstants.TYPE_EXECUTION_PROFILE}\"],")
-        sb.append("\"${LdConstants.REPO_POLICY}\":[{\"${LdConstants.ID}\":\"${profile.repoPolicyId}\"}],")
-        sb.append("\"${LdConstants.REPO_TYPE}\":[{\"${LdConstants.ID}\":\"${profile.repoTypeId}\"}]")
+        sb.append("\"${LdConstants.TYPE}\":[\"${LdConstants.TYPE_EXECUTION_PROFILE}\"]")
+        profile.repoPolicyId?.let {
+            sb.append(",\"${LdConstants.REPO_POLICY}\":[{\"${LdConstants.ID}\":\"${it}\"}]")
+        }
+        profile.repoTypeId?.let {
+            sb.append(",\"${LdConstants.REPO_TYPE}\":[{\"${LdConstants.ID}\":\"${it}\"}]")
+        }
         sb.append("}")
     }
 

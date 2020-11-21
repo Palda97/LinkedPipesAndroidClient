@@ -202,10 +202,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
         private fun parseProfile(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val repoPolicyId =
                 CommonFunctions.giveMeThatString(map, LdConstants.REPO_POLICY, LdConstants.ID)
-                    ?: return false
             val repoTypeId =
                 CommonFunctions.giveMeThatString(map, LdConstants.REPO_TYPE, LdConstants.ID)
-                    ?: return false
             val id = CommonFunctions.giveMeThatId(map) ?: return false
             mutablePipeline.profile = Profile(repoPolicyId, repoTypeId, id)
             return true
