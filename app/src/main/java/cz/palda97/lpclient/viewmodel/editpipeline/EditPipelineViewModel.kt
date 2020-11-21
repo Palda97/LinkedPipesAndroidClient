@@ -43,10 +43,9 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
             scroll = value
         }
 
-    fun editComponent(component: Component) {
-        scroll = true
+    fun editComponent(component: Component, pipeline: Pipeline) {
         componentRepository.currentComponentId = component.id
-        componentRepository.prepare(component)
+        componentRepository.prepare(component, pipeline)
     }
 
     companion object {

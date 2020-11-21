@@ -2,6 +2,7 @@ package cz.palda97.lpclient.view.editpipeline
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -159,7 +160,10 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun editComponent(component: Component) {
-        viewModel.editComponent(component)
+        val pipeline = currentPipeline ?: return Unit.also {
+            Toast.makeText(requireContext(), R.string.internal_error, Toast.LENGTH_SHORT).show()
+        }
+        viewModel.editComponent(component, pipeline)
         EditComponentActivity.start(requireContext())
     }
 

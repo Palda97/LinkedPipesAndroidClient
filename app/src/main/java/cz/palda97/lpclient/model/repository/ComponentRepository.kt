@@ -40,12 +40,24 @@ class ComponentRepository(
         return getComponentRetrofit(server)
     }
 
+    /*private val currentPipeline: Pipeline?
+        get() = Injector.pipelineRepository.currentPipeline.value?.mailContent.also {
+            if (it == null)
+                l("currentPipeline is null")
+        }*/
+    private var currentPipeline: Pipeline? = null
+        get() = field.also {
+            if (it == null)
+                l("currentPipeline is null")
+        }
+
     private suspend fun downloadDialog(component: Component): Either<StatusCode, List<ConfigInput>> {
         val retrofit = when (val res = getComponentRetrofit(component)) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val call = retrofit.dialog(component.templateId)
+        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val call = retrofit.dialog(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
         val factory = ConfigInputFactory(text)
@@ -67,8 +79,9 @@ class ComponentRepository(
         return StatusCode.OK
     }
 
-    suspend fun cache(components: List<Component>, server: Long) {
+    suspend fun cache(components: List<Component>, server: Long, pipeline: Pipeline) {
         currentServerId = server
+        currentPipeline = pipeline
         cacheConfigInput(components)
         cacheJsMap(components)
     }
@@ -99,7 +112,8 @@ class ComponentRepository(
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    fun prepare(component: Component) {
+    fun prepare(component: Component, pipeline: Pipeline) {
+        currentPipeline = pipeline
         prepareConfigInput(component)
         prepareJsMap(component)
     }
@@ -124,7 +138,8 @@ class ComponentRepository(
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val call = retrofit.dialogJs(component.templateId)
+        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val call = retrofit.dialogJs(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
         val factory = DialogJsFactory(text)
@@ -180,6 +195,18 @@ class ComponentRepository(
             }
             mutJsMap.postValue(MailPackage(either))
         }
+    }
+
+    private fun Component.getRootTemplate(pipeline: Pipeline?): String? {
+        if (pipeline == null)
+            return null
+        tailrec fun Component.rec(pipeline: Pipeline): String {
+            val template = pipeline.templates.find {
+                it.id == templateId
+            } ?: return templateId
+            return Component(0, 0, template).rec(pipeline)
+        }
+        return rec(pipeline)
     }
 
     companion object {
