@@ -19,7 +19,6 @@
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/editText"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="@{configInput.type == Type.EDIT_TEXT ? View.VISIBLE : View.GONE}"
             android:layout_width="match_parent"
@@ -27,6 +26,7 @@
             android:hint="@{configInput.label}">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

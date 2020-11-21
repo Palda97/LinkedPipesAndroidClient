@@ -183,7 +183,7 @@ class ConfigurationFragment : Fragment() {
             val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
             val string = configuration.getString(translated) ?: ""
             when(configInput.type) {
-                ConfigInput.Type.EDIT_TEXT -> it.editText.editText!!.setText(string)
+                ConfigInput.Type.EDIT_TEXT -> it.editText.setText(string)
                 ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
                 ConfigInput.Type.DROPDOWN -> {
                     it.dropdown.fillWithOptions(configInput.options)
