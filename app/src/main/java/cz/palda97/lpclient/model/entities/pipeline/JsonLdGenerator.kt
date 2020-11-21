@@ -17,14 +17,17 @@ fun Pipeline.jsonLd(): String {
         sb.append("}")
     }
 
-    fun parseComponent(sb: StringBuilder, component: Component) {
+    fun parseComponent(sb: StringBuilder, component: Component, hasPosition: Boolean = true) {
         sb.append("{")
         sb.append("\"${LdConstants.ID}\":\"${component.id}\",")
-        sb.append("\"${LdConstants.TYPE}\":[\"${LdConstants.TYPE_COMPONENT}\"],")
+        val type = if (hasPosition) LdConstants.TYPE_COMPONENT else LdConstants.TYPE_TEMPLATE
+        sb.append("\"${LdConstants.TYPE}\":[\"${type}\"],")
         sb.append("\"${LdConstants.CONFIGURATION_GRAPH}\":[{\"${LdConstants.ID}\":\"${component.configurationId}\"}],")
         sb.append("\"${LdConstants.TEMPLATE}\":[{\"${LdConstants.ID}\":\"${component.templateId}\"}],")
-        sb.append("\"${LdConstants.X}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.x}\"}],")
-        sb.append("\"${LdConstants.Y}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.y}\"}],")
+        if (hasPosition) {
+            sb.append("\"${LdConstants.X}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.x}\"}],")
+            sb.append("\"${LdConstants.Y}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.y}\"}],")
+        }
         sb.append("\"${LdConstants.PREF_LABEL}\":[{\"${LdConstants.VALUE}\":\"${component.prefLabel}\"}]")
         sb.append("}")
     }
@@ -98,8 +101,19 @@ fun Pipeline.jsonLd(): String {
         }
     }
 
+    fun templatePart(sb: StringBuilder) {
+        templates.forEach {
+            sb.append("{\"${LdConstants.GRAPH}\":[")
+            parseComponent(sb, Component(0, 0, it), false)
+            sb.append("],")
+            sb.append("\"${LdConstants.ID}\":\"${it.id}\"")
+            sb.append("},")
+        }
+    }
+
     val sb = StringBuilder()
     sb.append("[")
+    templatePart(sb)
     firstPart(sb)
     secondPart(sb)
     sb.append("]")
