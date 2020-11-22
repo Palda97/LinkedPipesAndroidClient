@@ -21,6 +21,7 @@ import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.ComponentRepository
+import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
@@ -184,21 +185,12 @@ class ConfigurationFragment : Fragment() {
                 ConfigInput.Type.EDIT_TEXT -> it.editText.setText(string)
                 ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
                 ConfigInput.Type.DROPDOWN -> {
-                    it.dropdown.fillWithOptions(configInput.options)
+                    it.dropdown.fillWithOptions(requireContext(), configInput.options)
                 }
                 ConfigInput.Type.TEXT_AREA -> {
                     it.textArea.setText(string)
                 }
             }
-        }
-    }
-
-    private fun MaterialAutoCompleteTextView.fillWithOptions(options: List<Pair<String, String>>) {
-        val adapter = SmartArrayAdapter(requireContext(), R.layout.dropdown_item_text_view)
-        adapter.setItems(options)
-        setAdapter(adapter)
-        setOnItemClickListener { _, _, position, _ ->
-            adapter.lastSelectedPosition = position
         }
     }
 
