@@ -28,7 +28,9 @@ object CommonFunctions {
         return giveMeThatString(updatedKeys, key1, key2)
     }*/
 
-    fun giveMeThatId(map: Map<*, *>): String? {
+    fun giveMeThatId(map: Any?): String? {
+        if (map !is Map<*, *>)
+            return null
         return (map[ID] ?: return null) as? String ?: return null
     }
 
@@ -37,6 +39,13 @@ object CommonFunctions {
         if (list.size != 1)
             return null
         return list[0] as? String ?: return null
+    }
+
+    fun giveMeThoseTypes(map: Map<*, *>): List<String>? {
+        val list = (map[TYPE] ?: return null) as? ArrayList<*> ?: return null
+        return list.map {
+            it as? String ?: return null
+        }
     }
 
     fun getRootArrayList(string: String?): Either<String, ArrayList<*>> {
