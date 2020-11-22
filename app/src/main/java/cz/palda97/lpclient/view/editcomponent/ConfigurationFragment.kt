@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -168,7 +167,6 @@ class ConfigurationFragment : Fragment() {
     }
 
     private fun fillConfigInput() {
-        //l("fillConfigInput ${currentPipeline != null}, ${configBindings != null}, ${currentComponent != null}")
         val pipeline = currentPipeline ?: return
         val cBindings = configBindings ?: return
         val component = currentComponent ?: return
@@ -196,16 +194,12 @@ class ConfigurationFragment : Fragment() {
     }
 
     private fun MaterialAutoCompleteTextView.fillWithOptions(options: List<Pair<String, String>>) {
-        class PairWrapper(val pair: Pair<String, String>) {
-            override fun toString() = pair.second
-        }
-        val adapter = ArrayAdapter<PairWrapper>(requireContext(), R.layout.dropdown_item_text_view)
-        val list = options.map {
-            PairWrapper(it)
-        }
-        adapter.addAll(list)
-        adapter.notifyDataSetChanged()
+        val adapter = SmartArrayAdapter(requireContext(), R.layout.dropdown_item_text_view)
+        adapter.setItems(options)
         setAdapter(adapter)
+        setOnItemClickListener { _, _, position, _ ->
+            adapter.lastSelectedPosition = position
+        }
     }
 
     override fun onResume() {
