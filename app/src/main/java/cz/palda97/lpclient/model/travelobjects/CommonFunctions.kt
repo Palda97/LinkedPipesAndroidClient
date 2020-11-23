@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.model.travelobjects
 
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.travelobjects.LdConstants.GRAPH
 import cz.palda97.lpclient.model.travelobjects.LdConstants.ID
@@ -51,8 +52,12 @@ object CommonFunctions {
     fun getRootArrayList(string: String?): Either<String, ArrayList<*>> {
         if (string == null)
             return Either.Left("string is null")
-        val gsonObject =
-            Gson().fromJson(string, Any::class.java) ?: return Either.Left("null pointer")
+        val gsonObject = try {
+            Gson().fromJson(string, Any::class.java)
+        } catch (e: JsonSyntaxException) {
+            println(string)
+            null
+        } ?: return Either.Left("null pointer")
         return when (gsonObject) {
             is ArrayList<*> -> Either.Right(gsonObject)
             else -> Either.Left("root element not arraylist")
