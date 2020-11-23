@@ -15,6 +15,9 @@ interface ComponentRetrofit {
     @GET("api/v1/components/dialog?name=config&file=dialog.js")
     fun dialogJs(@Query("iri") iri: String): Call<ResponseBody>
 
+    @GET("api/v1/components/definition")
+    fun bindings(@Query("iri") iri: String): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.componentRetrofit: ComponentRetrofit
             get() = build().create(ComponentRetrofit::class.java)

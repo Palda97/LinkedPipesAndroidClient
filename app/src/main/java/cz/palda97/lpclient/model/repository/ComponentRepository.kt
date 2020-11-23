@@ -84,6 +84,7 @@ class ComponentRepository(
         currentPipeline = pipeline
         cacheConfigInput(components)
         cacheJsMap(components)
+        cacheBindings(components)
     }
 
     private suspend fun cacheConfigInput(components: List<Component>) = coroutineScope {
@@ -116,6 +117,7 @@ class ComponentRepository(
         currentPipeline = pipeline
         prepareConfigInput(component)
         prepareJsMap(component)
+        prepareBindings(component)
     }
 
     private fun prepareConfigInput(component: Component) {
@@ -207,6 +209,70 @@ class ComponentRepository(
             return Component(0, 0, template).rec(pipeline)
         }
         return rec(pipeline)
+    }
+
+    private suspend fun downloadBindings(component: Component): Either<StatusCode, List<Binding>> {
+        val retrofit = when (val res = getComponentRetrofit(component)) {
+            is Either.Left -> return Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val call = retrofit.bindings(templateId)
+        val text = RetrofitHelper.getStringFromCall(call)
+            ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val factory = BindingFactory(text)
+        val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
+        return Either.Right(list)
+    }
+
+    private val bindingMap: MutableMap<String, List<Binding>> = HashMap()
+
+    private suspend fun cacheBindings(component: Component): StatusCode {
+        if (bindingMap.contains(component.id)) {
+            return StatusCode.OK
+        }
+        val list = when (val res = downloadBindings(component)) {
+            is Either.Left -> return res.value
+            is Either.Right -> res.value
+        }
+        bindingMap[component.id] = list
+        return StatusCode.OK
+    }
+
+    private suspend fun cacheBindings(components: List<Component>) = coroutineScope {
+        bindingMap.clear()
+        val jobs = components.map {
+            async {
+                it.id to cacheBindings(it)
+            }
+        }
+        jobs.forEach {
+            val (componentId, status) = it.await()
+            if (status != StatusCode.OK) {
+                val template = Injector.pipelineRepository.currentPipeline.value?.mailContent?.components?.find { it.id == componentId }?.templateId
+                l("cacheBindings $status: $componentId\n$template")
+            }
+        }
+    }
+
+    private val mutBindings: MutableLiveData<MailPackage<Either<StatusCode, List<Binding>>>> =
+        MutableLiveData()
+    val liveBindings: LiveData<MailPackage<Either<StatusCode, List<Binding>>>>
+        get() = mutBindings
+
+    private fun prepareBindings(component: Component) {
+        mutBindings.value = MailPackage.loadingPackage()
+        retrofitScope.launch {
+            val status = cacheBindings(component)
+            val either: Either<StatusCode, List<Binding>> = if (status == StatusCode.OK) {
+                bindingMap[component.id]?.let {
+                    Either.Right<StatusCode, List<Binding>>(it)
+                } ?: Either.Left(StatusCode.INTERNAL_ERROR)
+            } else {
+                Either.Left(status)
+            }
+            mutBindings.postValue(MailPackage(either))
+        }
     }
 
     companion object {

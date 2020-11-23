@@ -5,10 +5,7 @@ import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
-import cz.palda97.lpclient.model.entities.pipeline.Component
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
-import cz.palda97.lpclient.model.entities.pipeline.Configuration
-import cz.palda97.lpclient.model.entities.pipeline.DialogJs
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +39,9 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
 
     val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, DialogJs>>>
         get() = componentRepository.liveJsMap
+
+    val liveBindings: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<Binding>>>>
+        get() = componentRepository.liveBindings
 
     companion object {
         private val l = Injector.generateLogFunction(this)
