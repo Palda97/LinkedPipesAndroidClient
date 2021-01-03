@@ -20,6 +20,8 @@ import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Compa
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 private typealias WrappedPipeline = Either<PipelineRepository.CacheStatus, Pipeline>
@@ -96,16 +98,11 @@ class PipelineRepository(
     private val mediatorPipeline: MediatorLiveData<MailPackage<Pipeline>> = MediatorLiveData()
     private var lastLivePipeline: LiveData<MailPackage<Pipeline>> = MutableLiveData()
 
-    private fun persistIds(pipelineView: PipelineView) = synchronized(this) {
+    private fun persistIds(pipelineView: PipelineView) {
         sharedPreferences.edit()
             .putString(PIPELINE_ID, pipelineView.id)
             .putLong(PIPELINE_SERVER_ID, pipelineView.serverId)
             .apply()
-        mediatorPipeline.removeSource(lastLivePipeline)
-        lastLivePipeline = pipelineDao.livePipeline(pipelineView.id)
-        mediatorPipeline.addSource(lastLivePipeline) {
-            mediatorPipeline.postValue(it)
-        }
     }
 
     val livePipeline: LiveData<MailPackage<Pipeline>>
@@ -129,12 +126,26 @@ class PipelineRepository(
         is Either.Right -> savePipeline(wrappedPipeline.value, true)
     }
 
-    suspend fun cachePipeline(pipelineView: PipelineView) {
-        withContext(Dispatchers.Main) {
-            persistIds(pipelineView)
+    private val cachePipelineMutex: Mutex = Mutex()
+
+    private suspend fun desyncLivePipeline() = withContext(Dispatchers.Main) {
+        mediatorPipeline.removeSource(lastLivePipeline)
+        mediatorPipeline.value = MailPackage.loadingPackage()
+    }
+
+    private suspend fun syncLivePipeline(pipelineId: String) = withContext(Dispatchers.Main) {
+        lastLivePipeline = pipelineDao.livePipeline(pipelineId)
+        mediatorPipeline.addSource(lastLivePipeline) {
+            mediatorPipeline.postValue(it)
         }
+    }
+
+    suspend fun cachePipeline(pipelineView: PipelineView) = cachePipelineMutex.withLock {
+        desyncLivePipeline()
+        persistIds(pipelineView)
         val wrappedPipeline = downloadPipeline(pipelineView)
         save(wrappedPipeline)
+        syncLivePipeline(pipelineView.id)
     }
 
     private fun restoreIds(): PipelineView? {
