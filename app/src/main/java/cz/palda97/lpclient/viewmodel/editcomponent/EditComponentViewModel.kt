@@ -19,29 +19,15 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    val liveConfigInput: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<ConfigInput>>>>
-        get() = componentRepository.liveConfigInput
+    val liveConfigInput
+        get() = componentRepository.liveConfigInput()
+    val liveDialogJs
+        get() = componentRepository.liveDialogJs()
+    val liveBinding
+        get() = componentRepository.liveBinding()
 
-    private val componentId: String?
-        get() = componentRepository.currentComponentId
-
-    val currentComponent: Component?
-        get() = pipelineRepository.currentPipeline.value?.mailContent?.components?.find {
-            it.id == componentId
-        }
-
-    private val configurationId: String?
-        get() = currentComponent?.configurationId
-
-    val currentConfiguration: Configuration? = pipelineRepository.currentPipeline.value?.mailContent?.configurations?.find {
-        configurationId == it.id
-    }
-
-    val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, DialogJs>>>
-        get() = componentRepository.liveJsMap
-
-    val liveBindings: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<Binding>>>>
-        get() = componentRepository.liveBindings
+    val liveComponent
+        get() = componentRepository.liveComponent
 
     companion object {
         private val l = Injector.generateLogFunction(this)

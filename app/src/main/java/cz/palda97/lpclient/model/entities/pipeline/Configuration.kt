@@ -1,10 +1,14 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
 //data class Configuration(val settings: Map<*, *>, val type: String, val id: String)
-data class Configuration(val settings: List<Config>, val id: String) {
+
+@Entity
+data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = false) val id: String) {
     fun getString(key: String): String? {
         settings.forEach {
             val value = it.getString(key)

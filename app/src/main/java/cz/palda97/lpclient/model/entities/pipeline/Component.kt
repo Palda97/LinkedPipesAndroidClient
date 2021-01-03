@@ -1,5 +1,9 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Component(
     var configurationId: String,
     var templateId: String,
@@ -7,7 +11,7 @@ data class Component(
     var y: Int,
     var prefLabel: String,
     var description: String?,
-    var id: String
+    @PrimaryKey(autoGenerate = false) var id: String
 ) {
     constructor(
         x: Int,

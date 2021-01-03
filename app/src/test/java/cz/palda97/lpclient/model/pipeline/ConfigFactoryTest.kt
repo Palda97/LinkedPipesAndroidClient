@@ -10,13 +10,15 @@ class ConfigFactoryTest {
 
     @Test
     fun parseTabular() {
-        val factory = ConfigInputFactory(TABULAR_UV)
+        val factory = ConfigInputFactory(TABULAR_UV, COMPONENT_ID)
         val configInputs = factory.parse()
         assertNotNull(configInputs)
         //TODO()
     }
 
     companion object {
+
+        private const val COMPONENT_ID = "http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9"
 
         private const val TABULAR_UV =
             "<lp-dialog-control-config lp-dialog=\"dialog\" lp-application=\"application\"></lp-dialog-control-config>\n" +

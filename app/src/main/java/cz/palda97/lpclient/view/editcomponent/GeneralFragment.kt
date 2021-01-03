@@ -40,7 +40,7 @@ class GeneralFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        currentComponent = viewModel.currentComponent
+        //currentComponent = viewModel.currentComponent
         setUpComponents()
     }
 

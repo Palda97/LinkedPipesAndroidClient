@@ -21,6 +21,7 @@ import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.repository.ComponentRepository
+import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
 import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
@@ -57,6 +58,7 @@ class ConfigurationFragment : Fragment() {
             ComponentRepository.StatusCode.DOWNLOADING_ERROR -> getString(R.string.error_while_downloading_component_configuration)
             ComponentRepository.StatusCode.PARSING_ERROR -> getString(R.string.error_while_parsing_configuration)
             ComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
+            ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> getString(R.string.internal_error)
         }
 
     private val loadingMediator = object {
@@ -89,23 +91,20 @@ class ConfigurationFragment : Fragment() {
 
         fun setUpConfigInputs() {
             viewModel.liveConfigInput.observe(viewLifecycleOwner, Observer {
-                val mail = it ?: return@Observer
-                if (mail.isLoading) {
-                    binding.mail = loadingMediator.updateConfigInput(MailPackage.loading())
-                    return@Observer
-                }
-                if (!mail.isOk) {
-                    l("mail is not ok")
-                    return@Observer
-                }
-                val text: String = when(val res = mail.mailContent!!) {
-                    is Either.Left -> res.value.errorMessage
-                    is Either.Right -> {
-                        displayConfigInput(res.value)
+                val statusWithConfigInput = it ?: return@Observer
+                val status = statusWithConfigInput.status.result.toStatus
+                val text: String = when(status) {
+                    ComponentRepository.StatusCode.OK -> {
+                        displayConfigInput(statusWithConfigInput.list)
                         fillConfigInput()
                         binding.mail = loadingMediator.updateConfigInput(MailPackage.ok())
                         ""
                     }
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
+                        binding.mail = loadingMediator.updateConfigInput(MailPackage.loading())
+                        return@Observer
+                    }
+                    else -> status.errorMessage
                 }
                 if (text.isNotEmpty()) {
                     binding.mail = loadingMediator.updateConfigInput(MailPackage.error())
@@ -115,24 +114,21 @@ class ConfigurationFragment : Fragment() {
         }
 
         fun setUpJsMap() {
-            viewModel.liveJsMap.observe(viewLifecycleOwner, Observer {
-                val mail = it ?: return@Observer
-                if (mail.isLoading) {
-                    binding.mail = loadingMediator.updateDialogJs(MailPackage.loading())
-                    return@Observer
-                }
-                if (!mail.isOk) {
-                    l("mail is not ok")
-                    return@Observer
-                }
-                val text: String = when(val res = mail.mailContent!!) {
-                    is Either.Left -> res.value.errorMessage
-                    is Either.Right -> {
-                        currentDialogJs = res.value
+            viewModel.liveDialogJs.observe(viewLifecycleOwner, Observer {
+                val statusWithDialogJs = it ?: return@Observer
+                val status = statusWithDialogJs.status.result.toStatus
+                val text: String = when(status) {
+                    ComponentRepository.StatusCode.OK -> {
+                        currentDialogJs = statusWithDialogJs.dialogJs
                         fillConfigInput()
                         binding.mail = loadingMediator.updateDialogJs(MailPackage.ok())
                         ""
                     }
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
+                        binding.mail = loadingMediator.updateDialogJs(MailPackage.loading())
+                        return@Observer
+                    }
+                    else -> status.errorMessage
                 }
                 if (text.isNotEmpty()) {
                     binding.mail = loadingMediator.updateDialogJs(MailPackage.error())
@@ -152,9 +148,18 @@ class ConfigurationFragment : Fragment() {
             })
         }
 
+        fun setUpCurrentComponent() {
+            viewModel.liveComponent.observe(viewLifecycleOwner, Observer {
+                val component = it ?: return@Observer
+                currentComponent = component
+                fillConfigInput()
+            })
+        }
+
         setUpConfigInputs()
         setUpJsMap()
         setUpPipeline()
+        setUpCurrentComponent()
     }
 
     private fun displayConfigInput(configInputList: List<ConfigInput>) {
@@ -196,8 +201,8 @@ class ConfigurationFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        currentComponent = viewModel.currentComponent
-        fillConfigInput()
+        //currentComponent = viewModel.currentComponent
+        //fillConfigInput()
     }
 
     companion object {
