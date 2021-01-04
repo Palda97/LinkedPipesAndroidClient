@@ -17,12 +17,9 @@ import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 private typealias WrappedPipeline = Either<PipelineRepository.CacheStatus, Pipeline>
 
@@ -33,8 +30,8 @@ class PipelineRepository(
     private val sharedPreferences: SharedPreferences
 ) {
 
-    /*private val retrofitScope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.IO)*/
+    private val retrofitScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.IO)
 
     /*private suspend fun getPipelineRetrofit(server: ServerInstance): Either<PipelineViewRepository.StatusCode, PipelineRetrofit> =
         Injector.pipelineViewRepository.getPipelineRetrofit(server)
@@ -128,9 +125,13 @@ class PipelineRepository(
 
     private val cachePipelineMutex: Mutex = Mutex()
 
-    private suspend fun desyncLivePipeline() = withContext(Dispatchers.Main) {
+    private fun desyncLivePipeline() {
         mediatorPipeline.removeSource(lastLivePipeline)
         mediatorPipeline.value = MailPackage.loadingPackage()
+    }
+
+    private suspend fun desyncLivePipelineOnMain() = withContext(Dispatchers.Main) {
+        desyncLivePipeline()
     }
 
     private suspend fun syncLivePipeline(pipelineId: String) = withContext(Dispatchers.Main) {
@@ -140,8 +141,16 @@ class PipelineRepository(
         }
     }
 
-    suspend fun cachePipeline(pipelineView: PipelineView) = cachePipelineMutex.withLock {
+    fun cachePipelineInit(pipelineView: PipelineView) {
         desyncLivePipeline()
+        retrofitScope.launch {
+            cachePipeline(pipelineView, false)
+        }
+    }
+
+    private suspend fun cachePipeline(pipelineView: PipelineView, desync: Boolean = true) = cachePipelineMutex.withLock {
+        if (desync)
+            desyncLivePipelineOnMain()
         persistIds(pipelineView)
         val wrappedPipeline = downloadPipeline(pipelineView)
         save(wrappedPipeline)

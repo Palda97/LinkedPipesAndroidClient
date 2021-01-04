@@ -221,46 +221,65 @@ abstract class PipelineDao {
     fun livePipeline(pipelineId: String): LiveData<MailPackage<Pipeline>> {
         val mutablePipeline = PipelineFactory.MutablePipeline()
         val mediator: MediatorLiveData<MailPackage<Pipeline>> = MediatorLiveData()
+        val readyStatuses = mutableListOf<Boolean>().apply {
+            for (i in 1..7) {
+                add(false)
+            }
+        }
         with(mediator) {
+            fun post(value: MailPackage<Pipeline>) {
+                if (readyStatuses.contains(false))
+                    return
+                postValue(value)
+            }
             addSource(liveProfile()) {
                 if (it != null && it.size == 1) {
                     mutablePipeline.profile = it[0]
+                    readyStatuses[0] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
             addSource(livePipelineView(pipelineId)) {
-                mutablePipeline.pipelineView = it
-                postValue(mutablePipeline.mail)
+                if (it != null) {
+                    mutablePipeline.pipelineView = it
+                    readyStatuses[1] = true
+                    post(mutablePipeline.mail)
+                }
             }
             addSource(liveComponent()) {
                 if (it != null) {
                     mutablePipeline.components = it.toMutableList()
+                    readyStatuses[2] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
             addSource(liveConnection()) {
                 if (it != null) {
                     mutablePipeline.connections = it.toMutableList()
+                    readyStatuses[3] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
             addSource(liveConfiguration()) {
                 if (it != null) {
                     mutablePipeline.configurations = it.toMutableList()
+                    readyStatuses[4] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
             addSource(liveVertex()) {
                 if (it != null) {
                     mutablePipeline.vertexes = it.toMutableList()
+                    readyStatuses[5] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
             addSource(liveTemplate()) {
                 if (it != null) {
                     mutablePipeline.templates = it.toMutableList()
+                    readyStatuses[6] = true
+                    post(mutablePipeline.mail)
                 }
-                postValue(mutablePipeline.mail)
             }
         }
         return mediator
