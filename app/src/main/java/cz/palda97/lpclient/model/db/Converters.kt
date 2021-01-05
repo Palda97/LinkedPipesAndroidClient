@@ -131,9 +131,9 @@ class Converters {
     @TypeConverter
     fun toListOfPairs(string: String?): List<Pair<String, String>>? {
         return fromJsonToList(string) {
-            val genericPair = it as? Pair<*, *> ?: return null
-            val first = genericPair.first as? String ?: return null
-            val second = genericPair.second as? String ?: return null
+            val map = it as? Map<*, *> ?: return null
+            val first: String = map["first"] as? String ?: return null
+            val second: String = map["second"] as? String ?: return null
             first to second
         }
     }
@@ -175,5 +175,11 @@ class Converters {
         } catch (e: JsonSyntaxException) {
             null
         }
+    }
+
+    private fun l(msg: Any?) {
+        //val prefix = "Converters: "
+        val prefix = "**********************************: "
+        println("${prefix}${msg.toString()}")
     }
 }
