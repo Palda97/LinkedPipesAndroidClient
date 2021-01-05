@@ -109,7 +109,9 @@ class PipelineRepository(
         persistStatus(null)
         persistPipeline(pipeline)
         if (cacheComponents) {
-            Injector.componentRepository.cache(pipeline.components)
+            retrofitScope.launch {
+                Injector.componentRepository.cache(pipeline.components)
+            }
         }
     }
 

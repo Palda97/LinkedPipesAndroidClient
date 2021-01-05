@@ -400,15 +400,11 @@ class ComponentRepository(
         }
     }
 
-    private fun liveConfigInput(componentId: String) = pipelineDao.liveConfigWithStatus(componentId)
-    private fun liveDialogJs(componentId: String) = pipelineDao.liveDialogJsWithStatus(componentId)
-    private fun liveBinding(componentId: String) = pipelineDao.liveBindingWithStatus(componentId)
-
     var currentComponentId = ""
 
-    fun liveConfigInput() = liveConfigInput(currentComponentId)
-    fun liveDialogJs() = liveDialogJs(currentComponentId)
-    fun liveBinding() = liveBinding(currentComponentId)
+    fun liveConfigInput(componentId: String = currentComponentId) = pipelineDao.liveConfigWithStatus(componentId)
+    fun liveDialogJs(componentId: String = currentComponentId) = pipelineDao.liveDialogJsWithStatus(componentId)
+    fun liveBinding(componentId: String = currentComponentId) = pipelineDao.liveBindingWithStatus(componentId)
 
     val liveComponent
         get() = pipelineDao.liveComponentById(currentComponentId)
