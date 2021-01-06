@@ -7,35 +7,23 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.databinding.FragmentEditComponentConfigurationBinding
-import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.StatusPackage
-import cz.palda97.lpclient.model.entities.pipeline.Component
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
-import cz.palda97.lpclient.model.entities.pipeline.DialogJs
-import cz.palda97.lpclient.model.entities.pipeline.Pipeline
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
-import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
+import kotlinx.coroutines.*
 
 class ConfigurationFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentConfigurationBinding
     private lateinit var viewModel: EditComponentViewModel
-    private lateinit var editPipelineViewModel: EditPipelineViewModel
-
-    private var currentPipeline: Pipeline? = null
-    private var currentComponent: Component? = null
-    private var configBindings: List<ConfigInputBinding>? = null
-    private var currentDialogJs: DialogJs? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +33,6 @@ class ConfigurationFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_component_configuration, container, false)
         val root = binding.root
         viewModel = EditComponentViewModel.getInstance(this)
-        editPipelineViewModel = EditPipelineViewModel.getInstance(this)
         setUpComponents()
         return root
     }
@@ -89,120 +76,81 @@ class ConfigurationFragment : Fragment() {
 
     private fun setUpComponents() {
 
-        fun setUpConfigInputs() {
+        binding.mail = MailPackage.loading()
+
+        fun setUpConfigInputRecycler(dialogJs: DialogJs, configuration: Configuration) {
+            val adapter = ConfigInputAdapter(requireContext(), dialogJs, configuration)
+            binding.insertConfigInputsHere.adapter = adapter
             viewModel.liveConfigInput.observe(viewLifecycleOwner, Observer {
                 val statusWithConfigInput = it ?: return@Observer
                 val status = statusWithConfigInput.status.result.toStatus
-                val text: String = when(status) {
+                val text = when(status) {
                     ComponentRepository.StatusCode.OK -> {
-                        displayConfigInput(statusWithConfigInput.list)
-                        fillConfigInput()
-                        binding.mail = loadingMediator.updateConfigInput(MailPackage.ok())
+                        adapter.updateConfigInputList(statusWithConfigInput.list)
+                        binding.noInstances = statusWithConfigInput.list.isEmpty()
                         ""
                     }
                     ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
-                        binding.mail = loadingMediator.updateConfigInput(MailPackage.loading())
-                        return@Observer
+                        ""
                     }
                     else -> status.errorMessage
                 }
-                if (text.isNotEmpty()) {
-                    binding.mail = loadingMediator.updateConfigInput(MailPackage.error())
-                    showErrorSnackbar(text)
+                binding.mail = when(status) {
+                    ComponentRepository.StatusCode.OK -> loadingMediator.updateConfigInput(MailPackage.ok())
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> loadingMediator.updateConfigInput(MailPackage.loading())
+                    else -> loadingMediator.updateConfigInput(MailPackage.error(text))
                 }
+                binding.executePendingBindings()
             })
+            //binding.fastscroll.setRecyclerView(binding.insertConfigInputsHere)
         }
 
-        fun setUpJsMap() {
+        fun initAdapter(asyncConfiguration: Deferred<Configuration?>, dialogJs: DialogJs) = lifecycleScope.launch {
+            val configuration = asyncConfiguration.await()
+            val text = if (configuration == null) {
+                "no configuration"
+            } else {
+                ""
+            }
+            l(text)
+            if (text.isNotEmpty()) {
+                return@launch
+            }
+            setUpConfigInputRecycler(dialogJs, configuration!!)
+        }
+
+        fun setUpDialogJs() {
+            val asyncConfiguration = lifecycleScope.async { viewModel.currentConfiguration() }
             viewModel.liveDialogJs.observe(viewLifecycleOwner, Observer {
                 val statusWithDialogJs = it ?: return@Observer
                 val status = statusWithDialogJs.status.result.toStatus
-                val text: String = when(status) {
+                val text = when(status) {
                     ComponentRepository.StatusCode.OK -> {
-                        currentDialogJs = statusWithDialogJs.dialogJs
-                        fillConfigInput()
-                        binding.mail = loadingMediator.updateDialogJs(MailPackage.ok())
-                        ""
+                        if (statusWithDialogJs.dialogJs != null) {
+                            initAdapter(asyncConfiguration, statusWithDialogJs.dialogJs)
+                            ""
+                        } else {
+                            ComponentRepository.StatusCode.INTERNAL_ERROR.errorMessage
+                        }
                     }
                     ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
-                        binding.mail = loadingMediator.updateDialogJs(MailPackage.loading())
-                        return@Observer
+                        ""
                     }
                     else -> status.errorMessage
                 }
+                binding.mail = when(status) {
+                    ComponentRepository.StatusCode.OK -> loadingMediator.updateDialogJs(MailPackage.ok())
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> loadingMediator.updateDialogJs(MailPackage.loading())
+                    else -> loadingMediator.updateDialogJs(MailPackage.error())
+                }
+                binding.executePendingBindings()
                 if (text.isNotEmpty()) {
-                    binding.mail = loadingMediator.updateDialogJs(MailPackage.error())
                     showErrorSnackbar(text)
                 }
             })
         }
 
-        fun setUpPipeline() {
-            editPipelineViewModel.currentPipeline.observe(viewLifecycleOwner, Observer {
-                val mail = it ?: return@Observer
-                if (!mail.isOk) {
-                    return@Observer
-                }
-                currentPipeline = mail.mailContent
-                fillConfigInput()
-            })
-        }
-
-        fun setUpCurrentComponent() {
-            viewModel.liveComponent.observe(viewLifecycleOwner, Observer {
-                val component = it ?: return@Observer
-                currentComponent = component
-                fillConfigInput()
-            })
-        }
-
-        setUpConfigInputs()
-        setUpJsMap()
-        setUpPipeline()
-        setUpCurrentComponent()
-    }
-
-    private fun displayConfigInput(configInputList: List<ConfigInput>) {
-        configBindings = configInputList.map {
-            val configInputBinding: ConfigInputBinding = DataBindingUtil.inflate(layoutInflater, R.layout.config_input, null, false)
-            configInputBinding.configInput = it
-            configInputBinding.executePendingBindings()
-            binding.insertConfigInputsHere.addView(configInputBinding.root)
-            configInputBinding
-        }
-    }
-
-    private fun fillConfigInput() {
-        val pipeline = currentPipeline ?: return
-        val cBindings = configBindings ?: return
-        val component = currentComponent ?: return
-        val dialogJs = currentDialogJs ?: return
-        l("fillConfigInput")
-        val configuration = pipeline.configurations.find {
-            it.id == component.configurationId
-        } ?: return Unit.also { l("configuration was not found") }
-
-        cBindings.forEach {
-            val configInput = it.configInput!!
-            val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
-            val string = configuration.getString(translated) ?: ""
-            when(configInput.type) {
-                ConfigInput.Type.EDIT_TEXT -> it.editText.setText(string)
-                ConfigInput.Type.SWITCH -> it.switchMaterial.isChecked = string.toBoolean()
-                ConfigInput.Type.DROPDOWN -> {
-                    it.dropdown.fillWithOptions(requireContext(), configInput.options)
-                }
-                ConfigInput.Type.TEXT_AREA -> {
-                    it.textArea.setText(string)
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        //currentComponent = viewModel.currentComponent
-        //fillConfigInput()
+        setUpDialogJs()
     }
 
     companion object {

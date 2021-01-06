@@ -29,6 +29,12 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     val liveComponent
         get() = componentRepository.liveComponent
 
+    /*val currentPipeline
+        get() = componentRepository.currentPipeline*/
+
+    suspend fun currentComponent() = componentRepository.currentComponent()
+    suspend fun currentConfiguration() = componentRepository.currentConfiguration()
+
     companion object {
         private val l = Injector.generateLogFunction(this)
 

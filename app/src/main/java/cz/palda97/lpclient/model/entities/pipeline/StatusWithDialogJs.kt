@@ -9,5 +9,5 @@ data class StatusWithDialogJs (
         parentColumn = "componentId",
         entityColumn = "componentId"
     )
-    val dialogJs: DialogJs
+    val dialogJs: DialogJs?
 )

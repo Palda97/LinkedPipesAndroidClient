@@ -57,112 +57,6 @@ class ComponentRepository(
         val server = serverDao.findById(serverId) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
         return getComponentRetrofit(server)
     }
-/*
-    private suspend fun downloadConfigInputs(
-        component: Component,
-        retrofit: ComponentRetrofit? = null
-    ): Either<StatusCode, List<ConfigInput>> {
-        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
-            is Either.Left -> return Either.Left(res.value)
-            is Either.Right -> res.value
-        }
-        val templateId = component.getRootTemplateId()
-        val call = retrofit.dialog(templateId)
-        val text = RetrofitHelper.getStringFromCall(call)
-            ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
-        val factory = ConfigInputFactory(text, component.id)
-        val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
-        return Either.Right(list)
-    }
-
-    private suspend fun downloadDialogJs(
-        component: Component,
-        retrofit: ComponentRetrofit? = null
-    ): Either<StatusCode, DialogJs> {
-        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
-            is Either.Left -> return Either.Left(res.value)
-            is Either.Right -> res.value
-        }
-        val templateId = component.getRootTemplateId()
-        val call = retrofit.dialogJs(templateId)
-        val text = RetrofitHelper.getStringFromCall(call)
-            ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
-        val factory = DialogJsFactory(text, component.id)
-        val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
-        return Either.Right(list)
-    }
-
-    private suspend fun downloadBindings(
-        component: Component,
-        retrofit: ComponentRetrofit? = null
-    ): Either<StatusCode, List<Binding>> {
-        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
-            is Either.Left -> return Either.Left(res.value)
-            is Either.Right -> res.value
-        }
-        val templateId = component.getRootTemplateId()
-        val call = retrofit.bindings(templateId)
-        val text = RetrofitHelper.getStringFromCall(call)
-            ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
-        val factory = BindingFactory(text)
-        val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
-        return Either.Right(list)
-    }
-
-    private suspend fun downloadConfigInputs(
-        components: List<Component>,
-        retrofit: ComponentRetrofit? = null
-    ) = coroutineScope<Either<StatusCode, List<ConfigInput>>> {
-        val jobs = components.map {
-            async {
-                downloadConfigInputs(it, retrofit)
-            }
-        }
-        val list = jobs.flatMap {
-            when (val res = it.await()) {
-                is Either.Left -> return@coroutineScope Either.Left(res.value)
-                is Either.Right -> res.value
-            }
-        }
-        return@coroutineScope Either.Right(list)
-    }
-
-    private suspend fun downloadDialogJs(
-        components: List<Component>,
-        retrofit: ComponentRetrofit? = null
-    ) = coroutineScope<Either<StatusCode, List<DialogJs>>> {
-        val jobs = components.map {
-            async {
-                downloadDialogJs(it, retrofit)
-            }
-        }
-        val list = jobs.map {
-            when (val res = it.await()) {
-                is Either.Left -> return@coroutineScope Either.Left(res.value)
-                is Either.Right -> res.value
-            }
-        }
-        return@coroutineScope Either.Right(list)
-    }
-
-    private suspend fun downloadBindings(
-        components: List<Component>,
-        retrofit: ComponentRetrofit? = null
-    ) = coroutineScope<Either<StatusCode, List<Binding>>> {
-        val jobs = components.map {
-            async {
-                downloadBindings(it, retrofit)
-            }
-        }
-        val list = jobs.flatMap {
-            when (val res = it.await()) {
-                is Either.Left -> return@coroutineScope Either.Left(res.value)
-                is Either.Right -> res.value
-            }
-        }
-        return@coroutineScope Either.Right(list)
-    }
-*/
 
     private suspend fun downloadConfigInputs(
         component: Component,
@@ -408,6 +302,9 @@ class ComponentRepository(
 
     val liveComponent
         get() = pipelineDao.liveComponentById(currentComponentId)
+
+    suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
+    suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
 
     companion object {
         private val l = Injector.generateLogFunction(this)

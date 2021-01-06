@@ -74,4 +74,5 @@
     <string name="error_while_parsing_configuration">Error while parsing configuration!</string>
     <string name="label">Label</string>
     <string name="description">Description</string>
+    <string name="no_configuration">There is no configuration.</string>
 </resources>
