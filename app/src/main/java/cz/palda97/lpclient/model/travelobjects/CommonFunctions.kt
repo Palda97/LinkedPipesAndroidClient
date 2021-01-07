@@ -15,9 +15,35 @@ object CommonFunctions {
     }
 
     fun giveMeThatString(map: Map<*, *>, key1: String, key2: String): String? {
-        val list = (map[key1] ?: return null) as? ArrayList<*> ?: return null
+        val list = (map[key1] ?: return null) as? List<*> ?: return null
         val innerMap = (list[0] ?: return null) as? Map<*, *> ?: return null
         return innerMap[key2] as? String ?: return null
+    }
+
+    fun saveMeThatString(map: MutableMap<*, *>, key1: String, key2: String, value: String) {
+        val list = map[key1] as? ArrayList<*>
+        val innerMap = list?.let {
+            it[0] as? Map<*, *>
+        }
+        val newInnerMap = mutableMapOf<String, String>()
+        var error = true
+        run {
+            innerMap?.entries?.forEach {
+                val key = it.key as? String ?: return@run
+                val v = it.value as? String ?: return@run
+                newInnerMap[key] = v
+            }
+            error = false
+        }
+        if (error) {
+            newInnerMap.clear()
+        }
+        newInnerMap[key2] = value
+        val newList = listOf(
+            newInnerMap.toMap()
+        )
+        //(map as MutableMap<String, List<*>>)[key1] = newList
+        (map as MutableMap<Any?, Any?>)[key1] = newList
     }
 
     /*fun giveMeThatConfigString(map: Map<*, *>, key1: String, key2: String): String? {
