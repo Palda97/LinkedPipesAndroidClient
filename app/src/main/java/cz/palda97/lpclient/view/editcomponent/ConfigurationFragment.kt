@@ -78,8 +78,13 @@ class ConfigurationFragment : Fragment() {
 
         binding.mail = MailPackage.loading()
 
-        fun setUpConfigInputRecycler(dialogJs: DialogJs, configuration: Configuration) {
-            val adapter = ConfigInputAdapter(requireContext(), dialogJs, configuration)
+        fun setUpConfigInputRecycler(dialogJs: DialogJs) {
+            val adapter = ConfigInputAdapter(
+                requireContext(),
+                dialogJs,
+                { viewModel.configGetString(it) },
+                { key, value -> viewModel.configSetString(key, value) }
+            )
             binding.insertConfigInputsHere.adapter = adapter
             viewModel.liveConfigInput.observe(viewLifecycleOwner, Observer {
                 val statusWithConfigInput = it ?: return@Observer
@@ -105,9 +110,9 @@ class ConfigurationFragment : Fragment() {
             //binding.fastscroll.setRecyclerView(binding.insertConfigInputsHere)
         }
 
-        fun initAdapter(asyncConfiguration: Deferred<Configuration?>, dialogJs: DialogJs) = lifecycleScope.launch {
+        fun initAdapter(asyncConfiguration: Deferred<Boolean>, dialogJs: DialogJs) = lifecycleScope.launch {
             val configuration = asyncConfiguration.await()
-            val text = if (configuration == null) {
+            val text = if (!configuration) {
                 "no configuration"
             } else {
                 ""
@@ -116,11 +121,12 @@ class ConfigurationFragment : Fragment() {
             if (text.isNotEmpty()) {
                 return@launch
             }
-            setUpConfigInputRecycler(dialogJs, configuration!!)
+            l("initAdapter ok")
+            setUpConfigInputRecycler(dialogJs)
         }
 
         fun setUpDialogJs() {
-            val asyncConfiguration = lifecycleScope.async { viewModel.currentConfiguration() }
+            val asyncConfiguration = lifecycleScope.async { viewModel.prepareConfiguration() }
             viewModel.liveDialogJs.observe(viewLifecycleOwner, Observer {
                 val statusWithDialogJs = it ?: return@Observer
                 val status = statusWithDialogJs.status.result.toStatus
@@ -151,6 +157,11 @@ class ConfigurationFragment : Fragment() {
         }
 
         setUpDialogJs()
+    }
+
+    override fun onPause() {
+        viewModel.persistConfiguration()
+        super.onPause()
     }
 
     companion object {

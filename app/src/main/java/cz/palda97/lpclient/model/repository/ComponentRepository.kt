@@ -11,6 +11,8 @@ import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Suppress("NAME_SHADOWING")
 class ComponentRepository(
@@ -303,8 +305,25 @@ class ComponentRepository(
     val liveComponent
         get() = pipelineDao.liveComponentById(currentComponentId)
 
-    suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
-    suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
+    //suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
+    private suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
+
+    private val configurationMutex = Mutex()
+
+    var configuration: Configuration? = null
+
+    suspend fun prepareConfiguration(): Boolean {
+        configurationMutex.lock()
+        configuration = currentConfiguration()
+        return configuration != null
+    }
+
+    suspend fun persistConfiguration() {
+        configuration?.let {
+            pipelineDao.insertConfiguration(it)
+        }
+        configurationMutex.unlock()
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

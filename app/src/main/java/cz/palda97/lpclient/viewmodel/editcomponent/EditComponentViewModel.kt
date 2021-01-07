@@ -10,11 +10,12 @@ import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class EditComponentViewModel(application: Application) : AndroidViewModel(application) {
 
     private val componentRepository: ComponentRepository = Injector.componentRepository
-    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    //private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -32,8 +33,12 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     /*val currentPipeline
         get() = componentRepository.currentPipeline*/
 
-    suspend fun currentComponent() = componentRepository.currentComponent()
-    suspend fun currentConfiguration() = componentRepository.currentConfiguration()
+    suspend fun prepareConfiguration() = componentRepository.prepareConfiguration()
+    fun configGetString(key: String) = componentRepository.configuration?.getString(key)
+    fun configSetString(key: String, value: String) = componentRepository.configuration?.setString(key, value)
+    fun persistConfiguration() = retrofitScope.launch {
+        componentRepository.persistConfiguration()
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)
