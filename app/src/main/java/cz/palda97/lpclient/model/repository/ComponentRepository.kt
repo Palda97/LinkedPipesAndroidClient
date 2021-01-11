@@ -305,25 +305,11 @@ class ComponentRepository(
     val liveComponent
         get() = pipelineDao.liveComponentById(currentComponentId)
 
-    //suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
+    private suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
     private suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
 
-    private val configurationMutex = Mutex()
-
-    var configuration: Configuration? = null
-
-    suspend fun prepareConfiguration(): Boolean {
-        configurationMutex.lock()
-        configuration = currentConfiguration()
-        return configuration != null
-    }
-
-    suspend fun persistConfiguration() {
-        configuration?.let {
-            pipelineDao.insertConfiguration(it)
-        }
-        configurationMutex.unlock()
-    }
+    val configurationPersistRepo = PersistRepository(::currentConfiguration, pipelineDao::insertConfiguration)
+    val componentPersistRepo = PersistRepository(::currentComponent, pipelineDao::insertComponent)
 
     companion object {
         private val l = Injector.generateLogFunction(this)

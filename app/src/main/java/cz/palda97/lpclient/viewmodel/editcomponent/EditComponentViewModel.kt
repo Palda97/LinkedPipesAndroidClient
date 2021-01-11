@@ -3,8 +3,6 @@ package cz.palda97.lpclient.viewmodel.editcomponent
 import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
-import cz.palda97.lpclient.model.Either
-import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
@@ -17,7 +15,7 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     private val componentRepository: ComponentRepository = Injector.componentRepository
     //private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
 
-    private val retrofitScope: CoroutineScope
+    private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
     val liveConfigInput
@@ -30,14 +28,20 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     val liveComponent
         get() = componentRepository.liveComponent
 
-    /*val currentPipeline
-        get() = componentRepository.currentPipeline*/
+    suspend fun prepareConfiguration() = componentRepository.configurationPersistRepo.prepareEntity()
+    fun configGetString(key: String) = componentRepository.configurationPersistRepo.entity?.getString(key)
+    fun configSetString(key: String, value: String) = componentRepository.configurationPersistRepo.entity?.setString(key, value)
+    fun persistConfiguration() = dbScope.launch {
+        componentRepository.configurationPersistRepo.persistEntity()
+    }
 
-    suspend fun prepareConfiguration() = componentRepository.prepareConfiguration()
-    fun configGetString(key: String) = componentRepository.configuration?.getString(key)
-    fun configSetString(key: String, value: String) = componentRepository.configuration?.setString(key, value)
-    fun persistConfiguration() = retrofitScope.launch {
-        componentRepository.persistConfiguration()
+    suspend fun prepareComponent() = componentRepository.componentPersistRepo.prepareEntity()
+    fun updateComponent(component: Component) {
+        componentRepository.componentPersistRepo.entity = component
+    }
+    fun getComponent() = componentRepository.componentPersistRepo.entity
+    fun persistComponent() = dbScope.launch {
+        componentRepository.componentPersistRepo.persistEntity()
     }
 
     companion object {
