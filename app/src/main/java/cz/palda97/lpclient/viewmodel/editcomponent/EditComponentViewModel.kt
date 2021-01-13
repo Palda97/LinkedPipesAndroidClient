@@ -18,41 +18,23 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    /*val liveConfigInput
-        get() = componentRepository.liveConfigInput()
-    val liveDialogJs
-        get() = componentRepository.liveDialogJs()
-    val liveBinding
-        get() = componentRepository.liveBinding()
-
-    suspend fun prepareConfiguration() = componentRepository.configurationPersistRepo.prepareEntity()
-    fun configGetString(key: String) = componentRepository.configurationPersistRepo.entity?.getString(key)
-    fun configSetString(key: String, value: String) = componentRepository.configurationPersistRepo.entity?.setString(key, value)
-    fun persistConfiguration() = dbScope.launch {
-        componentRepository.configurationPersistRepo.persistEntity()
-    }*/
-
     val liveComponent
         get() = componentRepository.liveComponent
 
-    // ---------------------------------------------------------------------------
-
+    // -------------------- configuration ----------------------------------------
     val liveConfigInputContext
-        get() = componentRepository.liveConfigInputContext
-
-    fun configGetString(key: String) = componentRepository.configGetString(key)
-    fun configSetString(key: String, value: String) = componentRepository.configSetString(key, value)
-
+        get() = componentRepository.configurationRepository.liveConfigInputContext
+    fun configGetString(key: String) = componentRepository.configurationRepository.getString(key)
+    fun configSetString(key: String, value: String) = componentRepository.configurationRepository.setString(key, value)
     fun persistConfiguration() {
         val componentId = componentRepository.currentComponent?.id ?: return Unit.also {
             l("component in componentRepository is null")
         }
         dbScope.launch {
-            componentRepository.updateConfiguration(componentId)
+            componentRepository.configurationRepository.updateConfiguration(componentId)
         }
     }
-
-    // ---------------------------------------------------------------------------
+    // -------------------- configuration / ------------------------------------
 
     suspend fun prepareComponent() = componentRepository.componentPersistRepo.prepareEntity()
     fun updateComponent(component: Component) {
