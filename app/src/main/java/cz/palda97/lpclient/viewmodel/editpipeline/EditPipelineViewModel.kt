@@ -46,8 +46,9 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         }
 
     fun editComponent(component: Component/*, pipeline: Pipeline*/) {
-        componentRepository.currentComponentId = component.id
+        //componentRepository.currentComponentId = component.id
         //componentRepository.currentPipeline = pipeline
+        componentRepository.currentComponent = component
         retrofitScope.launch {
             componentRepository.cache(component)
         }

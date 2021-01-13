@@ -18,22 +18,41 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    val liveConfigInput
+    /*val liveConfigInput
         get() = componentRepository.liveConfigInput()
     val liveDialogJs
         get() = componentRepository.liveDialogJs()
     val liveBinding
         get() = componentRepository.liveBinding()
 
-    val liveComponent
-        get() = componentRepository.liveComponent
-
     suspend fun prepareConfiguration() = componentRepository.configurationPersistRepo.prepareEntity()
     fun configGetString(key: String) = componentRepository.configurationPersistRepo.entity?.getString(key)
     fun configSetString(key: String, value: String) = componentRepository.configurationPersistRepo.entity?.setString(key, value)
     fun persistConfiguration() = dbScope.launch {
         componentRepository.configurationPersistRepo.persistEntity()
+    }*/
+
+    val liveComponent
+        get() = componentRepository.liveComponent
+
+    // ---------------------------------------------------------------------------
+
+    val liveConfigInputContext
+        get() = componentRepository.liveConfigInputContext
+
+    fun configGetString(key: String) = componentRepository.configGetString(key)
+    fun configSetString(key: String, value: String) = componentRepository.configSetString(key, value)
+
+    fun persistConfiguration() {
+        val componentId = componentRepository.currentComponent?.id ?: return Unit.also {
+            l("component in componentRepository is null")
+        }
+        dbScope.launch {
+            componentRepository.updateConfiguration(componentId)
+        }
     }
+
+    // ---------------------------------------------------------------------------
 
     suspend fun prepareComponent() = componentRepository.componentPersistRepo.prepareEntity()
     fun updateComponent(component: Component) {

@@ -1,6 +1,8 @@
 package cz.palda97.lpclient.model.repository
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.db.dao.PipelineDao
@@ -10,9 +12,11 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
+import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
+import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputContext
+import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 @Suppress("NAME_SHADOWING")
 class ComponentRepository(
@@ -25,11 +29,15 @@ class ComponentRepository(
         NO_CONNECT, INTERNAL_ERROR, SERVER_NOT_FOUND, DOWNLOADING_ERROR, PARSING_ERROR, OK, DOWNLOAD_IN_PROGRESS;
 
         companion object {
-            val String.toStatus
-                get() = try {
-                    valueOf(this)
-                } catch (e: IllegalArgumentException) {
+            val String?.toStatus
+                get() = if (this == null) {
                     INTERNAL_ERROR
+                } else {
+                    try {
+                        valueOf(this)
+                    } catch (e: IllegalArgumentException) {
+                        INTERNAL_ERROR
+                    }
                 }
         }
     }
@@ -296,20 +304,127 @@ class ComponentRepository(
         }
     }
 
-    var currentComponentId = ""
-
-    fun liveConfigInput(componentId: String = currentComponentId) = pipelineDao.liveConfigWithStatus(componentId)
-    fun liveDialogJs(componentId: String = currentComponentId) = pipelineDao.liveDialogJsWithStatus(componentId)
-    fun liveBinding(componentId: String = currentComponentId) = pipelineDao.liveBindingWithStatus(componentId)
+    private var currentComponentId = ""
 
     val liveComponent
         get() = pipelineDao.liveComponentById(currentComponentId)
 
-    private suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
-    private suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
+    private fun liveConfigInput(componentId: String = currentComponentId) = pipelineDao.liveConfigWithStatus(componentId)
+    private fun liveDialogJs(componentId: String = currentComponentId) = pipelineDao.liveDialogJsWithStatus(componentId)
+    private fun liveBinding(componentId: String = currentComponentId) = pipelineDao.liveBindingWithStatus(componentId)
 
-    val configurationPersistRepo = PersistRepository(::currentConfiguration, pipelineDao::insertConfiguration)
-    val componentPersistRepo = PersistRepository(::currentComponent, pipelineDao::insertComponent)
+
+    private suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
+    //private suspend fun currentConfiguration() = pipelineDao.findConfigurationByComponentId(currentComponentId)
+
+    //val configurationPersistRepo = PersistRepository(::currentConfiguration, pipelineDao::insertConfiguration)
+    val componentPersistRepo = PersistRepository<Component>(::currentComponent, pipelineDao::insertComponent)
+
+    // ---------------------------------------------------------------------------
+
+    private var currentConfigurationId = ""
+
+    private fun liveConfiguration(configurationId: String = currentConfigurationId) = pipelineDao.liveConfigurationById(configurationId)
+
+    var currentComponent: Component? = null
+        set(value) {
+            field = value
+            value?.let {
+                currentComponentId = it.id
+                currentConfigurationId = it.configurationId
+            }
+        }
+
+    private val configStorage = object {
+        var lastComponentId = ""
+        var statusConfigInput: StatusWithConfigInput? = null
+        var statusDialogJs: StatusWithDialogJs? = null
+        //var configuration: Configuration? = null
+        val configurationMap = mutableMapOf<String, Configuration>()
+        fun reset(id: String) {
+            lastComponentId = id
+            statusConfigInput = null
+            statusDialogJs = null
+            //configuration = null
+        }
+    }
+
+    private fun getConfigInputMediator() = MediatorLiveData<ConfigInputContext>().also { mediator ->
+
+        fun updateConfigInputMediator() {
+            configStorage.statusDialogJs?.let {
+                if (configStorage.statusConfigInput == null) {
+                    mediator.value = OnlyStatus(it.status.result.toStatus)
+                }
+            }
+            val sConfigInput = configStorage.statusConfigInput ?: return
+            val sConfigInputStatus = sConfigInput.status.result.toStatus
+            if (sConfigInputStatus != StatusCode.OK) {
+                mediator.value = OnlyStatus(sConfigInputStatus)
+                return
+            }
+            val sDialog = configStorage.statusDialogJs ?: return
+            val sDialogStatus = sDialog.status.result.toStatus
+            if (sDialogStatus != StatusCode.OK) {
+                mediator.value = OnlyStatus(sDialogStatus)
+                return
+            }
+            if (sDialog.dialogJs == null) {
+                mediator.value = OnlyStatus(StatusCode.INTERNAL_ERROR)
+                return
+            }
+            //val configuration = configStorage.configuration ?: return
+            mediator.value = ConfigInputComplete(
+                StatusCode.OK,
+                //configuration,
+                sDialog.dialogJs,
+                sConfigInput.list
+            )
+        }
+
+        updateConfigInputMediator()
+
+        mediator.addSource(liveConfigInput()) {
+            if (configStorage.statusConfigInput?.status?.result.toStatus == StatusCode.OK)
+                return@addSource
+            configStorage.statusConfigInput = it ?: return@addSource
+            updateConfigInputMediator()
+        }
+        mediator.addSource(liveDialogJs()) {
+            if (configStorage.statusDialogJs?.status?.result.toStatus == StatusCode.OK)
+                return@addSource
+            configStorage.statusDialogJs = it ?: return@addSource
+            updateConfigInputMediator()
+        }
+        mediator.addSource(liveConfiguration()) {
+            /*if (configStorage.configuration != null)
+                return@addSource
+            configStorage.configuration = it ?: return@addSource*/
+            if (configStorage.configurationMap[currentComponentId] != null)
+                return@addSource
+            configStorage.configurationMap[currentComponentId] = it ?: return@addSource
+            updateConfigInputMediator()
+        }
+    }
+
+    //private val updateConfigurationMutex = Mutex()
+    suspend fun updateConfiguration(componentId: String) /*= updateConfigurationMutex.withLock*/ {
+        val configuration = configStorage.configurationMap[componentId] ?: return//@withLock
+        pipelineDao.insertConfiguration(configuration)
+    }
+
+    val liveConfigInputContext: LiveData<ConfigInputContext>
+        get() = synchronized(this) {
+            if (currentComponentId != configStorage.lastComponentId) {
+                configStorage.reset(currentComponentId)
+            }
+            return@synchronized getConfigInputMediator()
+        }
+
+    fun configGetString(key: String) = configStorage.configurationMap[currentComponentId]?.getString(key)
+    fun configSetString(key: String, value: String) = configStorage.configurationMap[currentComponentId]?.setString(key, value)
+
+    // ---------------------------------------------------------------------------
 
     companion object {
         private val l = Injector.generateLogFunction(this)

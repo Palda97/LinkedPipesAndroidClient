@@ -17,7 +17,9 @@ import cz.palda97.lpclient.model.StatusPackage
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
+import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
+import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
 import kotlinx.coroutines.*
 
 class ConfigurationFragment : Fragment() {
@@ -48,7 +50,7 @@ class ConfigurationFragment : Fragment() {
             ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> getString(R.string.internal_error)
         }
 
-    private val loadingMediator = object {
+    /*private val loadingMediator = object {
         private var configInput: StatusPackage = MailPackage.loading()
         private var jsMap: StatusPackage = MailPackage.loading()
         fun updateConfigInput(status: StatusPackage): StatusPackage {
@@ -67,96 +69,43 @@ class ConfigurationFragment : Fragment() {
                 return MailPackage.loading()
             return MailPackage.ok()
         }
-    }
+    }*/
 
-    private fun showErrorSnackbar(text: String) {
+    /*private fun showErrorSnackbar(text: String) {
         Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
             .show()
-    }
+    }*/
 
     private fun setUpComponents() {
 
-        binding.mail = MailPackage.loading()
-
-        fun setUpConfigInputRecycler(dialogJs: DialogJs) {
+        fun setUpConfigInputRecycler() {
             val adapter = ConfigInputAdapter(
                 requireContext(),
-                dialogJs,
                 { viewModel.configGetString(it) },
                 { key, value -> viewModel.configSetString(key, value) }
             )
             binding.insertConfigInputsHere.adapter = adapter
-            viewModel.liveConfigInput.observe(viewLifecycleOwner, Observer {
-                val statusWithConfigInput = it ?: return@Observer
-                val status = statusWithConfigInput.status.result.toStatus
-                val text = when(status) {
-                    ComponentRepository.StatusCode.OK -> {
-                        adapter.updateConfigInputList(statusWithConfigInput.list)
-                        binding.noInstances = statusWithConfigInput.list.isEmpty()
+            viewModel.liveConfigInputContext.observe(viewLifecycleOwner, Observer {
+                val configContext = it ?: return@Observer
+                val text = when(configContext) {
+                    is OnlyStatus -> configContext.status.errorMessage
+                    is ConfigInputComplete -> {
+                        adapter.updateConfigInputList(configContext)
+                        binding.noInstances = configContext.configInputs.isEmpty()
                         ""
                     }
-                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
-                        ""
-                    }
-                    else -> status.errorMessage
                 }
-                binding.mail = when(status) {
-                    ComponentRepository.StatusCode.OK -> loadingMediator.updateConfigInput(MailPackage.ok())
-                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> loadingMediator.updateConfigInput(MailPackage.loading())
-                    else -> loadingMediator.updateConfigInput(MailPackage.error(text))
+                binding.mail = when(configContext.status) {
+                    ComponentRepository.StatusCode.OK -> MailPackage.ok()
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> MailPackage.loading()
+                    else -> MailPackage.error(text)
                 }
                 binding.executePendingBindings()
             })
             //binding.fastscroll.setRecyclerView(binding.insertConfigInputsHere)
         }
 
-        fun initAdapter(asyncConfiguration: Deferred<Boolean>, dialogJs: DialogJs) = lifecycleScope.launch {
-            val configuration = asyncConfiguration.await()
-            val text = if (!configuration) {
-                "no configuration"
-            } else {
-                ""
-            }
-            l(text)
-            if (text.isNotEmpty()) {
-                return@launch
-            }
-            l("initAdapter ok")
-            setUpConfigInputRecycler(dialogJs)
-        }
-
-        fun setUpDialogJs() {
-            val asyncConfiguration = lifecycleScope.async { viewModel.prepareConfiguration() }
-            viewModel.liveDialogJs.observe(viewLifecycleOwner, Observer {
-                val statusWithDialogJs = it ?: return@Observer
-                val status = statusWithDialogJs.status.result.toStatus
-                val text = when(status) {
-                    ComponentRepository.StatusCode.OK -> {
-                        if (statusWithDialogJs.dialogJs != null) {
-                            initAdapter(asyncConfiguration, statusWithDialogJs.dialogJs)
-                            ""
-                        } else {
-                            ComponentRepository.StatusCode.INTERNAL_ERROR.errorMessage
-                        }
-                    }
-                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
-                        ""
-                    }
-                    else -> status.errorMessage
-                }
-                binding.mail = when(status) {
-                    ComponentRepository.StatusCode.OK -> loadingMediator.updateDialogJs(MailPackage.ok())
-                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> loadingMediator.updateDialogJs(MailPackage.loading())
-                    else -> loadingMediator.updateDialogJs(MailPackage.error())
-                }
-                binding.executePendingBindings()
-                if (text.isNotEmpty()) {
-                    showErrorSnackbar(text)
-                }
-            })
-        }
-
-        setUpDialogJs()
+        setUpConfigInputRecycler()
     }
 
     override fun onPause() {

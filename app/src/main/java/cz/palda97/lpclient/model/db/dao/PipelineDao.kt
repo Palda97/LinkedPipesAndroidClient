@@ -307,4 +307,7 @@ abstract class PipelineDao {
         val component = findComponentById(componentId) ?: return null
         return findConfigurationById(component.configurationId)
     }
+
+    @Query("select * from configuration where id = :configurationId")
+    abstract fun liveConfigurationById(configurationId: String): LiveData<Configuration>
 }

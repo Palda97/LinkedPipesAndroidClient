@@ -11,27 +11,35 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
-import cz.palda97.lpclient.model.entities.pipeline.Configuration
-import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.getLastSelected
+import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 
 class ConfigInputAdapter(
     private val context: Context,
-    private val dialogJs: DialogJs,
     private val configGetString: (String) -> String?,
     private val configSetString: (String, String) -> Unit
 ) : RecyclerView.Adapter<ConfigInputAdapter.ConfigInputViewHolder>(),
     AdapterWithList<ConfigInput> {
 
     private var configInputList: List<ConfigInput> = emptyList()
+    private var configInputComplete: ConfigInputComplete? = null
 
     init {
         //setHasStableIds(true)
     }
 
-    fun updateConfigInputList(newConfigInputList: List<ConfigInput>) {
+    private fun positionToString(position: Int): String? {
+        val dialogJs = configInputComplete?.dialogJs ?: return null
+        val item = configInputList[position]
+        val translated = dialogJs.getFullPropertyName(item.id) ?: item.id
+        return configGetString(translated) ?: ""
+    }
+
+    fun updateConfigInputList(newConfigInputComplete: ConfigInputComplete) {
+        configInputComplete = newConfigInputComplete
+        val newConfigInputList = newConfigInputComplete.configInputs
+
         if (configInputList.isEmpty()) {
             configInputList = newConfigInputList
             l("before notifyItemRangeInserted")
@@ -51,14 +59,19 @@ class ConfigInputAdapter(
                 override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                     val oldItem = configInputList[oldItemPosition]
                     val newItem = newConfigInputList[newItemPosition]
-                    return oldItem == newItem
+                    //return oldItem == newItem
+                    return oldItem.id == newItem.id && oldItem.componentId == newItem.componentId
                 }
 
                 override fun areContentsTheSame(
                     oldItemPosition: Int,
                     newItemPosition: Int
                 ): Boolean {
-                    return areItemsTheSame(oldItemPosition, newItemPosition)
+                    //return areItemsTheSame(oldItemPosition, newItemPosition)
+                    //return false
+                    val oldString = positionToString(oldItemPosition) ?: return false
+                    val newString = positionToString(newItemPosition) ?: return false
+                    return oldString == newString
                 }
             })
             configInputList = newConfigInputList
@@ -83,9 +96,11 @@ class ConfigInputAdapter(
 
     override fun onBindViewHolder(holder: ConfigInputViewHolder, position: Int) {
         val configInput = configInputList[position]
+        val dialogJs = configInputComplete?.dialogJs ?: return
         holder.binding.configInput = configInput
         val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
         val string = configGetString(translated) ?: ""
+        //l("onBindViewHolder configGetString: $string")
         when(configInput.type) {
             ConfigInput.Type.EDIT_TEXT -> {
                 holder.binding.editText.setText(string)
