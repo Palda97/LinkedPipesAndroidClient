@@ -3,13 +3,10 @@ package cz.palda97.lpclient.view
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import com.google.android.material.tabs.TabLayout
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NavUtils
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ActivityEditComponentBinding
@@ -38,10 +35,7 @@ class EditComponentActivity : AppCompatActivity() {
     private fun setUpComponents() {
 
         fun setUpTitle() {
-            viewModel.liveComponent.observe(this, Observer {
-                val text = it?.prefLabel ?: getString(R.string.app_name)
-                binding.title = text
-            })
+            binding.component = viewModel.currentComponent
         }
 
         setUpTitle()

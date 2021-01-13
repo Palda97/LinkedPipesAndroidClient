@@ -11,6 +11,8 @@ import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Compa
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputContext
 import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class ConfigurationRepository(private val pipelineDao: PipelineDao) {
 
@@ -97,8 +99,9 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
         }
     }
 
-    suspend fun updateConfiguration(componentId: String) {
-        val configuration = configStorage.configurationMap[componentId] ?: return
+    private val updateConfigurationMutex = Mutex()
+    suspend fun updateConfiguration(componentId: String) = updateConfigurationMutex.withLock {
+        val configuration = configStorage.configurationMap[componentId] ?: return@withLock
         pipelineDao.insertConfiguration(configuration)
     }
 

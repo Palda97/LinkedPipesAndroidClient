@@ -11,6 +11,8 @@ import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Suppress("NAME_SHADOWING")
 class ComponentRepository(
@@ -298,24 +300,29 @@ class ComponentRepository(
         }
     }
 
-    private var currentComponentId = ""
-
-    val liveComponent
-        get() = pipelineDao.liveComponentById(currentComponentId)
-
-    private suspend fun currentComponent() = pipelineDao.findComponentById(currentComponentId)
-    val componentPersistRepo = PersistRepository<Component>(::currentComponent, pipelineDao::insertComponent)
+    var currentComponentId = ""
+        private set
 
     val configurationRepository = ConfigurationRepository(pipelineDao)
 
-    var currentComponent: Component? = null
+    var currentComponent: Component?
         set(value) {
-            field = value
             configurationRepository.currentComponent = value
             value?.let {
+                if (componentMap[it.id] == null)
+                    componentMap[it.id] = it
                 currentComponentId = it.id
             }
         }
+        get() = componentMap[currentComponentId]
+
+    private val componentMap = mutableMapOf<String, Component>()
+
+    private val updateComponentMutex = Mutex()
+    suspend fun updateComponent(componentId: String) = updateComponentMutex.withLock {
+        val component = componentMap[componentId] ?: return@withLock
+        pipelineDao.insertComponent(component)
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)
