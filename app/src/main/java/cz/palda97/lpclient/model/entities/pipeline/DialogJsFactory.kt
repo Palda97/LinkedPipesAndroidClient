@@ -3,11 +3,11 @@ package cz.palda97.lpclient.model.entities.pipeline
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 
-class DialogJsFactory(private val js: String) {
+class DialogJsFactory(private val js: String, private val componentId: String) {
 
     fun parse(): DialogJs? {
         if (js.isEmpty()) {
-            return DialogJs("", mapOf())
+            return DialogJs("", mapOf(), componentId)
         }
         val json = js
             .substringAfter(CONST_DESC)
@@ -36,7 +36,7 @@ class DialogJsFactory(private val js: String) {
                 }
             }
         }
-        return DialogJs(namespace, map)
+        return DialogJs(namespace, map, componentId)
     }
 
     companion object {

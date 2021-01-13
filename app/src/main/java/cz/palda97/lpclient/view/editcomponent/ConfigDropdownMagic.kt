@@ -2,6 +2,7 @@ package cz.palda97.lpclient.view.editcomponent
 
 import android.content.Context
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 
 object ConfigDropdownMagic {
@@ -14,4 +15,13 @@ object ConfigDropdownMagic {
             onItemClick(position)
         }
     }
+
+    fun MaterialAutoCompleteTextView.getLastSelected(): String? {
+        val adapter = adapter ?: return null.also { l("no adapter") }
+        val smartArrayAdapter = adapter as? SmartArrayAdapter ?: return null.also { l("is not smart array adapter") }
+        val id = smartArrayAdapter.lastSelectedItemId
+        return id
+    }
+
+    private val l = Injector.generateLogFunction("ConfigDropdownMagic")
 }

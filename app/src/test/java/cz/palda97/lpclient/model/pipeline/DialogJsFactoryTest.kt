@@ -9,7 +9,7 @@ class DialogJsFactoryTest {
 
     @Test
     fun parseHttpGet() {
-        val dialogJs = DialogJsFactory(HTTP_GET).parse()
+        val dialogJs = DialogJsFactory(HTTP_GET, COMPONENT_ID).parse()
         assertNotNull(dialogJs)
         val expectedMap = mapOf(
             "fileName" to "fileName",
@@ -26,11 +26,13 @@ class DialogJsFactoryTest {
 
     @Test
     fun parseTabular() {
-        val dialogJs = DialogJsFactory(TABULAR_UV).parse()
+        val dialogJs = DialogJsFactory(TABULAR_UV, COMPONENT_ID).parse()
         assertNotNull(dialogJs)
     }
 
     companion object {
+
+        private const val COMPONENT_ID = "http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9"
 
         private const val TABULAR_UV = "define([\"jsonld\"], function (jsonld) {\n" +
                 "    \"use strict\";\n" +

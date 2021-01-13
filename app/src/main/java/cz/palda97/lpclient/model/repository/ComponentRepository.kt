@@ -1,10 +1,9 @@
 package cz.palda97.lpclient.model.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.content.SharedPreferences
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
-import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.db.dao.PipelineDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.server.ServerInstance
@@ -12,19 +11,44 @@ import cz.palda97.lpclient.model.network.ComponentRetrofit
 import cz.palda97.lpclient.model.network.ComponentRetrofit.Companion.componentRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
+@Suppress("NAME_SHADOWING")
 class ComponentRepository(
-    private val serverDao: ServerInstanceDao
+    private val serverDao: ServerInstanceDao,
+    private val pipelineDao: PipelineDao,
+    private val sharedPreferences: SharedPreferences
 ) {
 
-    /*private val currentServerId: Long?
-        get() = Injector.pipelineRepository.currentPipeline.value?.mailContent?.pipelineView?.serverId*/
-
-    private var currentServerId: Long? = null
-
     enum class StatusCode {
-        NO_CONNECT, INTERNAL_ERROR, SERVER_NOT_FOUND, DOWNLOADING_ERROR, PARSING_ERROR, OK
+        NO_CONNECT, INTERNAL_ERROR, SERVER_NOT_FOUND, DOWNLOADING_ERROR, PARSING_ERROR, OK, DOWNLOAD_IN_PROGRESS;
+
+        companion object {
+            val String?.toStatus
+                get() = if (this == null) {
+                    INTERNAL_ERROR
+                } else {
+                    try {
+                        valueOf(this)
+                    } catch (e: IllegalArgumentException) {
+                        INTERNAL_ERROR
+                    }
+                }
+        }
     }
+
+    private tailrec suspend fun Component.getRootTemplateId(): String {
+        val template = pipelineDao.findTemplateById(templateId) ?: return templateId
+        return Component(0, 0, template).getRootTemplateId()
+    }
+
+    /*private tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
+        val template = templates.find {
+            it.id == templateId
+        } ?: return templateId
+        return Component(0, 0, template).getRootTemplateId(templates)
+    }*/
 
     private suspend fun getComponentRetrofit(server: ServerInstance): Either<StatusCode, ComponentRetrofit> =
         try {
@@ -34,189 +58,55 @@ class ComponentRepository(
             Either.Left(StatusCode.NO_CONNECT)
         }
 
-    private suspend fun getComponentRetrofit(component: Component): Either<StatusCode, ComponentRetrofit> {
-        val id = currentServerId ?: return Either.Left(StatusCode.INTERNAL_ERROR)
-        val server = serverDao.findById(id) ?: return Either.Left(StatusCode.SERVER_NOT_FOUND)
+    private suspend fun getComponentRetrofit(): Either<StatusCode, ComponentRetrofit> {
+        val serverId = sharedPreferences.getLong(PipelineRepository.PIPELINE_SERVER_ID, 0)
+        val server = serverDao.findById(serverId) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
         return getComponentRetrofit(server)
     }
 
-    /*private val currentPipeline: Pipeline?
-        get() = Injector.pipelineRepository.currentPipeline.value?.mailContent.also {
-            if (it == null)
-                l("currentPipeline is null")
-        }*/
-    private var currentPipeline: Pipeline? = null
-        get() = field.also {
-            if (it == null)
-                l("currentPipeline is null")
-        }
-
-    private suspend fun downloadDialog(component: Component): Either<StatusCode, List<ConfigInput>> {
-        val retrofit = when (val res = getComponentRetrofit(component)) {
+    private suspend fun downloadConfigInputs(
+        component: Component,
+        retrofit: ComponentRetrofit? = null
+    ): Either<StatusCode, List<ConfigInput>> {
+        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val templateId = component.getRootTemplateId()
         val call = retrofit.dialog(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
-        val factory = ConfigInputFactory(text)
+        val factory = ConfigInputFactory(text, component.id)
         val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
         return Either.Right(list)
     }
 
-    private val configInputMap: MutableMap<String, List<ConfigInput>> = HashMap()
-
-    private suspend fun cacheConfigInput(component: Component): StatusCode {
-        if (configInputMap.contains(component.id)) {
-            return StatusCode.OK
-        }
-        val list = when (val res = downloadDialog(component)) {
-            is Either.Left -> return res.value
-            is Either.Right -> res.value
-        }
-        configInputMap[component.id] = list
-        return StatusCode.OK
-    }
-
-    suspend fun cache(components: List<Component>, server: Long, pipeline: Pipeline) {
-        currentServerId = server
-        currentPipeline = pipeline
-        cacheConfigInput(components)
-        cacheJsMap(components)
-        cacheBindings(components)
-    }
-
-    private suspend fun cacheConfigInput(components: List<Component>) = coroutineScope {
-        configInputMap.clear()
-        val jobs = components.map {
-            async {
-                it.id to cacheConfigInput(it)
-            }
-        }
-        jobs.forEach {
-            val (componentId, status) = it.await()
-            if (status != StatusCode.OK) {
-                val template = Injector.pipelineRepository.currentPipeline.value?.mailContent?.components?.find { it.id == componentId }?.templateId
-                l("cacheConfigInput $status: $componentId\n$template")
-            }
-        }
-    }
-
-    var currentComponentId: String? = null
-
-    private val mutConfigInput: MutableLiveData<MailPackage<Either<StatusCode, List<ConfigInput>>>> =
-        MutableLiveData()
-    val liveConfigInput: LiveData<MailPackage<Either<StatusCode, List<ConfigInput>>>>
-        get() = mutConfigInput
-
-    private val retrofitScope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.IO)
-
-    fun prepare(component: Component, pipeline: Pipeline) {
-        currentPipeline = pipeline
-        prepareConfigInput(component)
-        prepareJsMap(component)
-        prepareBindings(component)
-    }
-
-    private fun prepareConfigInput(component: Component) {
-        mutConfigInput.value = MailPackage.loadingPackage()
-        retrofitScope.launch {
-            val status = cacheConfigInput(component)
-            val either: Either<StatusCode, List<ConfigInput>> = if (status == StatusCode.OK) {
-                configInputMap[component.id]?.let {
-                    Either.Right<StatusCode, List<ConfigInput>>(it)
-                } ?: Either.Left(StatusCode.INTERNAL_ERROR)
-            } else {
-                Either.Left(status)
-            }
-            mutConfigInput.postValue(MailPackage(either))
-        }
-    }
-
-    private suspend fun downloadDialogJs(component: Component): Either<StatusCode, DialogJs> {
-        val retrofit = when (val res = getComponentRetrofit(component)) {
+    private suspend fun downloadDialogJs(
+        component: Component,
+        retrofit: ComponentRetrofit? = null
+    ): Either<StatusCode, DialogJs> {
+        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val templateId = component.getRootTemplateId()
         val call = retrofit.dialogJs(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
-        val factory = DialogJsFactory(text)
+        val factory = DialogJsFactory(text, component.id)
         val list = factory.parse() ?: return Either.Left(StatusCode.PARSING_ERROR)
         return Either.Right(list)
     }
 
-    private val jsMapMap: MutableMap<String, DialogJs> = HashMap()
-
-    private suspend fun cacheJsMap(component: Component): StatusCode {
-        if (jsMapMap.contains(component.id)) {
-            return StatusCode.OK
-        }
-        val jsMap = when (val res = downloadDialogJs(component)) {
-            is Either.Left -> return res.value
-            is Either.Right -> res.value
-        }
-        jsMapMap[component.id] = jsMap
-        return StatusCode.OK
-    }
-
-    private suspend fun cacheJsMap(components: List<Component>) = coroutineScope {
-        jsMapMap.clear()
-        val jobs = components.map {
-            async {
-                it.id to cacheJsMap(it)
-            }
-        }
-        jobs.forEach {
-            val (componentId, status) = it.await()
-            if (status != StatusCode.OK) {
-                val template = Injector.pipelineRepository.currentPipeline.value?.mailContent?.components?.find { it.id == componentId }?.templateId
-                l("cacheJsMap $status: $componentId\n$template")
-            }
-        }
-    }
-
-    private val mutJsMap: MutableLiveData<MailPackage<Either<StatusCode, DialogJs>>> =
-        MutableLiveData()
-    val liveJsMap: LiveData<MailPackage<Either<StatusCode, DialogJs>>>
-        get() = mutJsMap
-
-    private fun prepareJsMap(component: Component) {
-        mutJsMap.value = MailPackage.loadingPackage()
-        retrofitScope.launch {
-            val status = cacheJsMap(component)
-            val either: Either<StatusCode, DialogJs> = if (status == StatusCode.OK) {
-                jsMapMap[component.id]?.let {
-                    Either.Right<StatusCode, DialogJs>(it)
-                } ?: Either.Left(StatusCode.INTERNAL_ERROR)
-            } else {
-                Either.Left(status)
-            }
-            mutJsMap.postValue(MailPackage(either))
-        }
-    }
-
-    private fun Component.getRootTemplate(pipeline: Pipeline?): String? {
-        if (pipeline == null)
-            return null
-        tailrec fun Component.rec(pipeline: Pipeline): String {
-            val template = pipeline.templates.find {
-                it.id == templateId
-            } ?: return templateId
-            return Component(0, 0, template).rec(pipeline)
-        }
-        return rec(pipeline)
-    }
-
-    private suspend fun downloadBindings(component: Component): Either<StatusCode, List<Binding>> {
-        val retrofit = when (val res = getComponentRetrofit(component)) {
+    private suspend fun downloadBindings(
+        component: Component,
+        retrofit: ComponentRetrofit? = null
+    ): Either<StatusCode, List<Binding>> {
+        val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplate(currentPipeline) ?: return Either.Left(StatusCode.INTERNAL_ERROR)
+        val templateId = component.getRootTemplateId()
         val call = retrofit.bindings(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
@@ -225,54 +115,213 @@ class ComponentRepository(
         return Either.Right(list)
     }
 
-    private val bindingMap: MutableMap<String, List<Binding>> = HashMap()
-
-    private suspend fun cacheBindings(component: Component): StatusCode {
-        if (bindingMap.contains(component.id)) {
-            return StatusCode.OK
-        }
-        val list = when (val res = downloadBindings(component)) {
-            is Either.Left -> return res.value
-            is Either.Right -> res.value
-        }
-        bindingMap[component.id] = list
-        return StatusCode.OK
-    }
-
-    private suspend fun cacheBindings(components: List<Component>) = coroutineScope {
-        bindingMap.clear()
+    private suspend fun downloadConfigInputs(
+        components: List<Component>,
+        retrofit: ComponentRetrofit? = null
+    ) = coroutineScope<List<Pair<Component, Either<StatusCode, List<ConfigInput>>>>> {
         val jobs = components.map {
             async {
-                it.id to cacheBindings(it)
+                it to downloadConfigInputs(it, retrofit)
             }
         }
-        jobs.forEach {
-            val (componentId, status) = it.await()
-            if (status != StatusCode.OK) {
-                val template = Injector.pipelineRepository.currentPipeline.value?.mailContent?.components?.find { it.id == componentId }?.templateId
-                l("cacheBindings $status: $componentId\n$template")
-            }
+        jobs.map {
+            it.await()
         }
     }
 
-    private val mutBindings: MutableLiveData<MailPackage<Either<StatusCode, List<Binding>>>> =
-        MutableLiveData()
-    val liveBindings: LiveData<MailPackage<Either<StatusCode, List<Binding>>>>
-        get() = mutBindings
-
-    private fun prepareBindings(component: Component) {
-        mutBindings.value = MailPackage.loadingPackage()
-        retrofitScope.launch {
-            val status = cacheBindings(component)
-            val either: Either<StatusCode, List<Binding>> = if (status == StatusCode.OK) {
-                bindingMap[component.id]?.let {
-                    Either.Right<StatusCode, List<Binding>>(it)
-                } ?: Either.Left(StatusCode.INTERNAL_ERROR)
-            } else {
-                Either.Left(status)
+    private suspend fun downloadDialogJs(
+        components: List<Component>,
+        retrofit: ComponentRetrofit? = null
+    ) = coroutineScope<List<Pair<Component, Either<StatusCode, DialogJs>>>> {
+        val jobs = components.map {
+            async {
+                it to downloadDialogJs(it, retrofit)
             }
-            mutBindings.postValue(MailPackage(either))
         }
+        jobs.map {
+            it.await()
+        }
+    }
+
+    private suspend fun downloadBindings(
+        components: List<Component>,
+        retrofit: ComponentRetrofit? = null
+    ) = coroutineScope<List<Pair<Component, Either<StatusCode, List<Binding>>>>> {
+        val jobs = components.map {
+            async {
+                it to downloadBindings(it, retrofit)
+            }
+        }
+        jobs.map {
+            it.await()
+        }
+    }
+
+    private suspend fun persistStatus(status: ConfigDownloadStatus) {
+        pipelineDao.insertStatus(status)
+    }
+
+    private suspend fun persistStatus(list: List<ConfigDownloadStatus>) {
+        pipelineDao.insertStatus(list)
+    }
+
+    private suspend fun persistConfigInput(list: List<ConfigInput>) {
+        pipelineDao.insertConfigInput(list)
+    }
+
+    private suspend fun cacheConfigInput(component: Component) {
+        val type = ConfigDownloadStatus.TYPE_CONFIG_INPUT
+        persistStatus(ConfigDownloadStatus(component.id, type, StatusCode.DOWNLOAD_IN_PROGRESS))
+        val status = ConfigDownloadStatus(component.id, type, when(val res = downloadConfigInputs(component)) {
+            is Either.Left -> res.value
+            is Either.Right -> {
+                persistConfigInput(res.value)
+                StatusCode.OK
+            }
+        })
+        persistStatus(status)
+    }
+
+    private suspend fun cacheConfigInput(components: List<Component>) {
+        val type = ConfigDownloadStatus.TYPE_CONFIG_INPUT
+        persistStatus(components.map {
+            ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
+        })
+        val list = downloadConfigInputs(components)
+        val statuses = list.map {
+            val (component, either) = it
+            ConfigDownloadStatus(component.id, type, when(either) {
+                is Either.Left -> either.value
+                is Either.Right -> {
+                    persistConfigInput(either.value)
+                    StatusCode.OK
+                }
+            })
+        }
+        persistStatus(statuses)
+    }
+
+    private suspend fun persistDialogJs(dialogJs: DialogJs) {
+        pipelineDao.insertDialogJs(dialogJs)
+    }
+
+    private suspend fun cacheDialogJs(component: Component) {
+        val type = ConfigDownloadStatus.TYPE_DIALOG_JS
+        persistStatus(ConfigDownloadStatus(component.id, type, StatusCode.DOWNLOAD_IN_PROGRESS))
+        val status = ConfigDownloadStatus(component.id, type, when(val res = downloadDialogJs(component)) {
+            is Either.Left -> res.value
+            is Either.Right -> {
+                persistDialogJs(res.value)
+                StatusCode.OK
+            }
+        })
+        persistStatus(status)
+    }
+
+    private suspend fun cacheDialogJs(components: List<Component>) {
+        val type = ConfigDownloadStatus.TYPE_DIALOG_JS
+        persistStatus(components.map {
+            ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
+        })
+        val list = downloadDialogJs(components)
+        val statuses = list.map {
+            val (component, either) = it
+            ConfigDownloadStatus(component.id, type, when(either) {
+                is Either.Left -> either.value
+                is Either.Right -> {
+                    persistDialogJs(either.value)
+                    StatusCode.OK
+                }
+            })
+        }
+        persistStatus(statuses)
+    }
+
+    private suspend fun persistBinding(list: List<Binding>) {
+        pipelineDao.insertBinding(list)
+    }
+
+    private suspend fun cacheBinding(component: Component) {
+        val type = ConfigDownloadStatus.TYPE_BINDING
+        persistStatus(ConfigDownloadStatus(component.id, type, StatusCode.DOWNLOAD_IN_PROGRESS))
+        val status = ConfigDownloadStatus(component.id, type, when(val res = downloadBindings(component)) {
+            is Either.Left -> res.value
+            is Either.Right -> {
+                persistBinding(res.value)
+                StatusCode.OK
+            }
+        })
+        persistStatus(status)
+    }
+
+    private suspend fun cacheBinding(components: List<Component>) {
+        val type = ConfigDownloadStatus.TYPE_BINDING
+        persistStatus(components.map {
+            ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
+        })
+        val list = downloadBindings(components)
+        val statuses = list.map {
+            val (component, either) = it
+            ConfigDownloadStatus(component.id, type, when(either) {
+                is Either.Left -> either.value
+                is Either.Right -> {
+                    persistBinding(either.value)
+                    StatusCode.OK
+                }
+            })
+        }
+        persistStatus(statuses)
+    }
+
+    suspend fun cache(components: List<Component>) = coroutineScope {
+        val list = listOf(
+            async { cacheConfigInput(components) },
+            async { cacheDialogJs(components) },
+            async { cacheBinding(components) }
+        )
+        list.forEach {
+            it.await()
+        }
+    }
+
+    suspend fun cache(component: Component) = coroutineScope {
+        val statusConfigInput = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
+        val statusDialogJs = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
+        val statusBinding = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
+        val list = mutableListOf<Deferred<Unit>>()
+        if (statusConfigInput == null || (statusConfigInput.result != StatusCode.OK.name && statusConfigInput.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+            list.add(async { cacheConfigInput(component) })
+        if (statusDialogJs == null || (statusDialogJs.result != StatusCode.OK.name && statusDialogJs.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+            list.add(async { cacheDialogJs(component) })
+        if (statusBinding == null || (statusBinding.result != StatusCode.OK.name && statusBinding.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+            list.add(async { cacheBinding(component) })
+        list.forEach {
+            it.await()
+        }
+    }
+
+    var currentComponentId = ""
+        private set
+
+    val configurationRepository = ConfigurationRepository(pipelineDao)
+
+    var currentComponent: Component?
+        set(value) {
+            configurationRepository.currentComponent = value
+            value?.let {
+                if (componentMap[it.id] == null)
+                    componentMap[it.id] = it
+                currentComponentId = it.id
+            }
+        }
+        get() = componentMap[currentComponentId]
+
+    private val componentMap = mutableMapOf<String, Component>()
+
+    private val updateComponentMutex = Mutex()
+    suspend fun updateComponent(componentId: String) = updateComponentMutex.withLock {
+        val component = componentMap[componentId] ?: return@withLock
+        pipelineDao.insertComponent(component)
     }
 
     companion object {

@@ -5,11 +5,11 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
-class ConfigInputFactory(private val html: String) {
+class ConfigInputFactory(private val html: String, private val componentId: String) {
 
     fun parse(): List<ConfigInput>? {
         val doc = Jsoup.parse(html) ?: return null
-        doc.getElementsByTag("md-tabs").remove()
+        doc.getElementsByTag(MD_TABS).remove()
         val switches = parseSwitches(doc)
         val nonSwitches = parseContainers(doc)
         if (switches == null || nonSwitches == null) {
@@ -51,10 +51,10 @@ class ConfigInputFactory(private val html: String) {
             val input = inputs[0]
             val id = input.attr(NG_MODEL).removeSurrounding(ID_PREFIX, ID_SUFFIX)
             when(val tag = input.tag().name) {
-                INPUT -> ConfigInput(label, ConfigInput.Type.EDIT_TEXT, id)
-                MD_SELECT -> ConfigInput(label, ConfigInput.Type.DROPDOWN, id, parseOptions(input))
-                LP_YASQE -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id)
-                TEXTAREA -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id)
+                INPUT -> ConfigInput(label, ConfigInput.Type.EDIT_TEXT, id, componentId)
+                MD_SELECT -> ConfigInput(label, ConfigInput.Type.DROPDOWN, id, componentId, parseOptions(input))
+                LP_YASQE -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id, componentId)
+                TEXTAREA -> ConfigInput(label, ConfigInput.Type.TEXT_AREA, id, componentId)
                 else -> return null//.also { println("else: $tag") }
             }
         }
@@ -65,7 +65,7 @@ class ConfigInputFactory(private val html: String) {
         return switches.map {
             val id = it.attr(NG_MODEL).removeSurrounding(ID_PREFIX, ID_SUFFIX)
             val label = it.ownText()
-            ConfigInput(label, ConfigInput.Type.SWITCH, id)
+            ConfigInput(label, ConfigInput.Type.SWITCH, id, componentId)
         }
     }
 
@@ -83,5 +83,6 @@ class ConfigInputFactory(private val html: String) {
         private const val VALUE = "value"
         private const val LP_YASQE = "lp-yasqe"
         private const val TEXTAREA = "textarea"
+        private const val MD_TABS = "md-tabs"
     }
 }

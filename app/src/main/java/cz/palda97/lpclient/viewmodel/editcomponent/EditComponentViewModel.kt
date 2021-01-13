@@ -3,45 +3,51 @@ package cz.palda97.lpclient.viewmodel.editcomponent
 import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
-import cz.palda97.lpclient.model.Either
-import cz.palda97.lpclient.model.MailPackage
-import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class EditComponentViewModel(application: Application) : AndroidViewModel(application) {
 
     private val componentRepository: ComponentRepository = Injector.componentRepository
-    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    //private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
 
-    private val retrofitScope: CoroutineScope
+    private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    val liveConfigInput: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<ConfigInput>>>>
-        get() = componentRepository.liveConfigInput
-
-    private val componentId: String?
-        get() = componentRepository.currentComponentId
-
-    val currentComponent: Component?
-        get() = pipelineRepository.currentPipeline.value?.mailContent?.components?.find {
-            it.id == componentId
+    // -------------------- configuration ----------------------------------------
+    val liveConfigInputContext
+        get() = componentRepository.configurationRepository.liveConfigInputContext
+    fun configGetString(key: String) = componentRepository.configurationRepository.getString(key)
+    fun configSetString(key: String, value: String) = componentRepository.configurationRepository.setString(key, value)
+    fun persistConfiguration() {
+        val componentId = componentRepository.currentComponentId
+        if (componentId.isEmpty()) {
+            l("persistConfiguration componentId.isEmpty()")
+            return
         }
-
-    private val configurationId: String?
-        get() = currentComponent?.configurationId
-
-    val currentConfiguration: Configuration? = pipelineRepository.currentPipeline.value?.mailContent?.configurations?.find {
-        configurationId == it.id
+        dbScope.launch {
+            componentRepository.configurationRepository.updateConfiguration(componentId)
+        }
     }
+    // -------------------- configuration / ------------------------------------
 
-    val liveJsMap: LiveData<MailPackage<Either<ComponentRepository.StatusCode, DialogJs>>>
-        get() = componentRepository.liveJsMap
-
-    val liveBindings: LiveData<MailPackage<Either<ComponentRepository.StatusCode, List<Binding>>>>
-        get() = componentRepository.liveBindings
+    // -------------------- component ------------------------------------------
+    val currentComponent
+        get() = componentRepository.currentComponent
+    fun persistComponent() {
+        val componentId = componentRepository.currentComponentId
+        if (componentId.isEmpty()) {
+            l("persistComponent componentId.isEmpty()")
+            return
+        }
+        dbScope.launch {
+            componentRepository.updateComponent(componentId)
+        }
+    }
+    // -------------------- component / ----------------------------------------
 
     companion object {
         private val l = Injector.generateLogFunction(this)

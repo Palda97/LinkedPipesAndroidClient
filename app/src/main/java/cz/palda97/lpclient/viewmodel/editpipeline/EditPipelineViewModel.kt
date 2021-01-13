@@ -21,10 +21,12 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         get() = CoroutineScope(Dispatchers.IO)
 
     val currentPipeline: LiveData<MailPackage<Pipeline>>
-        get() = pipelineRepository.currentPipeline
+        get() = pipelineRepository.livePipeline
 
     fun savePipeline(pipeline: Pipeline) {
-        pipelineRepository.savePipeline(pipeline, false)
+        retrofitScope.launch {
+            pipelineRepository.savePipeline(pipeline, false)
+        }
     }
 
     fun retryCachePipeline() {
@@ -43,9 +45,13 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
             scroll = value
         }
 
-    fun editComponent(component: Component, pipeline: Pipeline) {
-        componentRepository.currentComponentId = component.id
-        componentRepository.prepare(component, pipeline)
+    fun editComponent(component: Component/*, pipeline: Pipeline*/) {
+        //componentRepository.currentComponentId = component.id
+        //componentRepository.currentPipeline = pipeline
+        componentRepository.currentComponent = component
+        retrofitScope.launch {
+            componentRepository.cache(component)
+        }
     }
 
     companion object {

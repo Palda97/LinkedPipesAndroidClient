@@ -1,9 +1,13 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Template(
     val configurationId: String,
     val templateId: String,
     val prefLabel: String,
     val description: String?,
-    val id: String
+    @PrimaryKey(autoGenerate = false) val id: String
 )

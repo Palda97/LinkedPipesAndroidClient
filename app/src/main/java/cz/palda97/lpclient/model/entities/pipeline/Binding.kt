@@ -1,11 +1,15 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Binding(
     val componentId: String,
     val type: Type,
     val bindingValue: String,
     val prefLabel: String,
-    val id: String
+    @PrimaryKey(autoGenerate = false) val id: String
 ) {
     enum class Type {
         CONFIGURATION, INPUT, OUTPUT

@@ -182,9 +182,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun editPipeline(pipelineView: PipelineView) {
-        retrofitScope.launch {
-            pipelineRepository.cachePipeline(pipelineView)
-        }
+        pipelineRepository.cachePipelineInit(pipelineView)
         EditPipelineViewModel.scroll = true
     }
 

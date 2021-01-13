@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="title"
-            type="String" />
+            name="component"
+            type="cz.palda97.lpclient.model.entities.pipeline.Component" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -27,7 +27,7 @@
                 android:padding="@dimen/appbar_padding"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="@{title}"
+                android:text="@{component.prefLabel}"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
 
             <com.google.android.material.tabs.TabLayout

@@ -9,17 +9,12 @@ import androidx.fragment.app.Fragment
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditComponentGeneralBinding
-import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
-import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
 class GeneralFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentGeneralBinding
     private lateinit var viewModel: EditComponentViewModel
-    private lateinit var editPipelineViewModel: EditPipelineViewModel
-
-    private var currentComponent: Component? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,19 +24,17 @@ class GeneralFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_component_general, container, false)
         val root = binding.root
         viewModel = EditComponentViewModel.getInstance(this)
-        editPipelineViewModel = EditPipelineViewModel.getInstance(this)
-        //setUpComponents()
+        setUpComponents()
         return root
     }
 
     private fun setUpComponents() {
-        binding.component = currentComponent
+        binding.component = viewModel.currentComponent
     }
 
-    override fun onResume() {
-        super.onResume()
-        currentComponent = viewModel.currentComponent
-        setUpComponents()
+    override fun onPause() {
+        viewModel.persistComponent()
+        super.onPause()
     }
 
     companion object {
