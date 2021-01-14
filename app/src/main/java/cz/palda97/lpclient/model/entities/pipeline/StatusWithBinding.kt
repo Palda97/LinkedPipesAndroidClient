@@ -7,7 +7,7 @@ data class StatusWithBinding (
     @Embedded val status: ConfigDownloadStatus,
     @Relation(
         parentColumn = "componentId",
-        entityColumn = "componentId"
+        entityColumn = "templateId"
     )
     val list: List<Binding>
 )

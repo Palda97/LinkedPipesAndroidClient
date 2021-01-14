@@ -95,8 +95,8 @@ abstract class PipelineDao {
     @Query("select * from dialogjs where componentId = :componentId")
     abstract fun liveDialogJs(componentId: String): LiveData<List<DialogJs>>
 
-    @Query("select * from binding where componentId = :componentId")
-    abstract fun liveBinding(componentId: String): LiveData<List<Binding>>
+    @Query("select * from binding where templateId = :templateId")
+    abstract fun liveBinding(templateId: String): LiveData<List<Binding>>
 
     @Transaction
     @Query("select * from configdownloadstatus where componentId = :componentId and type = ${ConfigDownloadStatus.TYPE_CONFIG_INPUT}")
@@ -107,8 +107,8 @@ abstract class PipelineDao {
     abstract fun liveDialogJsWithStatus(componentId: String): LiveData<StatusWithDialogJs>
 
     @Transaction
-    @Query("select * from configdownloadstatus where componentId = :componentId and type = ${ConfigDownloadStatus.TYPE_BINDING}")
-    abstract fun liveBindingWithStatus(componentId: String): LiveData<StatusWithBinding>
+    @Query("select * from configdownloadstatus where componentId = :templateId and type = ${ConfigDownloadStatus.TYPE_BINDING}")
+    abstract fun liveBindingWithStatus(templateId: String): LiveData<StatusWithBinding>
 
     //Delete
 

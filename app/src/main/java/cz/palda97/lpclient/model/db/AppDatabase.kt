@@ -17,7 +17,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 @Database(
     entities = [ServerInstance::class, PipelineView::class, Execution::class, MarkForDeletion::class,
         Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

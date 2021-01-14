@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Binding(
-    val componentId: String,
+    val templateId: String,
     val type: Type,
     val bindingValue: String,
     val prefLabel: String,

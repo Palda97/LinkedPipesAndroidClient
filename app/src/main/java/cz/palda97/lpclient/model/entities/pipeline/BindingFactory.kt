@@ -15,7 +15,7 @@ class BindingFactory(private val json: String) {
             return null
         }
         val rootMap = rootArrayList[0]
-        val componentId = CommonFunctions.giveMeThatId(rootMap) ?: return null
+        val templateId = CommonFunctions.giveMeThatId(rootMap) ?: return null
         val semiRootElement = CommonFunctions.prepareSemiRootElement(rootMap) ?: return null
         val bindingList: MutableList<Binding> = mutableListOf()
         semiRootElement.forEach {
@@ -25,7 +25,7 @@ class BindingFactory(private val json: String) {
                     LdConstants.TYPE_RUNTIME_CONFIGURATION
                 )
             ) {
-                val binding = parseBinding(map, componentId, types) ?: return null
+                val binding = parseBinding(map, templateId, types) ?: return null
                 bindingList.add(binding)
             }
         }
@@ -58,7 +58,7 @@ class BindingFactory(private val json: String) {
             null
         }
 
-    private fun parseBinding(map: Map<*, *>, componentId: String, types: List<String>): Binding? {
+    private fun parseBinding(map: Map<*, *>, templateId: String, types: List<String>): Binding? {
         val type = typesToType(types) ?: return null
         val id = CommonFunctions.giveMeThatId(map) ?: return null
         val bindingValue =
@@ -67,6 +67,6 @@ class BindingFactory(private val json: String) {
         val prefLabel =
             CommonFunctions.giveMeThatString(map, LdConstants.PREF_LABEL, LdConstants.VALUE)
                 ?: return null
-        return Binding(componentId, type, bindingValue, prefLabel, id)
+        return Binding(templateId, type, bindingValue, prefLabel, id)
     }
 }

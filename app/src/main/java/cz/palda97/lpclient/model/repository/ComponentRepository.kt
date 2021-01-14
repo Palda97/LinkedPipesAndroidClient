@@ -99,14 +99,14 @@ class ComponentRepository(
     }
 
     private suspend fun downloadBindings(
-        component: Component,
+        templateId: String,
         retrofit: ComponentRetrofit? = null
     ): Either<StatusCode, List<Binding>> {
         val retrofit = retrofit ?: when (val res = getComponentRetrofit()) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplateId()
+        //val templateId = component.getRootTemplateId()
         val call = retrofit.bindings(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
@@ -144,9 +144,9 @@ class ComponentRepository(
     }
 
     private suspend fun downloadBindings(
-        components: List<Component>,
+        components: List<String>,
         retrofit: ComponentRetrofit? = null
-    ) = coroutineScope<List<Pair<Component, Either<StatusCode, List<Binding>>>>> {
+    ) = coroutineScope<List<Pair<String, Either<StatusCode, List<Binding>>>>> {
         val jobs = components.map {
             async {
                 it to downloadBindings(it, retrofit)
@@ -242,9 +242,10 @@ class ComponentRepository(
     }
 
     private suspend fun cacheBinding(component: Component) {
+        val templateId = component.getRootTemplateId()
         val type = ConfigDownloadStatus.TYPE_BINDING
-        persistStatus(ConfigDownloadStatus(component.id, type, StatusCode.DOWNLOAD_IN_PROGRESS))
-        val status = ConfigDownloadStatus(component.id, type, when(val res = downloadBindings(component)) {
+        persistStatus(ConfigDownloadStatus(templateId, type, StatusCode.DOWNLOAD_IN_PROGRESS))
+        val status = ConfigDownloadStatus(templateId, type, when(val res = downloadBindings(templateId)) {
             is Either.Left -> res.value
             is Either.Right -> {
                 persistBinding(res.value)
@@ -255,14 +256,19 @@ class ComponentRepository(
     }
 
     private suspend fun cacheBinding(components: List<Component>) {
+
+        val templateIds = components.map {
+            it.getRootTemplateId()
+        }.distinct()
+
         val type = ConfigDownloadStatus.TYPE_BINDING
-        persistStatus(components.map {
-            ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
+        persistStatus(templateIds.map {
+            ConfigDownloadStatus(it, type, StatusCode.DOWNLOAD_IN_PROGRESS)
         })
-        val list = downloadBindings(components)
+        val list = downloadBindings(templateIds)
         val statuses = list.map {
-            val (component, either) = it
-            ConfigDownloadStatus(component.id, type, when(either) {
+            val (templateId, either) = it
+            ConfigDownloadStatus(templateId, type, when(either) {
                 is Either.Left -> either.value
                 is Either.Right -> {
                     persistBinding(either.value)
