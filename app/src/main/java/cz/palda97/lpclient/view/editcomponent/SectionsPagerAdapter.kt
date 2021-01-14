@@ -17,8 +17,8 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
 
     override fun getItem(position: Int): Fragment = when(position) {
         0 -> ConfigurationFragment.getInstance()
-        1 -> GeneralFragment.getInstance()
-        else -> ConfigurationFragment.getInstance()
+        2 -> BindingFragment.getInstance()
+        else -> GeneralFragment.getInstance()
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
