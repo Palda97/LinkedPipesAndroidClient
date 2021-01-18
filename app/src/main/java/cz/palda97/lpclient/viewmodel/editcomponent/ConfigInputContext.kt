@@ -1,8 +1,6 @@
 package cz.palda97.lpclient.viewmodel.editcomponent
 
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
-import cz.palda97.lpclient.model.entities.pipeline.Configuration
-import cz.palda97.lpclient.model.entities.pipeline.DialogJs
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 
 sealed class ConfigInputContext {
@@ -15,4 +13,9 @@ data class ConfigInputComplete(
     //val configuration: Configuration,
     val dialogJs: DialogJs,
     val configInputs: List<ConfigInput>
+): ConfigInputContext()
+data class BindingComplete(
+    override val status: ComponentRepository.StatusCode,
+    val bindings: List<Binding>,
+    val connections: List<Connection>
 ): ConfigInputContext()

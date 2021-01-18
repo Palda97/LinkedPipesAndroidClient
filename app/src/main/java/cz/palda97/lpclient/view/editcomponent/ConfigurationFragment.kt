@@ -67,6 +67,7 @@ class ConfigurationFragment : Fragment() {
                         binding.noInstances = configContext.configInputs.isEmpty()
                         ""
                     }
+                    else -> ComponentRepository.StatusCode.INTERNAL_ERROR.errorMessage
                 }
                 binding.mail = when(configContext.status) {
                     ComponentRepository.StatusCode.OK -> MailPackage.ok()
