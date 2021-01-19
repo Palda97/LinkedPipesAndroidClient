@@ -310,4 +310,10 @@ abstract class PipelineDao {
 
     @Query("select * from configuration where id = :configurationId")
     abstract fun liveConfigurationById(configurationId: String): LiveData<Configuration>
+
+    @Query("select * from connection where targetComponentId = :componentId")
+    abstract fun liveInputConnectionsByComponentId(componentId: String): LiveData<List<Connection>>
+
+    @Query("select * from connection where sourceComponentId = :componentId")
+    abstract fun liveOutputConnectionsByComponentId(componentId: String): LiveData<List<Connection>>
 }

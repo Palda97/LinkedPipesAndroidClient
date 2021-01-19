@@ -3,6 +3,7 @@ package cz.palda97.lpclient.viewmodel.editcomponent
 import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.entities.pipeline.Connection
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +49,21 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
         }
     }
     // -------------------- component / ----------------------------------------
+
+    // -------------------- binding --------------------------------------------
+    val liveBinding
+        get() = componentRepository.bindingRepository.liveBindings()
+    val liveInputConnectionContext
+        get() = componentRepository.bindingRepository.liveInputContext
+    val liveOutputConnectionContext
+        get() = componentRepository.bindingRepository.liveOutputContext
+    fun saveConnection(connection: Connection) = dbScope.launch {
+        componentRepository.persistConnection(connection)
+    }
+    fun deleteConnection(connection: Connection) = dbScope.launch {
+        componentRepository.deleteConnection(connection)
+    }
+    // -------------------- binding / ------------------------------------------
 
     companion object {
         private val l = Injector.generateLogFunction(this)

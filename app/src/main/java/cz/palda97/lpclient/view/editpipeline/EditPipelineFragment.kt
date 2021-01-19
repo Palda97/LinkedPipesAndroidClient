@@ -160,10 +160,10 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun editComponent(component: Component) {
-        /*val pipeline = currentPipeline ?: return Unit.also {
+        val pipeline = currentPipeline ?: return Unit.also {
             Toast.makeText(requireContext(), R.string.internal_error, Toast.LENGTH_SHORT).show()
-        }*/
-        viewModel.editComponent(component)
+        }
+        viewModel.editComponent(component, pipeline.templates)
         EditComponentActivity.start(requireContext())
     }
 

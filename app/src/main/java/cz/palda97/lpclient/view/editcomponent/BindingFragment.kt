@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditComponentBindingBinding
+import cz.palda97.lpclient.model.entities.pipeline.Connection
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
 class BindingFragment : Fragment() {
@@ -31,13 +32,36 @@ class BindingFragment : Fragment() {
 
     private fun setUpComponents() {
 
-        //
+        fun setUpButtons() {
+            viewModel.liveBinding.observe(viewLifecycleOwner, Observer {
+                val statusWithBinding = it ?: return@Observer
+            })
+        }
+
+        fun setUpInputConnections() {
+            viewModel.liveInputConnectionContext.observe(viewLifecycleOwner, Observer {
+                val context = it ?: return@Observer
+            })
+        }
+
+        fun setUpOutputConnections() {
+            viewModel.liveOutputConnectionContext.observe(viewLifecycleOwner, Observer {
+                val context = it ?: return@Observer
+            })
+        }
+
+        setUpButtons()
+        setUpInputConnections()
+        setUpOutputConnections()
     }
 
-    /*override fun onPause() {
-        viewModel.persistBinding()
-        super.onPause()
-    }*/
+    private fun saveConnection(connection: Connection) {
+        viewModel.saveConnection(connection)
+    }
+
+    private fun deleteConnection(connection: Connection) {
+        viewModel.deleteConnection(connection)
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

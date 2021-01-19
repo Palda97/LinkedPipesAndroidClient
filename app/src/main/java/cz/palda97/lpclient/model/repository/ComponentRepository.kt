@@ -43,12 +43,12 @@ class ComponentRepository(
         return Component(0, 0, template).getRootTemplateId()
     }
 
-    /*private tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
+    private tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
         val template = templates.find {
             it.id == templateId
         } ?: return templateId
         return Component(0, 0, template).getRootTemplateId(templates)
-    }*/
+    }
 
     private suspend fun getComponentRetrofit(server: ServerInstance): Either<StatusCode, ComponentRetrofit> =
         try {
@@ -311,9 +311,18 @@ class ComponentRepository(
 
     val configurationRepository = ConfigurationRepository(pipelineDao)
 
+    var currentTemplateId = ""
+        private set
+
+    fun setImportantIds(component: Component, templates: List<Template>) {
+        currentComponent = component
+        currentTemplateId = component.getRootTemplateId(templates)
+        configurationRepository.currentComponent = component
+        bindingRepository.setImportantIds(currentComponentId, currentTemplateId)
+    }
+
     var currentComponent: Component?
-        set(value) {
-            configurationRepository.currentComponent = value
+        private set(value) {
             value?.let {
                 if (componentMap[it.id] == null)
                     componentMap[it.id] = it
@@ -328,6 +337,16 @@ class ComponentRepository(
     suspend fun updateComponent(componentId: String) = updateComponentMutex.withLock {
         val component = componentMap[componentId] ?: return@withLock
         pipelineDao.insertComponent(component)
+    }
+
+    val bindingRepository = BindingRepository(pipelineDao)
+
+    suspend fun persistConnection(connection: Connection) {
+        pipelineDao.insertConnection(connection)
+    }
+
+    suspend fun deleteConnection(connection: Connection) {
+        pipelineDao.deleteConnection(connection)
     }
 
     companion object {
