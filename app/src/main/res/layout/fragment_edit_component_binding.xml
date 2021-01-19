@@ -1,15 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
-        <!-- -->
+        <import type="android.view.View" />
+
+        <variable
+            name="bindingMail"
+            type="cz.palda97.lpclient.model.MailPackage" />
+
+        <variable
+            name="bindingNoInstances"
+            type="Boolean" />
+
+        <variable
+            name="inputMail"
+            type="cz.palda97.lpclient.model.MailPackage" />
+
+        <variable
+            name="inputNoInstances"
+            type="Boolean" />
+
+        <variable
+            name="outputMail"
+            type="cz.palda97.lpclient.model.MailPackage" />
+
+        <variable
+            name="outputNoInstances"
+            type="Boolean" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         android:orientation="vertical">
 
         <ScrollView
@@ -22,6 +46,75 @@
                 style="@style/do_not_auto_focus_child_components"
                 android:orientation="vertical">
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{bindingMail.ok ? View.VISIBLE : View.GONE}">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/insert_bindings_here"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="@{bindingNoInstances ? View.GONE : View.VISIBLE}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/there_are_no_bindings"
+                        android:visibility="@{bindingNoInstances ? View.VISIBLE : View.GONE}" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{inputMail.ok ? View.VISIBLE : View.GONE}">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/insert_input_connections_here"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="@{inputNoInstances ? View.GONE : View.VISIBLE}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/there_are_no_inputs"
+                        android:visibility="@{inputNoInstances ? View.VISIBLE : View.GONE}" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/output" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{outputMail.ok ? View.VISIBLE : View.GONE}">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/insert_output_connections_here"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="@{outputNoInstances ? View.GONE : View.VISIBLE}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/there_are_no_outputs"
+                        android:visibility="@{outputNoInstances ? View.VISIBLE : View.GONE}" />
+                </RelativeLayout>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

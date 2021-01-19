@@ -75,4 +75,9 @@
     <string name="label">Label</string>
     <string name="description">Description</string>
     <string name="no_configuration">There is no configuration.</string>
+    <string name="input">INPUT</string>
+    <string name="output">OUTPUT</string>
+    <string name="there_are_no_bindings">There are no bindings.</string>
+    <string name="there_are_no_inputs">There are no inputs.</string>
+    <string name="there_are_no_outputs">There are no outputs.</string>
 </resources>
