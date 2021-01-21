@@ -11,6 +11,9 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 object RecyclerViewCosmetics {
 
+    const val LEFT = ItemTouchHelper.LEFT
+    const val RIGHT = ItemTouchHelper.RIGHT
+
     /**
      * Adds divider between list items and adds swipe to delete functionality with red color and bin icon
      */
@@ -19,7 +22,8 @@ object RecyclerViewCosmetics {
         adapterWithList: AdapterWithList<itemType>,
         deleteFunction: (itemType) -> Unit,
         context: Context,
-        dividers: Boolean = true
+        dividers: Boolean = true,
+        swipeDirection: Int = LEFT + RIGHT
     ) {
         attachAdapter(
             recyclerView,
@@ -29,7 +33,8 @@ object RecyclerViewCosmetics {
             recyclerView,
             { adapterWithList.getList() },
             deleteFunction,
-            context
+            context,
+            swipeDirection
         )
         if (dividers)
             addDividers(recyclerView, context)
@@ -46,11 +51,12 @@ object RecyclerViewCosmetics {
         recyclerView: RecyclerView,
         getList: () -> List<itemType>?,
         deleteFunction: (itemType) -> Unit,
-        context: Context
+        context: Context,
+        swipeDir: Int
     ) {
         val itemTouchHelper =
             ItemTouchHelper(object :
-                ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT + ItemTouchHelper.RIGHT) {
+                ItemTouchHelper.SimpleCallback(0, swipeDir) {
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
