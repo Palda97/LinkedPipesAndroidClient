@@ -338,9 +338,11 @@ class ComponentRepository(
         pipelineDao.insertConnection(connection)
     }
 
-    suspend fun deleteConnection(connection: Connection) {
-        pipelineDao.deleteConnectionWithVertexes(connection)
+    suspend fun persistVertexes(list: List<Vertex>) {
+        pipelineDao.insertVertex(list)
     }
+
+    suspend fun deleteConnection(connection: Connection) = pipelineDao.deleteConnectionWithVertexes(connection)
 
     companion object {
         private val l = Injector.generateLogFunction(this)

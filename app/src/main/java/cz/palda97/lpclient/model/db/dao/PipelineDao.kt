@@ -300,10 +300,15 @@ abstract class PipelineDao {
     @Query("delete from vertex where id in (:ids)")
     abstract suspend fun deleteVertexes(ids: List<String>)
 
+    @Query("select * from vertex where id in (:ids)")
+    abstract suspend fun findVertexesByConnectionIds(ids: List<String>): List<Vertex>
+
     @Transaction
-    open suspend fun deleteConnectionWithVertexes(connection: Connection) {
+    open suspend fun deleteConnectionWithVertexes(connection: Connection): List<Vertex> {
+        val vertexes = findVertexesByConnectionIds(connection.vertexIds)
         deleteVertexes(connection.vertexIds)
         deleteConnection(connection)
+        return vertexes
     }
 
     //Find

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditComponentBindingBinding
@@ -76,7 +77,8 @@ class BindingFragment : Fragment() {
                 adapter,
                 ::deleteConnection,
                 requireContext(),
-                false
+                false,
+                RecyclerViewCosmetics.LEFT
             )
             viewModel.liveInputConnectionV.observe(viewLifecycleOwner, Observer {
                 val context = it ?: return@Observer
@@ -105,14 +107,14 @@ class BindingFragment : Fragment() {
                 adapter,
                 ::deleteConnection,
                 requireContext(),
-                false
+                false,
+                RecyclerViewCosmetics.LEFT
             )
             viewModel.liveOutputConnectionV.observe(viewLifecycleOwner, Observer {
                 val context = it ?: return@Observer
                 val text = when(context) {
                     is OnlyStatus -> context.status.errorMessage
                     is ConnectionV -> {
-                        //logConnections(context.connections)
                         adapter.updateConnectionList(context.connections)
                         binding.outputNoInstances = context.connections.isEmpty()
                         ""
@@ -150,7 +152,19 @@ class BindingFragment : Fragment() {
     }
 
     private fun deleteConnection(pair: Pair<Connection, ConnectionV.ConnectionItem>) {
-        viewModel.deleteConnection(pair.first)
+        val job = viewModel.deleteConnection(pair.first)
+        job.invokeOnCompletion {
+            if (it != null) {
+                return@invokeOnCompletion
+            }
+            Snackbar.make(
+                binding.root,
+                "${getString(R.string.connection_with)} ${pair.second.component} ${getString(R.string.has_been_deleted)}",
+                Snackbar.LENGTH_LONG
+            ).setAction(getString(R.string.undo)) {
+                viewModel.undoLastDeleted()
+            }.show()
+        }
     }
 
     companion object {

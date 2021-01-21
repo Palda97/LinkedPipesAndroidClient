@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.entities.pipeline.Connection
+import cz.palda97.lpclient.model.entities.pipeline.Vertex
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.Companion.getRootTemplateId
 import kotlinx.coroutines.CoroutineScope
@@ -56,8 +57,19 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     fun saveConnection(connection: Connection) = dbScope.launch {
         componentRepository.persistConnection(connection)
     }
+
+    var lastDeletedConnection: Connection? = null
+    var lastDeletedVertexes: List<Vertex>? = null
     fun deleteConnection(connection: Connection) = dbScope.launch {
-        componentRepository.deleteConnection(connection)
+        lastDeletedConnection = connection
+        lastDeletedVertexes = componentRepository.deleteConnection(connection)
+    }
+
+    fun undoLastDeleted() = dbScope.launch {
+        val connection = lastDeletedConnection ?: return@launch
+        val vertexes = lastDeletedVertexes ?: return@launch
+        componentRepository.persistConnection(connection)
+        componentRepository.persistVertexes(vertexes)
     }
 
     private data class Labels(val component: String, val distant: String, val own: String)

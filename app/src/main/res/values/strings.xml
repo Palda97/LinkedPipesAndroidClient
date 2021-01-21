@@ -34,7 +34,7 @@
     <string name="night_mode_system">System default</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="no_camera_permission">App does not have the permission to use camera</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="low_storage_error">Not enough storage!</string>
     <string name="server_not_parsed">Server instance could not be parsed!</string>
     <string name="ping_of">Ping of</string>
@@ -82,4 +82,5 @@
     <string name="there_are_no_outputs">There are no outputs.</string>
     <string name="error_while_parsing_bindings">Error while parsing bindings!</string>
     <string name="error_while_downloading_component_bindings">Error while downloading component bindings!</string>
+    <string name="connection_with">Connection with</string>
 </resources>
