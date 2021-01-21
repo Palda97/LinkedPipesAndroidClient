@@ -80,4 +80,6 @@
     <string name="there_are_no_bindings">There are no bindings.</string>
     <string name="there_are_no_inputs">There are no inputs.</string>
     <string name="there_are_no_outputs">There are no outputs.</string>
+    <string name="error_while_parsing_bindings">Error while parsing bindings!</string>
+    <string name="error_while_downloading_component_bindings">Error while downloading component bindings!</string>
 </resources>

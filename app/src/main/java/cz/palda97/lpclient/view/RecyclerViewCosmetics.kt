@@ -18,7 +18,8 @@ object RecyclerViewCosmetics {
         recyclerView: RecyclerView,
         adapterWithList: AdapterWithList<itemType>,
         deleteFunction: (itemType) -> Unit,
-        context: Context
+        context: Context,
+        dividers: Boolean = true
     ) {
         attachAdapter(
             recyclerView,
@@ -30,7 +31,8 @@ object RecyclerViewCosmetics {
             deleteFunction,
             context
         )
-        addDividers(recyclerView, context)
+        if (dividers)
+            addDividers(recyclerView, context)
     }
 
     fun attachAdapter(

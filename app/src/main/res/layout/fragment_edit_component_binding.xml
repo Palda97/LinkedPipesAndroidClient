@@ -43,18 +43,18 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/do_not_auto_focus_child_components"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:visibility="@{bindingMail.ok ? View.VISIBLE : View.GONE}">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/insert_bindings_here"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="@{bindingNoInstances ? View.GONE : View.VISIBLE}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -73,13 +73,14 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:visibility="@{inputMail.ok ? View.VISIBLE : View.GONE}">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/insert_input_connections_here"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="@{inputNoInstances ? View.GONE : View.VISIBLE}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -98,13 +99,14 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:visibility="@{outputMail.ok ? View.VISIBLE : View.GONE}">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/insert_output_connections_here"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="@{outputNoInstances ? View.GONE : View.VISIBLE}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 

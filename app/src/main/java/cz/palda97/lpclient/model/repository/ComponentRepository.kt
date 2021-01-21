@@ -43,13 +43,6 @@ class ComponentRepository(
         return Component(0, 0, template).getRootTemplateId()
     }
 
-    private tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
-        val template = templates.find {
-            it.id == templateId
-        } ?: return templateId
-        return Component(0, 0, template).getRootTemplateId(templates)
-    }
-
     private suspend fun getComponentRetrofit(server: ServerInstance): Either<StatusCode, ComponentRetrofit> =
         try {
             Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).componentRetrofit)
@@ -351,5 +344,12 @@ class ComponentRepository(
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
+            val template = templates.find {
+                it.id == templateId
+            } ?: return templateId
+            return Component(0, 0, template).getRootTemplateId(templates)
+        }
     }
 }

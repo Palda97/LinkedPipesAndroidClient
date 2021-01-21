@@ -16,11 +16,14 @@ class BindingRepository(private val pipelineDao: PipelineDao) {
 
     private fun liveInputConnections() = pipelineDao.liveInputConnectionsByComponentId(currentComponentId)
     private fun liveOutputConnections() = pipelineDao.liveOutputConnectionsByComponentId(currentComponentId)
+    private fun liveComponents() = pipelineDao.liveComponent()
     fun liveBindings() = pipelineDao.liveBindingWithStatus(currentTemplateId)
+    private fun liveOtherBindings() = pipelineDao.liveBindingWithStatus()
+    private fun liveTemplates() = pipelineDao.liveTemplate()
 
     fun setImportantIds(componentId: String, templateId: String) {
         currentComponentId = componentId
-        currentTemplateId = currentTemplateId
+        currentTemplateId = templateId
     }
 
     private val storage = object {
@@ -28,11 +31,17 @@ class BindingRepository(private val pipelineDao: PipelineDao) {
         var statusBinding: StatusWithBinding? = null
         var inputConnection: List<Connection>? = null
         var outputConnection: List<Connection>? = null
+        var components: List<Component>? = null
+        var templates: List<Template>? = null
+        var otherBindings: List<StatusWithBinding>? = null
         private fun reset(id: String) {
             lastComponentId = id
             statusBinding = null
             inputConnection = null
             outputConnection = null
+            components = null
+            templates = null
+            otherBindings = null
         }
         fun resetMaybe() {
             if (currentComponentId != lastComponentId) {
@@ -51,42 +60,66 @@ class BindingRepository(private val pipelineDao: PipelineDao) {
         return statusWithBinding to status
     }
 
+    private fun mediatorSources(mediator: MediatorLiveData<ConfigInputContext>, updateMediator: () -> Unit) {
+        mediator.addSource(liveBindings()) {
+            storage.statusBinding = it ?: return@addSource
+            updateMediator()
+        }
+        mediator.addSource(liveComponents()) {
+            storage.components = it ?: return@addSource
+            updateMediator()
+        }
+        mediator.addSource(liveTemplates()) {
+            storage.templates = it ?: return@addSource
+            updateMediator()
+        }
+        mediator.addSource(liveOtherBindings()) {
+            storage.otherBindings = it ?: return@addSource
+            updateMediator()
+        }
+    }
+
+    private enum class Direction {
+        INPUT, OUTPUT
+    }
+
+    private fun generateUpdateMediatorFun(mediator: MediatorLiveData<ConfigInputContext>, direction: Direction): () -> Unit = fun() {
+        val (statusWithBinding, status) = checkForBinding(mediator) ?: return
+        val connections = if (direction == Direction.INPUT) {
+            storage.inputConnection
+        } else {
+            storage.outputConnection
+        } ?: return
+        val components = storage.components ?: return
+        val templates = storage.templates ?: return
+        val otherBindings = storage.otherBindings ?: return
+        mediator.value = BindingComplete(status, statusWithBinding.list, connections, components, templates, otherBindings)
+    }
+
     private fun getInputBindingMediator() = MediatorLiveData<ConfigInputContext>().also { mediator ->
 
-        fun updateMediator() {
-            val (statusWithBinding, status) = checkForBinding(mediator) ?: return
-            val connections = storage.inputConnection ?: return
-            mediator.value = BindingComplete(status, statusWithBinding.list, connections)
-        }
+        val updateMediator = generateUpdateMediatorFun(mediator, Direction.INPUT)
 
         updateMediator()
 
+        mediatorSources(mediator, updateMediator)
+
         mediator.addSource(liveInputConnections()) {
             storage.inputConnection = it ?: return@addSource
-            updateMediator()
-        }
-        mediator.addSource(liveBindings()) {
-            storage.statusBinding = it ?: return@addSource
             updateMediator()
         }
     }
 
     private fun getOutputBindingMediator() = MediatorLiveData<ConfigInputContext>().also { mediator ->
 
-        fun updateMediator() {
-            val (statusWithBinding, status) = checkForBinding(mediator) ?: return
-            val connections = storage.outputConnection ?: return
-            mediator.value = BindingComplete(status, statusWithBinding.list, connections)
-        }
+        val updateMediator = generateUpdateMediatorFun(mediator, Direction.OUTPUT)
 
         updateMediator()
 
+        mediatorSources(mediator, updateMediator)
+
         mediator.addSource(liveOutputConnections()) {
             storage.outputConnection = it ?: return@addSource
-            updateMediator()
-        }
-        mediator.addSource(liveBindings()) {
-            storage.statusBinding = it ?: return@addSource
             updateMediator()
         }
     }

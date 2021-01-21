@@ -10,8 +10,13 @@ import androidx.lifecycle.Observer
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditComponentBindingBinding
+import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.entities.pipeline.Binding
 import cz.palda97.lpclient.model.entities.pipeline.Connection
-import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
+import cz.palda97.lpclient.model.repository.ComponentRepository
+import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
+import cz.palda97.lpclient.view.RecyclerViewCosmetics
+import cz.palda97.lpclient.viewmodel.editcomponent.*
 
 class BindingFragment : Fragment() {
 
@@ -30,23 +35,96 @@ class BindingFragment : Fragment() {
         return root
     }
 
+    private val ComponentRepository.StatusCode.errorMessage: String
+        get() = when(this) {
+            ComponentRepository.StatusCode.NO_CONNECT -> getString(R.string.can_not_connect_to_server)
+            ComponentRepository.StatusCode.INTERNAL_ERROR -> getString(R.string.internal_error)
+            ComponentRepository.StatusCode.SERVER_NOT_FOUND -> getString(R.string.server_instance_no_longer_registered)
+            ComponentRepository.StatusCode.DOWNLOADING_ERROR -> getString(R.string.error_while_downloading_component_bindings)
+            ComponentRepository.StatusCode.PARSING_ERROR -> getString(R.string.error_while_parsing_bindings)
+            ComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
+            ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> getString(R.string.internal_error)
+        }
+
     private fun setUpComponents() {
 
         fun setUpButtons() {
+            val adapter = BindingAdapter(::addConnection)
+            binding.insertBindingsHere.adapter = adapter
             viewModel.liveBinding.observe(viewLifecycleOwner, Observer {
                 val statusWithBinding = it ?: return@Observer
+                val status = statusWithBinding.status.result.toStatus
+                binding.bindingMail = when(status) {
+                    ComponentRepository.StatusCode.OK -> {
+                        adapter.updateBindingList(statusWithBinding.list)
+                        binding.bindingNoInstances = statusWithBinding.list.isEmpty()
+                        MailPackage.ok()
+                    }
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> {
+                        MailPackage.loading()
+                    }
+                    else -> MailPackage.error(status.errorMessage)
+                }
+                binding.executePendingBindings()
             })
         }
 
         fun setUpInputConnections() {
-            viewModel.liveInputConnectionContext.observe(viewLifecycleOwner, Observer {
+            val adapter = ConnectionAdapter(ConnectionAdapter.Direction.INPUT)
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertInputConnectionsHere,
+                adapter,
+                ::deleteConnection,
+                requireContext(),
+                false
+            )
+            viewModel.liveInputConnectionV.observe(viewLifecycleOwner, Observer {
                 val context = it ?: return@Observer
+                val text = when(context) {
+                    is OnlyStatus -> context.status.errorMessage
+                    is ConnectionV -> {
+                        adapter.updateConnectionList(context.connections)
+                        binding.inputNoInstances = context.connections.isEmpty()
+                        ""
+                    }
+                    else -> ComponentRepository.StatusCode.INTERNAL_ERROR.errorMessage
+                }
+                binding.inputMail = when(context.status) {
+                    ComponentRepository.StatusCode.OK -> MailPackage.ok()
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> MailPackage.loading()
+                    else -> MailPackage.error(text)
+                }
+                binding.executePendingBindings()
             })
         }
 
         fun setUpOutputConnections() {
-            viewModel.liveOutputConnectionContext.observe(viewLifecycleOwner, Observer {
+            val adapter = ConnectionAdapter(ConnectionAdapter.Direction.OUTPUT)
+            RecyclerViewCosmetics.makeItAllWork(
+                binding.insertOutputConnectionsHere,
+                adapter,
+                ::deleteConnection,
+                requireContext(),
+                false
+            )
+            viewModel.liveOutputConnectionV.observe(viewLifecycleOwner, Observer {
                 val context = it ?: return@Observer
+                val text = when(context) {
+                    is OnlyStatus -> context.status.errorMessage
+                    is ConnectionV -> {
+                        //logConnections(context.connections)
+                        adapter.updateConnectionList(context.connections)
+                        binding.outputNoInstances = context.connections.isEmpty()
+                        ""
+                    }
+                    else -> ComponentRepository.StatusCode.INTERNAL_ERROR.errorMessage
+                }
+                binding.outputMail = when(context.status) {
+                    ComponentRepository.StatusCode.OK -> MailPackage.ok()
+                    ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> MailPackage.loading()
+                    else -> MailPackage.error(text)
+                }
+                binding.executePendingBindings()
             })
         }
 
@@ -55,12 +133,24 @@ class BindingFragment : Fragment() {
         setUpOutputConnections()
     }
 
+    private fun logConnections(list: List<Pair<Connection, ConnectionV.ConnectionItem>>) {
+        l("---------------------------------------------------------------------------")
+        list.forEach {
+            l(it.second)
+        }
+        l("---------------------------------------------------------------------------")
+    }
+
+    private fun addConnection(binding: Binding) {
+        TODO()
+    }
+
     private fun saveConnection(connection: Connection) {
         viewModel.saveConnection(connection)
     }
 
-    private fun deleteConnection(connection: Connection) {
-        viewModel.deleteConnection(connection)
+    private fun deleteConnection(pair: Pair<Connection, ConnectionV.ConnectionItem>) {
+        viewModel.deleteConnection(pair.first)
     }
 
     companion object {

@@ -110,6 +110,18 @@ abstract class PipelineDao {
     @Query("select * from configdownloadstatus where componentId = :templateId and type = ${ConfigDownloadStatus.TYPE_BINDING}")
     abstract fun liveBindingWithStatus(templateId: String): LiveData<StatusWithBinding>
 
+    @Transaction
+    @Query("select * from configdownloadstatus where type = ${ConfigDownloadStatus.TYPE_CONFIG_INPUT}")
+    abstract fun liveConfigWithStatus(): LiveData<List<StatusWithConfigInput>>
+
+    @Transaction
+    @Query("select * from configdownloadstatus where type = ${ConfigDownloadStatus.TYPE_DIALOG_JS}")
+    abstract fun liveDialogJsWithStatus(): LiveData<List<StatusWithDialogJs>>
+
+    @Transaction
+    @Query("select * from configdownloadstatus where type = ${ConfigDownloadStatus.TYPE_BINDING}")
+    abstract fun liveBindingWithStatus(): LiveData<List<StatusWithBinding>>
+
     //Delete
 
     @Delete
