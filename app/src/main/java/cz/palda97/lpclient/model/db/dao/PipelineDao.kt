@@ -297,6 +297,15 @@ abstract class PipelineDao {
         return mediator
     }
 
+    @Query("delete from vertex where id in (:ids)")
+    abstract suspend fun deleteVertexes(ids: List<String>)
+
+    @Transaction
+    open suspend fun deleteConnectionWithVertexes(connection: Connection) {
+        deleteVertexes(connection.vertexIds)
+        deleteConnection(connection)
+    }
+
     //Find
 
     @Query("select * from template where id = :id")

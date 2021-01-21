@@ -339,7 +339,7 @@ class ComponentRepository(
     }
 
     suspend fun deleteConnection(connection: Connection) {
-        pipelineDao.deleteConnection(connection)
+        pipelineDao.deleteConnectionWithVertexes(connection)
     }
 
     companion object {
