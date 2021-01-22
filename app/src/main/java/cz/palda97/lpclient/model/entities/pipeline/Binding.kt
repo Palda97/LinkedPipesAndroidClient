@@ -11,7 +11,9 @@ data class Binding(
     val prefLabel: String,
     @PrimaryKey(autoGenerate = false) val id: String
 ) {
-    enum class Type {
-        CONFIGURATION, INPUT, OUTPUT
+    enum class Type(val side: Int) {
+        CONFIGURATION(0), INPUT(0), OUTPUT(1)
     }
+
+    infix fun isSameSideAs(binding: Binding) = type.side == binding.type.side
 }
