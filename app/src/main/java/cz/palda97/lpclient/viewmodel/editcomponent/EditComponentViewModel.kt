@@ -118,6 +118,8 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
                 val targetBinding = labels.own
 
                 connection to ConnectionV.ConnectionItem(componentPrefLabel, sourceBinding, targetBinding)
+            }.sortedBy {
+                it.second.component
             }
 
             ConnectionV(configInputContext.status, connections)
@@ -142,6 +144,8 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
                 val targetBinding = labels.distant
 
                 connection to ConnectionV.ConnectionItem(componentPrefLabel, sourceBinding, targetBinding)
+            }.sortedBy {
+                it.second.component
             }
 
             ConnectionV(configInputContext.status, connections)
