@@ -4,12 +4,10 @@ import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.IdGenerator
-import cz.palda97.lpclient.model.entities.pipeline.Binding
-import cz.palda97.lpclient.model.entities.pipeline.Component
-import cz.palda97.lpclient.model.entities.pipeline.Connection
-import cz.palda97.lpclient.model.entities.pipeline.Vertex
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.Companion.getRootTemplateId
+import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -163,7 +161,14 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     }
 
     val connectionBindings
-        get() = componentRepository.connectionDialogRepository.liveBinding
+        get() = componentRepository.connectionDialogRepository.liveBinding.map {
+            if (it.status.result.toStatus != ComponentRepository.StatusCode.OK)
+                return@map it
+            val ownBinding = componentRepository.connectionDialogRepository.currentBinding
+            return@map StatusWithBinding(it.status, it.list.filter {
+                !(ownBinding isSameSideAs it)
+            })
+        }
 
     val connectionComponents
         get() = componentRepository.connectionDialogRepository.liveComponents
