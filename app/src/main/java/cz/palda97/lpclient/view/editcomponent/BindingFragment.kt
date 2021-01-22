@@ -144,11 +144,8 @@ class BindingFragment : Fragment() {
     }
 
     private fun addConnection(binding: Binding) {
-        TODO()
-    }
-
-    private fun saveConnection(connection: Connection) {
-        viewModel.saveConnection(connection)
+        viewModel.addConnectionButton(binding)
+        CreateConnectionDialog.appear(parentFragmentManager)
     }
 
     private fun deleteConnection(pair: Pair<Connection, ConnectionV.ConnectionItem>) {

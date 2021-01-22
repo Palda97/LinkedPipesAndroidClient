@@ -143,7 +143,10 @@ class PipelineRepository(
         }
     }
 
+    var currentPipelineId = ""
+
     fun cachePipelineInit(pipelineView: PipelineView) {
+        currentPipelineId = pipelineView.id
         desyncLivePipeline()
         retrofitScope.launch {
             cachePipeline(pipelineView, false)

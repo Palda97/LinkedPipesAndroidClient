@@ -3,10 +3,14 @@ package cz.palda97.lpclient.viewmodel.editcomponent
 import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.IdGenerator
+import cz.palda97.lpclient.model.entities.pipeline.Binding
+import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Connection
 import cz.palda97.lpclient.model.entities.pipeline.Vertex
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.Companion.getRootTemplateId
+import cz.palda97.lpclient.model.repository.PipelineRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,7 +18,7 @@ import kotlinx.coroutines.launch
 class EditComponentViewModel(application: Application) : AndroidViewModel(application) {
 
     private val componentRepository: ComponentRepository = Injector.componentRepository
-    //private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
 
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -54,9 +58,6 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     // -------------------- binding --------------------------------------------
     val liveBinding
         get() = componentRepository.bindingRepository.liveBindings()
-    fun saveConnection(connection: Connection) = dbScope.launch {
-        componentRepository.persistConnection(connection)
-    }
 
     var lastDeletedConnection: Connection? = null
     var lastDeletedVertexes: List<Vertex>? = null
@@ -146,6 +147,38 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
             ConnectionV(configInputContext.status, connections)
         }
     // -------------------- binding / ------------------------------------------
+
+    // -------------------- create connection dialog -----------------------------
+    fun addConnectionButton(binding: Binding) {
+        componentRepository.connectionDialogRepository.currentBinding = binding
+        componentRepository.connectionDialogRepository.resetTemplateForBindings()
+    }
+
+    fun prepareBindings(component: Component) = dbScope.launch {
+        componentRepository.connectionDialogRepository.setTemplateForBindings(component)
+    }
+
+    val connectionBindings
+        get() = componentRepository.connectionDialogRepository.liveBinding
+
+    val connectionComponents
+        get() = componentRepository.connectionDialogRepository.liveComponents
+
+    fun saveConnection(component: Component, binding: Binding) {
+        val ownBinding = componentRepository.connectionDialogRepository.currentBinding
+        val ownComponentId = componentRepository.currentComponentId
+        val ownBindingValue = ownBinding.bindingValue
+        val pipelineId = pipelineRepository.currentPipelineId
+        val newId = IdGenerator.connectionId(pipelineId)
+        val connection = when(ownBinding.type) {
+            Binding.Type.OUTPUT -> Connection(ownBindingValue, ownComponentId, binding.bindingValue, component.id, emptyList(), newId)
+            else -> Connection(binding.bindingValue, component.id, ownBindingValue, ownComponentId, emptyList(), newId)
+        }
+        dbScope.launch {
+            componentRepository.persistConnection(connection)
+        }
+    }
+    // -------------------- create connection dialog / ---------------------------
 
     companion object {
         private val l = Injector.generateLogFunction(this)

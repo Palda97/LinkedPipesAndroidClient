@@ -86,4 +86,5 @@
     <string name="create_connection">Create connection</string>
     <string name="component">Component</string>
     <string name="binding">Binding</string>
+    <string name="select_both_component_and_binding">You have to select both component and binding!</string>
 </resources>

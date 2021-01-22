@@ -342,4 +342,7 @@ abstract class PipelineDao {
 
     @Query("select * from connection where sourceComponentId = :componentId")
     abstract fun liveOutputConnectionsByComponentId(componentId: String): LiveData<List<Connection>>
+
+    @Query("select * from component where id != :componentId")
+    abstract fun liveComponentExceptThisOne(componentId: String): LiveData<List<Component>>
 }

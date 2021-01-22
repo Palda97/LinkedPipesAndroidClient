@@ -38,11 +38,6 @@ class ComponentRepository(
         }
     }
 
-    private tailrec suspend fun Component.getRootTemplateId(): String {
-        val template = pipelineDao.findTemplateById(templateId) ?: return templateId
-        return Component(0, 0, template).getRootTemplateId()
-    }
-
     private suspend fun getComponentRetrofit(server: ServerInstance): Either<StatusCode, ComponentRetrofit> =
         try {
             Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).componentRetrofit)
@@ -65,7 +60,7 @@ class ComponentRepository(
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplateId()
+        val templateId = component.getRootTemplateId(pipelineDao)
         val call = retrofit.dialog(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
@@ -82,7 +77,7 @@ class ComponentRepository(
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
-        val templateId = component.getRootTemplateId()
+        val templateId = component.getRootTemplateId(pipelineDao)
         val call = retrofit.dialogJs(templateId)
         val text = RetrofitHelper.getStringFromCall(call)
             ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
@@ -235,7 +230,7 @@ class ComponentRepository(
     }
 
     private suspend fun cacheBinding(component: Component) {
-        val templateId = component.getRootTemplateId()
+        val templateId = component.getRootTemplateId(pipelineDao)
         val type = ConfigDownloadStatus.TYPE_BINDING
         persistStatus(ConfigDownloadStatus(templateId, type, StatusCode.DOWNLOAD_IN_PROGRESS))
         val status = ConfigDownloadStatus(templateId, type, when(val res = downloadBindings(templateId)) {
@@ -251,7 +246,7 @@ class ComponentRepository(
     private suspend fun cacheBinding(components: List<Component>) {
 
         val templateIds = components.map {
-            it.getRootTemplateId()
+            it.getRootTemplateId(pipelineDao)
         }.distinct()
 
         val type = ConfigDownloadStatus.TYPE_BINDING
@@ -312,6 +307,7 @@ class ComponentRepository(
         currentTemplateId = component.getRootTemplateId(templates)
         configurationRepository.currentComponent = component
         bindingRepository.setImportantIds(currentComponentId, currentTemplateId)
+        connectionDialogRepository.currentComponent = component
     }
 
     var currentComponent: Component?
@@ -344,6 +340,8 @@ class ComponentRepository(
 
     suspend fun deleteConnection(connection: Connection) = pipelineDao.deleteConnectionWithVertexes(connection)
 
+    val connectionDialogRepository = ConnectionDialogRepository(pipelineDao)
+
     companion object {
         private val l = Injector.generateLogFunction(this)
 
@@ -352,6 +350,11 @@ class ComponentRepository(
                 it.id == templateId
             } ?: return templateId
             return Component(0, 0, template).getRootTemplateId(templates)
+        }
+
+        tailrec suspend fun Component.getRootTemplateId(pipelineDao: PipelineDao): String {
+            val template = pipelineDao.findTemplateById(templateId) ?: return templateId
+            return Component(0, 0, template).getRootTemplateId(pipelineDao)
         }
     }
 }
