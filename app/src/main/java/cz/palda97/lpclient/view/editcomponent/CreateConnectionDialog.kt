@@ -60,20 +60,21 @@ class CreateConnectionDialog : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), onItemClick = {
-            componentAdapter?.lastSelectedItemId?.let {
-                viewModel.prepareBindings(it)
-            }
-        })
         viewModel.connectionComponents.observe(viewLifecycleOwner, Observer {
             val components = it ?: return@Observer
             val options = components.map {
                 it to it.prefLabel
             }
-            componentAdapter!!.setItems(options)
+            componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), options) {
+                viewModel.lastSelectedComponentPosition = it
+                componentAdapter?.lastSelectedItemId?.let {
+                    viewModel.prepareBindings(it)
+                }
+            }.apply {
+                lastSelectedPosition = viewModel.lastSelectedComponentPosition
+            }
         })
 
-        bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext())
         viewModel.connectionBindings.observe(viewLifecycleOwner, Observer {
             val statusWithBinding = it ?: return@Observer
             if (statusWithBinding.status.result.toStatus != ComponentRepository.StatusCode.OK) {
@@ -82,7 +83,11 @@ class CreateConnectionDialog : DialogFragment() {
             val options = statusWithBinding.list.map {
                 it to it.prefLabel
             }
-            bindingAdapter!!.setItems(options)
+            bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext(), options) {
+                viewModel.lastSelectedBindingPosition = it
+            }.apply {
+                lastSelectedPosition = viewModel.lastSelectedBindingPosition
+            }
         })
 
         return binding.root

@@ -45,4 +45,12 @@ class ConnectionDialogRepository(private val pipelineDao: PipelineDao) {
     }
 
     lateinit var currentBinding: Binding
+
+    var lastSelectedComponentPosition: Int? = null
+    var lastSelectedBindingPosition: Int? = null
+
+    fun resetLastSelected() {
+        lastSelectedComponentPosition = null
+        lastSelectedBindingPosition = null
+    }
 }
