@@ -20,6 +20,9 @@ interface PipelineRetrofit {
     @POST("resources/executions")
     fun executePipeline(@Part("pipeline") pipeline: RequestBody): Call<ResponseBody>
 
+    @GET("resources/components")
+    fun componentList(): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.pipelineRetrofit: PipelineRetrofit
             get() = build().create(PipelineRetrofit::class.java)
