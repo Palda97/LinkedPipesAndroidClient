@@ -35,6 +35,7 @@ object LdConstants {
     const val TYPE_RUNTIME_CONFIGURATION = "http://linkedpipes.com/ontology/RuntimeConfiguration"
     const val TYPE_PORT_INPUT = "http://linkedpipes.com/ontology/Input"
     const val TYPE_PORT_OUTPUT = "http://linkedpipes.com/ontology/Output"
+    const val TYPE_TEMPLATE_JAR = "http://linkedpipes.com/ontology/JarTemplate"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"
