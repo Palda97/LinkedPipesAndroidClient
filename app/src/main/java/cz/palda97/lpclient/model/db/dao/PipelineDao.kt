@@ -6,6 +6,9 @@ import androidx.room.*
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
+import cz.palda97.lpclient.model.entities.possiblecomponent.StatusWithPossibles
 
 @Dao
 abstract class PipelineDao {
@@ -345,4 +348,22 @@ abstract class PipelineDao {
 
     @Query("select * from component where id != :componentId")
     abstract fun liveComponentExceptThisOne(componentId: String): LiveData<List<Component>>
+
+    //Possible Components
+
+    @Transaction
+    @Query("select * from possiblestatus where serverId = :serverId")
+    abstract fun livePossibleComponents(serverId: String): LiveData<StatusWithPossibles>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleStatus(status: PossibleStatus)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleStatus(list: List<PossibleStatus>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleComponent(component: PossibleComponent)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleComponent(list: List<PossibleComponent>)
 }
