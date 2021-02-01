@@ -18,7 +18,8 @@ import cz.palda97.lpclient.model.entities.pipeline.Binding
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
+import cz.palda97.lpclient.view.SmartArrayAdapter
+import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
 class CreateConnectionDialog : DialogFragment() {

@@ -12,7 +12,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.view.AdapterWithList
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
+import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 
 class ConfigInputAdapter(

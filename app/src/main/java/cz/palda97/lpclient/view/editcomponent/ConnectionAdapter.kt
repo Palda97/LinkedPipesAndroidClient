@@ -1,21 +1,15 @@
 package cz.palda97.lpclient.view.editcomponent
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.Connection
 import cz.palda97.lpclient.view.AdapterWithList
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
-import cz.palda97.lpclient.viewmodel.editcomponent.BindingComplete
 import cz.palda97.lpclient.viewmodel.editcomponent.ConnectionV
 
 class ConnectionAdapter(

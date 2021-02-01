@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.view.editcomponent
+package cz.palda97.lpclient.view
 
 import android.content.Context
 import android.widget.ArrayAdapter
