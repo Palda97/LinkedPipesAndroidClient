@@ -354,7 +354,7 @@ abstract class PipelineDao {
 
     @Transaction
     @Query("select * from possiblestatus where serverId = :serverId")
-    abstract fun livePossibleComponents(serverId: String): LiveData<StatusWithPossibles>
+    abstract fun livePossibleComponents(serverId: Long): LiveData<StatusWithPossibles>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertPossibleStatus(status: PossibleStatus)

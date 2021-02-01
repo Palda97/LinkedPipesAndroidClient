@@ -99,11 +99,18 @@ class EditPipelineFragment : Fragment() {
         super.onPause()
     }
 
+    private fun getCoords(): Pair<Int, Int> {
+        val x = binding.horizontalScrollView.scrollX
+        val y = binding.scrollView.scrollY
+        return x to y
+    }
+
     private fun setUpComponents() {
 
         fun setUpFAB() {
             binding.fab.setOnClickListener {
-                l("click")
+                viewModel.addComponent(getCoords())
+                AddComponentDialog.appear(parentFragmentManager)
             }
         }
 

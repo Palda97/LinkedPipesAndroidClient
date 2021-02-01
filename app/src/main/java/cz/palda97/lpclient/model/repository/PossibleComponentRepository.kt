@@ -112,6 +112,24 @@ class PossibleComponentRepository(
         persistStatus(statuses)
     }
 
+    var currentServerId: Long = 0L
+
+    val liveComponents
+        get() = pipelineDao.livePossibleComponents(currentServerId)
+
+    var lastSelectedComponentPosition: Int? = null
+
+    var newComponentX = 0
+        private set
+    var newComponentY = 0
+        private set
+
+    fun prepareForNewComponent(coords: Pair<Int, Int>) {
+        newComponentX = coords.first
+        newComponentY = coords.second
+        lastSelectedComponentPosition = null
+    }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
     }

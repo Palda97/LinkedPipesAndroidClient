@@ -87,4 +87,6 @@
     <string name="component">Component</string>
     <string name="binding">Binding</string>
     <string name="select_both_component_and_binding">You have to select both component and binding!</string>
+    <string name="choose_a_new_component">Choose a new component</string>
+    <string name="no_component_is_selected">No component is selected!</string>
 </resources>
