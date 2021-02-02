@@ -9,7 +9,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
-class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
+class PipelineFactory(private val server: ServerInstance, private val string: String?) {
 
     data class MutablePipeline(
         var pipelineView: PipelineView? = null,
@@ -42,23 +42,38 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
         )
     }
 
-    constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
+    fun parse(): MailPackage<Pipeline> {
+        return when (val res = CommonFunctions.getRootArrayList(string)) {
+            is Either.Left -> MailPackage.brokenPackage(res.value)
+            is Either.Right -> when (val res = parsePipeline(server, res.value)) {
+                is Either.Left -> {
+                    l(res.value)
+                    MailPackage.brokenPackage(res.value)
+                }
+                is Either.Right -> MailPackage(res.value)
+            }
+        }
+    }
+
+    fun parseConfigurationOnly(): MailPackage<Configuration> {
+        val arrayList = when (val res = CommonFunctions.getRootArrayList(string)) {
+            is Either.Left -> return MailPackage.brokenPackage(res.value)
+            is Either.Right -> res.value
+        }
+        if (arrayList.size != 1) {
+            return MailPackage.brokenPackage("size != 1")
+        }
+        val map = arrayList[0] as? Map<*, *> ?: return MailPackage.brokenPackage("item is not map")
+        val mutablePipeline = MutablePipeline()
+        parseConfiguration(map, mutablePipeline)
+        if (mutablePipeline.configurations.size != 1) {
+            return MailPackage.brokenPackage("parseConfiguration error")
+        }
+        return MailPackage(mutablePipeline.configurations[0])
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)
-
-        private fun fromJson(server: ServerInstance, string: String?): MailPackage<Pipeline> {
-            return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(res.value)
-                is Either.Right -> when (val res = parsePipeline(server, res.value)) {
-                    is Either.Left -> {
-                        l(res.value)
-                        MailPackage.brokenPackage(res.value)
-                    }
-                    is Either.Right -> MailPackage(res.value)
-                }
-            }
-        }
 
         private fun parsePipeline(
             server: ServerInstance,

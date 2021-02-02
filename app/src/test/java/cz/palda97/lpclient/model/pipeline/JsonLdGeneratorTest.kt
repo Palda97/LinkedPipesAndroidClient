@@ -13,7 +13,7 @@ class JsonLdGeneratorTest {
     @Test
     fun parseAbc() {
         val source = ABC
-        val pipeline = PipelineFactory(server, source).pipeline.mailContent!!
+        val pipeline = PipelineFactory(server, source).parse().mailContent!!
         val jsonLd = pipeline.jsonLd()
         assertEquals(source, jsonLd)
     }
@@ -21,8 +21,8 @@ class JsonLdGeneratorTest {
     @Test
     fun parseEverything() {
         val source = EVERYTHING
-        val expectedPipeline = PipelineFactory(server, source).pipeline.mailContent!!
-        val testPipeline = PipelineFactory(server, expectedPipeline.jsonLd()).pipeline.mailContent
+        val expectedPipeline = PipelineFactory(server, source).parse().mailContent!!
+        val testPipeline = PipelineFactory(server, expectedPipeline.jsonLd()).parse().mailContent
         assertNotNull("testPipeline parse error", testPipeline)
         assertEquals(expectedPipeline, testPipeline)
     }
