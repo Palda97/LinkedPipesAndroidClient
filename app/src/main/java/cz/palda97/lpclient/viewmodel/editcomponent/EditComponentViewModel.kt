@@ -51,6 +51,9 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
             componentRepository.updateComponent(componentId)
         }
     }
+    fun deleteCurrentComponent() = dbScope.launch {
+        componentRepository.deleteCurrentComponent()
+    }
     // -------------------- component / ----------------------------------------
 
     // -------------------- binding --------------------------------------------

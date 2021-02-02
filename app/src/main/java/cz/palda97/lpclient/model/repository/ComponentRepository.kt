@@ -328,6 +328,11 @@ class ComponentRepository(
         pipelineDao.insertComponent(component)
     }
 
+    suspend fun deleteCurrentComponent() = updateComponentMutex.withLock {
+        val component = componentMap.remove(currentComponentId) ?: return@withLock
+        pipelineDao.purgeComponent(component)
+    }
+
     val bindingRepository = BindingRepository(pipelineDao)
 
     suspend fun persistConnection(connection: Connection) {

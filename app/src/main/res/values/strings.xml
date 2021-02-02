@@ -91,4 +91,5 @@
     <string name="no_component_is_selected">No component is selected!</string>
     <string name="error_while_downloading_default_configuration">Error while downloading default configuration!</string>
     <string name="error_while_parsing_default_configuration">Error while parsing default configuration!</string>
+    <string name="delete_this_component">Delete this component</string>
 </resources>

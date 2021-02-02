@@ -3,6 +3,8 @@ package cz.palda97.lpclient.view
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import com.google.android.material.tabs.TabLayout
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
@@ -34,11 +36,26 @@ class EditComponentActivity : AppCompatActivity() {
 
     private fun setUpComponents() {
 
-        fun setUpTitle() {
-            binding.component = viewModel.currentComponent
+        fun setUpToolbar() {
+            setSupportActionBar(binding.toolbar)
+            title = viewModel.currentComponent?.prefLabel
         }
 
-        setUpTitle()
+        setUpToolbar()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_editcomponent, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId) {
+        R.id.delete_this_component_item -> {
+            viewModel.deleteCurrentComponent()
+            finish()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     companion object {

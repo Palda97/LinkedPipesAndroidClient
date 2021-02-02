@@ -315,6 +315,21 @@ abstract class PipelineDao {
         return vertexes
     }
 
+    @Query("select * from connection where sourceComponentId = :componentId or targetComponentId = :componentId")
+    abstract suspend fun selectComponentConnections(componentId: String): List<Connection>
+
+    @Delete
+    abstract suspend fun deleteConnection(connections: List<Connection>)
+
+    @Transaction
+    open suspend fun purgeComponent(component: Component) {
+        val connections = selectComponentConnections(component.id)
+        val vertexes = connections.flatMap { it.vertexIds }
+        deleteVertexes(vertexes)
+        deleteConnection(connections)
+        deleteComponent(component)
+    }
+
     //Find
 
     @Query("select * from template where id = :id")
