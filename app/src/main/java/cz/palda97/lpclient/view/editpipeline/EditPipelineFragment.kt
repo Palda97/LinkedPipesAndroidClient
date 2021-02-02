@@ -94,10 +94,14 @@ class EditPipelineFragment : Fragment() {
         viewModel.retryCachePipeline()
     }
 
-    override fun onPause() {
+    private fun savePipeline() {
         currentPipeline?.let {
             viewModel.savePipeline(it)
         }
+    }
+
+    override fun onPause() {
+        savePipeline()
         super.onPause()
     }
 
@@ -129,6 +133,7 @@ class EditPipelineFragment : Fragment() {
         fun setUpFAB() {
             binding.fab.setOnClickListener {
                 viewModel.addComponent(getCoords())
+                savePipeline()
                 AddComponentDialog.appear(parentFragmentManager)
             }
         }
