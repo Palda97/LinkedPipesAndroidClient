@@ -60,7 +60,8 @@ class PipelineRepository(
                 is Either.Left -> return Either.Left(CacheStatus.DOWNLOAD_ERROR)
                 is Either.Right -> res.value
             }
-        return PipelineFactory(server, pipelineString).pipeline.mailContent?.let {
+        val factory = PipelineFactory(server, pipelineString)
+        return factory.parse().mailContent?.let {
             Either.Right<CacheStatus, Pipeline>(it)
         } ?: Either.Left(CacheStatus.PARSING_ERROR)
     }

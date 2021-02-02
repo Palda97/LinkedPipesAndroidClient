@@ -9,6 +9,8 @@ import cz.palda97.lpclient.model.db.dao.*
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 
 /**
@@ -16,8 +18,9 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
  */
 @Database(
     entities = [ServerInstance::class, PipelineView::class, Execution::class, MarkForDeletion::class,
-        Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class],
-    version = 12,
+        Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class,
+        PossibleComponent::class, PossibleStatus::class],
+    version = 13,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

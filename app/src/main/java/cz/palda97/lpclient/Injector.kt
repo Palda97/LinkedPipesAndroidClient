@@ -29,11 +29,14 @@ object Injector {
         val sharedPreferences = SharedPreferencesFactory.sharedPreferences(context)
         PipelineRepository(db.serverDao(), db.pipelineDao(), sharedPreferences)
     }
-
     val componentRepository: ComponentRepository by lazy {
         val db = AppDatabase.getInstance(context)
         val sharedPreferences = SharedPreferencesFactory.sharedPreferences(context)
         ComponentRepository(db.serverDao(), db.pipelineDao(), sharedPreferences)
+    }
+    val possibleComponentRepository: PossibleComponentRepository by lazy {
+        val db = AppDatabase.getInstance(context)
+        PossibleComponentRepository(db.serverDao(), db.pipelineDao())
     }
 
     fun tag(companion: Any): String =

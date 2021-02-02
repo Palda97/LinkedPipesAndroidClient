@@ -19,6 +19,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.Vertex
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
+import cz.palda97.lpclient.model.repository.PossibleComponentRepository
 import cz.palda97.lpclient.view.EditComponentActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.editpipeline.CoordinateConverter.resize
@@ -26,6 +27,7 @@ import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import io.github.hyuwah.draggableviewlib.DraggableListener
 import io.github.hyuwah.draggableviewlib.makeDraggable
 import kotlinx.coroutines.*
+import kotlin.math.roundToInt
 
 class EditPipelineFragment : Fragment() {
 
@@ -99,11 +101,35 @@ class EditPipelineFragment : Fragment() {
         super.onPause()
     }
 
+    private fun getCoords(): Pair<Int, Int> {
+        val x = binding.horizontalScrollView.scrollX
+        val y = binding.scrollView.scrollY
+        val shift = resources.displayMetrics?.let {
+            val denominator = 3.toDouble()
+            val dimensions = CoordinateConverter.fromDisplay(it.widthPixels.toFloat(), it.heightPixels.toFloat(), it.density)
+            (dimensions.first / denominator).roundToInt() to (dimensions.second / denominator).roundToInt()
+        } ?: 0 to 0
+        val leftTopCorner = CoordinateConverter.fromDisplay(x.toFloat(), y.toFloat(), density)
+        return leftTopCorner.first + shift.first to leftTopCorner.second + shift.second
+    }
+
+    private val PossibleComponentRepository.StatusCode.errorMessage: String
+        get() = when(this) {
+            PossibleComponentRepository.StatusCode.NO_CONNECT -> getString(R.string.can_not_connect_to_server)
+            PossibleComponentRepository.StatusCode.INTERNAL_ERROR -> getString(R.string.internal_error)
+            PossibleComponentRepository.StatusCode.DOWNLOADING_ERROR -> getString(R.string.error_while_downloading_default_configuration)
+            PossibleComponentRepository.StatusCode.PARSING_ERROR -> getString(R.string.error_while_parsing_default_configuration)
+            PossibleComponentRepository.StatusCode.OK -> getString(R.string.internal_error)
+            PossibleComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS -> getString(R.string.internal_error)
+            PossibleComponentRepository.StatusCode.SERVER_NOT_FOUND ->  getString(R.string.server_instance_no_longer_registered)
+        }
+
     private fun setUpComponents() {
 
         fun setUpFAB() {
             binding.fab.setOnClickListener {
-                l("click")
+                viewModel.addComponent(getCoords())
+                AddComponentDialog.appear(parentFragmentManager)
             }
         }
 
@@ -113,8 +139,22 @@ class EditPipelineFragment : Fragment() {
             }
         }
 
+        fun setUpAddComponentErrors() {
+            viewModel.liveAddComponentStatus.observe(viewLifecycleOwner, Observer {
+                val status = it ?: return@Observer
+                if (status == PossibleComponentRepository.StatusCode.OK)
+                    return@Observer
+                viewModel.resetAddComponentStatus()
+                Snackbar
+                    .make(binding.root, status.errorMessage, Snackbar.LENGTH_LONG)
+                    .setAnchorView(binding.editPipelineBottomButtons)
+                    .show()
+            })
+        }
+
         setUpCancelButton()
         setUpFAB()
+        setUpAddComponentErrors()
     }
 
     private fun disableScrollViewsForAWhile() {

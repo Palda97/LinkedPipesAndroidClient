@@ -154,6 +154,7 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     fun addConnectionButton(binding: Binding) {
         componentRepository.connectionDialogRepository.currentBinding = binding
         componentRepository.connectionDialogRepository.resetTemplateForBindings()
+        componentRepository.connectionDialogRepository.resetLastSelected()
     }
 
     fun prepareBindings(component: Component) = dbScope.launch {
@@ -187,6 +188,17 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
             componentRepository.persistConnection(connection)
         }
     }
+
+    var lastSelectedComponentPosition: Int?
+        get() = componentRepository.connectionDialogRepository.lastSelectedComponentPosition
+        set(value) {
+            componentRepository.connectionDialogRepository.lastSelectedComponentPosition = value
+        }
+    var lastSelectedBindingPosition: Int?
+        get() = componentRepository.connectionDialogRepository.lastSelectedBindingPosition
+        set(value) {
+            componentRepository.connectionDialogRepository.lastSelectedBindingPosition = value
+        }
     // -------------------- create connection dialog / ---------------------------
 
     companion object {

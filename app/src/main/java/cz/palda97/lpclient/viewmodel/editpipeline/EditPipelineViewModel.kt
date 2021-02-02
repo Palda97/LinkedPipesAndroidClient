@@ -9,6 +9,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.Template
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
+import cz.palda97.lpclient.model.repository.PossibleComponentRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
 
     private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
     private val componentRepository: ComponentRepository = Injector.componentRepository
+    private val possibleRepository: PossibleComponentRepository = Injector.possibleComponentRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -51,6 +53,17 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         retrofitScope.launch {
             componentRepository.cache(component)
         }
+    }
+
+    fun addComponent(coords: Pair<Int, Int>) {
+        possibleRepository.prepareForNewComponent(coords)
+    }
+
+    val liveAddComponentStatus: LiveData<PossibleComponentRepository.StatusCode>
+        get() = possibleRepository.mutableLiveAddComponentStatus
+
+    fun resetAddComponentStatus() {
+        possibleRepository.mutableLiveAddComponentStatus.value = PossibleComponentRepository.StatusCode.OK
     }
 
     companion object {

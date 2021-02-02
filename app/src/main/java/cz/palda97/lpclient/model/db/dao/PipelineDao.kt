@@ -6,6 +6,10 @@ import androidx.room.*
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
+import cz.palda97.lpclient.model.entities.possiblecomponent.StatusWithPossibles
+import cz.palda97.lpclient.model.repository.PossibleComponentRepository
 
 @Dao
 abstract class PipelineDao {
@@ -345,4 +349,57 @@ abstract class PipelineDao {
 
     @Query("select * from component where id != :componentId")
     abstract fun liveComponentExceptThisOne(componentId: String): LiveData<List<Component>>
+
+    //Possible Components
+
+    @Transaction
+    @Query("select * from possiblestatus where serverId = :serverId")
+    abstract fun livePossibleComponents(serverId: Long): LiveData<StatusWithPossibles>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleStatus(status: PossibleStatus)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleStatus(list: List<PossibleStatus>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleComponent(component: PossibleComponent)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPossibleComponent(list: List<PossibleComponent>)
+
+    /**
+     * DO NOT USE FOR RENEWAL OF COMPONENTS.
+     * Use prepareForPossibleComponentsDownload instead.
+     * @see prepareForPossibleComponentsDownload
+     */
+    @Query("delete from possiblecomponent where serverId = :serverId")
+    abstract suspend fun deletePossibleComponents(serverId: Long)
+
+    @Transaction
+    open suspend fun prepareForPossibleComponentsDownload(serverId: Long) {
+        insertPossibleStatus(PossibleStatus(serverId, PossibleComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS))
+        deletePossibleComponents(serverId)
+    }
+
+    /**
+     * DO NOT USE FOR RENEWAL OF COMPONENTS.
+     * Use prepareForPossibleComponentsDownload instead.
+     * @see prepareForPossibleComponentsDownload
+     */
+    @Query("delete from possiblecomponent where serverId in (:serverIds)")
+    abstract suspend fun deletePossibleComponents(serverIds: List<Long>)
+
+    @Transaction
+    open suspend fun prepareForPossibleComponentsDownload(serverIds: List<Long>) {
+        val statusCode = PossibleComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS
+        val statuses = serverIds.map {
+            PossibleStatus(it, statusCode)
+        }
+        insertPossibleStatus(statuses)
+        deletePossibleComponents(serverIds)
+    }
+
+    @Query("select * from possiblecomponent where id = :id")
+    abstract suspend fun findPossibleComponentById(id: String): PossibleComponent?
 }

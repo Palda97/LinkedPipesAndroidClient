@@ -18,7 +18,8 @@ import cz.palda97.lpclient.model.entities.pipeline.Binding
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
-import cz.palda97.lpclient.view.editcomponent.ConfigDropdownMagic.fillWithOptions
+import cz.palda97.lpclient.view.SmartArrayAdapter
+import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
 class CreateConnectionDialog : DialogFragment() {
@@ -60,20 +61,21 @@ class CreateConnectionDialog : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), onItemClick = {
-            componentAdapter?.lastSelectedItemId?.let {
-                viewModel.prepareBindings(it)
-            }
-        })
         viewModel.connectionComponents.observe(viewLifecycleOwner, Observer {
             val components = it ?: return@Observer
             val options = components.map {
                 it to it.prefLabel
             }
-            componentAdapter!!.setItems(options)
+            componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), options) {
+                viewModel.lastSelectedComponentPosition = it
+                componentAdapter?.lastSelectedItemId?.let {
+                    viewModel.prepareBindings(it)
+                }
+            }.apply {
+                lastSelectedPosition = viewModel.lastSelectedComponentPosition
+            }
         })
 
-        bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext())
         viewModel.connectionBindings.observe(viewLifecycleOwner, Observer {
             val statusWithBinding = it ?: return@Observer
             if (statusWithBinding.status.result.toStatus != ComponentRepository.StatusCode.OK) {
@@ -82,7 +84,11 @@ class CreateConnectionDialog : DialogFragment() {
             val options = statusWithBinding.list.map {
                 it to it.prefLabel
             }
-            bindingAdapter!!.setItems(options)
+            bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext(), options) {
+                viewModel.lastSelectedBindingPosition = it
+            }.apply {
+                lastSelectedPosition = viewModel.lastSelectedBindingPosition
+            }
         })
 
         return binding.root
