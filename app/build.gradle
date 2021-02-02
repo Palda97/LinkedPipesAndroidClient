@@ -102,4 +102,10 @@ dependencies {
 
     //DraggableView
     implementation 'com.github.hyuwah:DraggableView:0.5.0'
+
+    //HTML parser
+    implementation 'org.jsoup:jsoup:1.13.1'
+
+    //Matcher containsInAnyOrder
+    testImplementation("org.hamcrest:hamcrest:2.2")
 }

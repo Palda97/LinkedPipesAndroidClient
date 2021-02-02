@@ -30,7 +30,7 @@ object RetrofitHelper {
 
     private fun getBuilder(baseUrl: String) = Retrofit.Builder().baseUrl(baseUrl)
 
-    private fun Retrofit.Builder.basicAuth(username: String, password: String) = client(
+    /*private fun Retrofit.Builder.basicAuth(username: String, password: String) = client(
         OkHttpClient.Builder()
             .addInterceptor {
                 var request = it.request()
@@ -39,11 +39,32 @@ object RetrofitHelper {
                 it.proceed(request)
             }
             .build()
-    )
+    )*/
 
-    fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
+    /*fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
         val builder = getBuilder(url)
         val auth = server.credentials ?: return builder
         return builder.basicAuth(auth.first, auth.second)
+    }*/
+    fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
+        val auth = server.credentials
+        return getBuilder(url).client(
+            OkHttpClient.Builder()
+                .addInterceptor {
+                    var request = it.request()
+                    request = request.newBuilder()
+                        .header("Accept", "application/ld+json")
+                        //.header("Authorization", Credentials.basic(username, password)).build()
+                        .let {
+                            if (auth == null) {
+                                it
+                            } else {
+                                it.header("Authorization", Credentials.basic(auth.first, auth.second))
+                            }
+                        }.build()
+                    it.proceed(request)
+                }
+                .build()
+        )
     }
 }

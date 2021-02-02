@@ -7,16 +7,19 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class PipelineParsingTest {
 
     @Test
+    fun parseConfiguration() {
+        val mail = PipelineFactory(server, TABULAR_CONFIGURATION).parseConfigurationOnly()
+        assertTrue("Mail is not ok!", mail.isOk)
+        val configuration = mail.mailContent!!
+        assertEquals(3, configuration.settings.size)
+    }
+
+    @Test
     fun parseAbc() {
-        val mail = PipelineFactory(server, ABC_PIPELINE).pipeline
+        val mail = PipelineFactory(server, ABC_PIPELINE).parse()
         assertTrue("Mail is not ok!", mail.isOk)
         val pipeline = mail.mailContent!!
         assertEquals(2, pipeline.components.size)
@@ -26,7 +29,7 @@ class PipelineParsingTest {
 
     @Test
     fun parseCrab() {
-        val mail = PipelineFactory(server, CRAB_PIPELINE).pipeline
+        val mail = PipelineFactory(server, CRAB_PIPELINE).parse()
         assertTrue("Mail is not ok!", mail.isOk)
         val pipeline = mail.mailContent!!
         assertEquals(1, pipeline.components.size)
@@ -37,6 +40,142 @@ class PipelineParsingTest {
     companion object {
 
         val server = ServerInstance("Home Server", "http://localhost:8080/")
+
+        const val TABULAR_CONFIGURATION = "[\n" +
+                "    {\n" +
+                "        \"@graph\": [\n" +
+                "            {\n" +
+                "                \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new/1\",\n" +
+                "                \"@type\": [\n" +
+                "                    \"http://www.w3.org/ns/csvw#Schema\"\n" +
+                "                ]\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new/2\",\n" +
+                "                \"@type\": [\n" +
+                "                    \"http://www.w3.org/ns/csvw#Table\"\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#baseUriControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#dialectControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#encodeTypeControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#fullMapping\": [\n" +
+                "                    {\n" +
+                "                        \"@type\": \"http://www.w3.org/2001/XMLSchema#boolean\",\n" +
+                "                        \"@value\": \"true\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#fullMappingControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#generateNullHeaderNamesControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#normalOutput\": [\n" +
+                "                    {\n" +
+                "                        \"@type\": \"http://www.w3.org/2001/XMLSchema#boolean\",\n" +
+                "                        \"@value\": \"false\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#normalOutputControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#rowLimitControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#skipLines\": [\n" +
+                "                    {\n" +
+                "                        \"@type\": \"http://www.w3.org/2001/XMLSchema#integer\",\n" +
+                "                        \"@value\": \"0\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#skipLinesControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#skipOnErrorControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#tableSchemaControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://plugins.linkedpipes.com/ontology/t-tabular#useBaseUriControl\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://plugins.linkedpipes.com/resource/configuration/None\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#dialect\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new/3\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#tableSchema\": [\n" +
+                "                    {\n" +
+                "                        \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new/1\"\n" +
+                "                    }\n" +
+                "                ]\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new/3\",\n" +
+                "                \"@type\": [\n" +
+                "                    \"http://www.w3.org/ns/csvw#Dialect\"\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#delimeter\": [\n" +
+                "                    {\n" +
+                "                        \"@value\": \",\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#encoding\": [\n" +
+                "                    {\n" +
+                "                        \"@value\": \"UTF-8\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#header\": [\n" +
+                "                    {\n" +
+                "                        \"@type\": \"http://www.w3.org/2001/XMLSchema#boolean\",\n" +
+                "                        \"@value\": \"true\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#quoteChar\": [\n" +
+                "                    {\n" +
+                "                        \"@value\": \"\\\"\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"http://www.w3.org/ns/csvw#trim\": [\n" +
+                "                    {\n" +
+                "                        \"@type\": \"http://www.w3.org/2001/XMLSchema#boolean\",\n" +
+                "                        \"@value\": \"false\"\n" +
+                "                    }\n" +
+                "                ]\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"@id\": \"http://etl.linkedpipes.com/resources/components/t-tabular/0.0.0/new\"\n" +
+                "    }\n" +
+                "]"
 
         const val ABC_PIPELINE = "[\n" +
                 "    {\n" +

@@ -21,6 +21,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     private val serverRepository: ServerRepository = Injector.serverRepository
     private val executionRepository: ExecutionRepository = Injector.executionRepository
     private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val possibleRepository: PossibleComponentRepository = Injector.possibleComponentRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -182,9 +183,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun editPipeline(pipelineView: PipelineView) {
-        retrofitScope.launch {
-            pipelineRepository.cachePipeline(pipelineView)
-        }
+        pipelineRepository.cachePipelineInit(pipelineView)
+        possibleRepository.currentServerId = pipelineView.serverId
         EditPipelineViewModel.scroll = true
     }
 

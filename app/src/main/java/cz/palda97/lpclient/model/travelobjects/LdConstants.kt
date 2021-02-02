@@ -22,6 +22,7 @@ object LdConstants {
     const val DESCRIPTION = "http://purl.org/dc/terms/description"
     const val ORDER = "http://linkedpipes.com/ontology/order"
     const val VERTEX = "http://linkedpipes.com/ontology/vertex"
+    const val BINDING = "http://linkedpipes.com/ontology/binding"
 
     const val TYPE_PIPELINE = "http://linkedpipes.com/ontology/Pipeline"
     const val TYPE_COMPONENT = "http://linkedpipes.com/ontology/Component"
@@ -31,6 +32,10 @@ object LdConstants {
     const val TYPE_TOMBSTONE = "http://linkedpipes.com/ontology/Tombstone"
     const val TYPE_VERTEX = "http://linkedpipes.com/ontology/Vertex"
     const val TYPE_TEMPLATE = "http://linkedpipes.com/ontology/Template"
+    const val TYPE_RUNTIME_CONFIGURATION = "http://linkedpipes.com/ontology/RuntimeConfiguration"
+    const val TYPE_PORT_INPUT = "http://linkedpipes.com/ontology/Input"
+    const val TYPE_PORT_OUTPUT = "http://linkedpipes.com/ontology/Output"
+    const val TYPE_TEMPLATE_JAR = "http://linkedpipes.com/ontology/JarTemplate"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"

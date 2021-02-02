@@ -16,4 +16,6 @@
     <dimen name="dropdown_vertical_margin">22dp</dimen>
     <dimen name="switch_horizontal_margin">11dp</dimen>
 
+    <dimen name="appbar_padding">16dp</dimen>
+
 </resources>

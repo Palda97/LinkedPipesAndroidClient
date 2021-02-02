@@ -9,7 +9,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
-class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
+class PipelineFactory(private val server: ServerInstance?, private val string: String?) {
 
     data class MutablePipeline(
         var pipelineView: PipelineView? = null,
@@ -31,25 +31,50 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
                 templates
             )
         }
+        constructor(pipeline: Pipeline): this(
+            pipeline.pipelineView,
+            pipeline.profile,
+            pipeline.components.toMutableList(),
+            pipeline.connections.toMutableList(),
+            pipeline.configurations.toMutableList(),
+            pipeline.vertexes.toMutableList(),
+            pipeline.templates.toMutableList()
+        )
     }
 
-    constructor(server: ServerInstance, string: String?) : this(fromJson(server, string))
+    fun parse(): MailPackage<Pipeline> {
+        require(server != null)
+        return when (val res = CommonFunctions.getRootArrayList(string)) {
+            is Either.Left -> MailPackage.brokenPackage(res.value)
+            is Either.Right -> when (val res = parsePipeline(server, res.value)) {
+                is Either.Left -> {
+                    l(res.value)
+                    MailPackage.brokenPackage(res.value)
+                }
+                is Either.Right -> MailPackage(res.value)
+            }
+        }
+    }
+
+    fun parseConfigurationOnly(): MailPackage<Configuration> {
+        val arrayList = when (val res = CommonFunctions.getRootArrayList(string)) {
+            is Either.Left -> return MailPackage.brokenPackage(res.value)
+            is Either.Right -> res.value
+        }
+        if (arrayList.size != 1) {
+            return MailPackage.brokenPackage("size != 1")
+        }
+        val map = arrayList[0] as? Map<*, *> ?: return MailPackage.brokenPackage("item is not map")
+        val mutablePipeline = MutablePipeline()
+        parseConfiguration(map, mutablePipeline)
+        if (mutablePipeline.configurations.size != 1) {
+            return MailPackage.brokenPackage("parseConfiguration error")
+        }
+        return MailPackage(mutablePipeline.configurations[0])
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)
-
-        private fun fromJson(server: ServerInstance, string: String?): MailPackage<Pipeline> {
-            return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(res.value)
-                is Either.Right -> when (val res = parsePipeline(server, res.value)) {
-                    is Either.Left -> {
-                        l(res.value)
-                        MailPackage.brokenPackage(res.value)
-                    }
-                    is Either.Right -> MailPackage(res.value)
-                }
-            }
-        }
 
         private fun parsePipeline(
             server: ServerInstance,
@@ -193,10 +218,8 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
         private fun parseProfile(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val repoPolicyId =
                 CommonFunctions.giveMeThatString(map, LdConstants.REPO_POLICY, LdConstants.ID)
-                    ?: return false
             val repoTypeId =
                 CommonFunctions.giveMeThatString(map, LdConstants.REPO_TYPE, LdConstants.ID)
-                    ?: return false
             val id = CommonFunctions.giveMeThatId(map) ?: return false
             mutablePipeline.profile = Profile(repoPolicyId, repoTypeId, id)
             return true
@@ -208,7 +231,7 @@ class PipelineFactory(val pipeline: MailPackage<Pipeline>) {
             val configMap = map.filterNot {
                 it.key == LdConstants.ID || it.key == LdConstants.TYPE
             }
-            return Config(configMap, type, id)
+            return Config(configMap.toMutableMap(), type, id)
         }
 
         private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {

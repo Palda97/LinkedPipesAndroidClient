@@ -5,18 +5,24 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import cz.palda97.lpclient.model.db.dao.*
 import cz.palda97.lpclient.model.entities.execution.Execution
+import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
+import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
 import cz.palda97.lpclient.model.entities.server.ServerInstance
-import cz.palda97.lpclient.model.db.dao.ExecutionDao
-import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
-import cz.palda97.lpclient.model.db.dao.PipelineViewDao
-import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 
 /**
  * Application database implemented with Room
  */
-@Database(entities = [ServerInstance::class, PipelineView::class, Execution::class, MarkForDeletion::class], version = 10, exportSchema = true)
+@Database(
+    entities = [ServerInstance::class, PipelineView::class, Execution::class, MarkForDeletion::class,
+        Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class,
+        PossibleComponent::class, PossibleStatus::class],
+    version = 13,
+    exportSchema = true
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -24,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pipelineViewDao(): PipelineViewDao
     abstract fun executionDao(): ExecutionDao
     abstract fun markForDeletionDao(): MarkForDeletionDao
+    abstract fun pipelineDao(): PipelineDao
 
     companion object {
 

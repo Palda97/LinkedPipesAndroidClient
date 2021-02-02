@@ -1,3 +1,11 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
-data class Vertex(val order: Int, var x: Int, var y: Int, val id: String)
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class Vertex(
+    val order: Int,
+    var x: Int, var y: Int,
+    @PrimaryKey(autoGenerate = false) val id: String
+)
