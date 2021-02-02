@@ -9,7 +9,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
-class PipelineFactory(private val server: ServerInstance, private val string: String?) {
+class PipelineFactory(private val server: ServerInstance?, private val string: String?) {
 
     data class MutablePipeline(
         var pipelineView: PipelineView? = null,
@@ -43,6 +43,7 @@ class PipelineFactory(private val server: ServerInstance, private val string: St
     }
 
     fun parse(): MailPackage<Pipeline> {
+        require(server != null)
         return when (val res = CommonFunctions.getRootArrayList(string)) {
             is Either.Left -> MailPackage.brokenPackage(res.value)
             is Either.Right -> when (val res = parsePipeline(server, res.value)) {

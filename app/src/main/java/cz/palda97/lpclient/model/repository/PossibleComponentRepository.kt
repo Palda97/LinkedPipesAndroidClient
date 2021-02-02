@@ -8,6 +8,7 @@ import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Configuration
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
+import cz.palda97.lpclient.model.entities.pipeline.Template
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponentFactory
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
@@ -156,6 +157,61 @@ class PossibleComponentRepository(
     }
 
     val mutableLiveAddComponentStatus = MutableLiveData<StatusCode>()
+
+    private suspend fun downloadTemplateConfiguration(component: PossibleComponent, retrofit: PipelineRetrofit): Either<StatusCode, Configuration> {
+        val call = retrofit.templateConfiguration(component.id)
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val factory = PipelineFactory(null, text)
+        val configuration =  factory.parseConfigurationOnly().mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
+        return Either.Right(configuration)
+    }
+
+    private tailrec suspend fun getTemplateBranch(component: PossibleComponent, collected: MutableList<PossibleComponent> = ArrayList()): List<PossibleComponent>? {
+        if (component.templateId == null) {
+            return collected
+        }
+        collected.add(component)
+        val parent = pipelineDao.findPossibleComponentById(component.templateId) ?: return null
+        return getTemplateBranch(parent, collected)
+    }
+
+    suspend fun getTemplatesAndConfigurations(component: PossibleComponent): Either<StatusCode, List<Pair<Template, Configuration>>> = coroutineScope<Either<StatusCode, List<Pair<Template, Configuration>>>> {
+        val possibles = getTemplateBranch(component) ?: return@coroutineScope Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val server = serverDao.findById(currentServerId) ?: return@coroutineScope Either.Left(StatusCode.SERVER_NOT_FOUND)
+        val retrofit = when(val res = getPipelineRetrofit(server)) {
+            is Either.Left -> return@coroutineScope Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val jobs = possibles.map {
+            async {
+                it to downloadTemplateConfiguration(it, retrofit)
+            }
+        }
+        val pairs = jobs.map {
+            val pair = it.await()
+            val configuration = when(val res = pair.second) {
+                is Either.Left -> return@coroutineScope Either.Left(res.value)
+                is Either.Right -> res.value
+            }
+            val template = Template(
+                configuration.id,
+                pair.first.templateId!!,
+                pair.first.prefLabel,
+                null,
+                pair.first.id
+            )
+            template to configuration
+        }
+        Either.Right(pairs)
+    }
+
+    suspend fun persistTemplate(list: List<Template>) {
+        pipelineDao.insertTemplate(list)
+    }
+
+    suspend fun persistConfiguration(list: List<Configuration>) {
+        pipelineDao.insertConfiguration(list)
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

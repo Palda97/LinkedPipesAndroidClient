@@ -6,6 +6,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.IdGenerator
 import cz.palda97.lpclient.model.entities.pipeline.Component
+import cz.palda97.lpclient.model.entities.pipeline.Template
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PossibleComponentRepository
@@ -44,6 +45,17 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
             null,
             IdGenerator.componentId(pipelineRepository.currentPipelineId)
         )
+        val templateBranch = when(val res = possibleRepository.getTemplatesAndConfigurations(possibleComponent)) {
+            is Either.Left -> {
+                possibleRepository.mutableLiveAddComponentStatus.postValue(res.value)
+                return@launch
+            }
+            is Either.Right -> res.value
+        }
+        val templates = templateBranch.map { it.first }
+        val configurations = templateBranch.map { it.second }
+        possibleRepository.persistTemplate(templates)
+        possibleRepository.persistConfiguration(configurations)
         possibleRepository.persistComponent(component)
         possibleRepository.persistConfiguration(configuration)
     }

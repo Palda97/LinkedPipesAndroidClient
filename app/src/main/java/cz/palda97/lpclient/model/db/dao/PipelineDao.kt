@@ -399,4 +399,7 @@ abstract class PipelineDao {
         insertPossibleStatus(statuses)
         deletePossibleComponents(serverIds)
     }
+
+    @Query("select * from possiblecomponent where id = :id")
+    abstract suspend fun findPossibleComponentById(id: String): PossibleComponent?
 }
