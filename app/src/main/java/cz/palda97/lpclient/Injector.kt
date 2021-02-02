@@ -36,7 +36,7 @@ object Injector {
     }
     val possibleComponentRepository: PossibleComponentRepository by lazy {
         val db = AppDatabase.getInstance(context)
-        PossibleComponentRepository(db.pipelineDao())
+        PossibleComponentRepository(db.serverDao(), db.pipelineDao())
     }
 
     fun tag(companion: Any): String =

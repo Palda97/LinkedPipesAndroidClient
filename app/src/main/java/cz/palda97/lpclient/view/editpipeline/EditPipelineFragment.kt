@@ -26,6 +26,7 @@ import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import io.github.hyuwah.draggableviewlib.DraggableListener
 import io.github.hyuwah.draggableviewlib.makeDraggable
 import kotlinx.coroutines.*
+import kotlin.math.roundToInt
 
 class EditPipelineFragment : Fragment() {
 
@@ -102,7 +103,13 @@ class EditPipelineFragment : Fragment() {
     private fun getCoords(): Pair<Int, Int> {
         val x = binding.horizontalScrollView.scrollX
         val y = binding.scrollView.scrollY
-        return x to y
+        val shift = resources.displayMetrics?.let {
+            val denominator = 3.toDouble()
+            val dimensions = CoordinateConverter.fromDisplay(it.widthPixels.toFloat(), it.heightPixels.toFloat(), it.density)
+            (dimensions.first / denominator).roundToInt() to (dimensions.second / denominator).roundToInt()
+        } ?: 0 to 0
+        val leftTopCorner = CoordinateConverter.fromDisplay(x.toFloat(), y.toFloat(), density)
+        return leftTopCorner.first + shift.first to leftTopCorner.second + shift.second
     }
 
     private fun setUpComponents() {

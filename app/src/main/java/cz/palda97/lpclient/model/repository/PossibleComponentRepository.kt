@@ -4,6 +4,9 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.db.dao.PipelineDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
+import cz.palda97.lpclient.model.entities.pipeline.Component
+import cz.palda97.lpclient.model.entities.pipeline.Configuration
+import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponentFactory
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleStatus
@@ -15,13 +18,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 class PossibleComponentRepository(
-    //private val serverDao: ServerInstanceDao,
+    private val serverDao: ServerInstanceDao,
     private val pipelineDao: PipelineDao
 ) {
 
     enum class StatusCode {
-        NO_CONNECT, INTERNAL_ERROR, DOWNLOADING_ERROR, PARSING_ERROR, OK, DOWNLOAD_IN_PROGRESS;
-        //SERVER_NOT_FOUND
+        NO_CONNECT, INTERNAL_ERROR, DOWNLOADING_ERROR, PARSING_ERROR, OK, DOWNLOAD_IN_PROGRESS, SERVER_NOT_FOUND;
 
         companion object {
             val String?.toStatus
@@ -119,15 +121,36 @@ class PossibleComponentRepository(
 
     var lastSelectedComponentPosition: Int? = null
 
-    var newComponentX = 0
-        private set
-    var newComponentY = 0
+    var coords: Pair<Int, Int>? = null
         private set
 
-    fun prepareForNewComponent(coords: Pair<Int, Int>) {
-        newComponentX = coords.first
-        newComponentY = coords.second
+    fun prepareForNewComponent(newCoords: Pair<Int, Int>) {
+        coords = newCoords
         lastSelectedComponentPosition = null
+    }
+
+    suspend fun downloadDefaultConfiguration(component: PossibleComponent): Either<StatusCode, Configuration> {
+        val server = serverDao.findById(currentServerId) ?: return Either.Left(StatusCode.SERVER_NOT_FOUND)
+        return downloadDefaultConfiguration(component, server)
+    }
+    suspend fun downloadDefaultConfiguration(component: PossibleComponent, server: ServerInstance): Either<StatusCode, Configuration> {
+        val retrofit = when(val res = getPipelineRetrofit(server)) {
+            is Either.Left -> return Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val call = retrofit.componentDefaultConfiguration(component.id)
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val factory = PipelineFactory(server, text)
+        val configuration = factory.parseConfigurationOnly().mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
+        return Either.Right(configuration)
+    }
+
+    suspend fun persistComponent(component: Component) {
+        pipelineDao.insertComponent(component)
+    }
+
+    suspend fun persistConfiguration(configuration: Configuration) {
+        pipelineDao.insertConfiguration(configuration)
     }
 
     companion object {

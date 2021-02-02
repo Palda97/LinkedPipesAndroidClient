@@ -23,6 +23,9 @@ interface PipelineRetrofit {
     @GET("resources/components")
     fun componentList(): Call<ResponseBody>
 
+    @GET("api/v1/components/configTemplate")
+    fun componentDefaultConfiguration(@Query("iri") templateId: String): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.pipelineRetrofit: PipelineRetrofit
             get() = build().create(PipelineRetrofit::class.java)
