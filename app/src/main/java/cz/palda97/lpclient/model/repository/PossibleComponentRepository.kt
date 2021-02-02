@@ -166,17 +166,17 @@ class PossibleComponentRepository(
         return Either.Right(configuration)
     }
 
-    private tailrec suspend fun getTemplateBranch(component: PossibleComponent, collected: MutableList<PossibleComponent> = ArrayList()): List<PossibleComponent>? {
+    private tailrec suspend fun getTemplateBranch(component: PossibleComponent, serverId: Long, collected: MutableList<PossibleComponent> = ArrayList()): List<PossibleComponent>? {
         if (component.templateId == null) {
             return collected
         }
         collected.add(component)
-        val parent = pipelineDao.findPossibleComponentById(component.templateId) ?: return null
-        return getTemplateBranch(parent, collected)
+        val parent = pipelineDao.findPossibleComponentByIds(component.templateId, serverId) ?: return null
+        return getTemplateBranch(parent, serverId, collected)
     }
 
     suspend fun getTemplatesAndConfigurations(component: PossibleComponent): Either<StatusCode, List<Pair<Template, Configuration>>> = coroutineScope<Either<StatusCode, List<Pair<Template, Configuration>>>> {
-        val possibles = getTemplateBranch(component) ?: return@coroutineScope Either.Left(StatusCode.DOWNLOADING_ERROR)
+        val possibles = getTemplateBranch(component, currentServerId) ?: return@coroutineScope Either.Left(StatusCode.DOWNLOADING_ERROR)
         val server = serverDao.findById(currentServerId) ?: return@coroutineScope Either.Left(StatusCode.SERVER_NOT_FOUND)
         val retrofit = when(val res = getPipelineRetrofit(server)) {
             is Either.Left -> return@coroutineScope Either.Left(res.value)

@@ -400,6 +400,6 @@ abstract class PipelineDao {
         deletePossibleComponents(serverIds)
     }
 
-    @Query("select * from possiblecomponent where id = :id")
-    abstract suspend fun findPossibleComponentById(id: String): PossibleComponent?
+    @Query("select * from possiblecomponent where id = :id and serverId = :serverId")
+    abstract suspend fun findPossibleComponentByIds(id: String, serverId: Long): PossibleComponent?
 }
