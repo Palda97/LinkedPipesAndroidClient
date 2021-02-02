@@ -23,10 +23,17 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
 
     fun addComponent(possibleComponent: PossibleComponent) = retrofitScope.launch {
         val configuration = when(val res = possibleRepository.downloadDefaultConfiguration(possibleComponent)) {
-            is Either.Left -> TODO()
+            is Either.Left -> {
+                possibleRepository.mutableLiveAddComponentStatus.postValue(res.value)
+                return@launch
+            }
             is Either.Right -> res.value
         }
-        val coords = possibleRepository.coords ?: TODO()
+        val coords = possibleRepository.coords
+        if (coords == null) {
+            possibleRepository.mutableLiveAddComponentStatus.postValue(PossibleComponentRepository.StatusCode.INTERNAL_ERROR)
+            return@launch
+        }
         l("coords = $coords")
         val component = Component(
             configuration.id,

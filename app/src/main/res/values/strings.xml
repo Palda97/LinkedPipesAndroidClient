@@ -89,4 +89,6 @@
     <string name="select_both_component_and_binding">You have to select both component and binding!</string>
     <string name="choose_a_new_component">Choose a new component</string>
     <string name="no_component_is_selected">No component is selected!</string>
+    <string name="error_while_downloading_default_configuration">Error while downloading default configuration!</string>
+    <string name="error_while_parsing_default_configuration">Error while parsing default configuration!</string>
 </resources>

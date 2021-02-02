@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.model.repository
 
+import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.db.dao.PipelineDao
@@ -127,6 +128,7 @@ class PossibleComponentRepository(
     fun prepareForNewComponent(newCoords: Pair<Int, Int>) {
         coords = newCoords
         lastSelectedComponentPosition = null
+        mutableLiveAddComponentStatus.value = StatusCode.OK
     }
 
     suspend fun downloadDefaultConfiguration(component: PossibleComponent): Either<StatusCode, Configuration> {
@@ -152,6 +154,8 @@ class PossibleComponentRepository(
     suspend fun persistConfiguration(configuration: Configuration) {
         pipelineDao.insertConfiguration(configuration)
     }
+
+    val mutableLiveAddComponentStatus = MutableLiveData<StatusCode>()
 
     companion object {
         private val l = Injector.generateLogFunction(this)

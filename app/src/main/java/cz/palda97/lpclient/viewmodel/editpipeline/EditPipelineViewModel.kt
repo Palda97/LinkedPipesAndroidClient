@@ -59,6 +59,13 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         possibleRepository.prepareForNewComponent(coords)
     }
 
+    val liveAddComponentStatus: LiveData<PossibleComponentRepository.StatusCode>
+        get() = possibleRepository.mutableLiveAddComponentStatus
+
+    fun resetAddComponentStatus() {
+        possibleRepository.mutableLiveAddComponentStatus.value = PossibleComponentRepository.StatusCode.OK
+    }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
 
