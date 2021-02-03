@@ -182,11 +182,20 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun editPipeline(pipelineView: PipelineView) {
+    fun editPipeline(pipelineView: PipelineView, isItNewOne: Boolean) {
+        if (isItNewOne)
+            pipelineRepository.resetLiveNewPipeline()
         pipelineRepository.cachePipelineInit(pipelineView)
         possibleRepository.currentServerId = pipelineView.serverId
         EditPipelineViewModel.scroll = true
     }
+
+    fun createPipeline(server: ServerInstance) {
+        pipelineRepository.createPipelineInit(server)
+    }
+
+    val liveNewPipeline
+        get() = pipelineRepository.liveNewPipeline
 
     class Iri(val iri: String)
 

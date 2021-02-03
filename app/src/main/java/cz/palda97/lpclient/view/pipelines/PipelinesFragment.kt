@@ -13,8 +13,10 @@ import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
+import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.view.EditPipelineActivity
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
@@ -45,6 +47,15 @@ class PipelinesFragment : Fragment() {
         setUpComponents()
         return root
     }
+
+    private val PipelineRepository.CacheStatus.newPipelineErrorMessage: String
+        get() = when(this) {
+            PipelineRepository.CacheStatus.SERVER_NOT_FOUND -> getString(R.string.can_not_connect_to_server)
+            PipelineRepository.CacheStatus.DOWNLOAD_ERROR -> getString(R.string.error_while_downloading_response)
+            PipelineRepository.CacheStatus.PARSING_ERROR -> getString(R.string.error_while_parsing_response)
+            PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> getString(R.string.internal_error)
+            PipelineRepository.CacheStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
+        }
 
     private fun setUpComponents() {
         fun setUpFAB() {
@@ -123,11 +134,37 @@ class PipelinesFragment : Fragment() {
             })
         }
 
+        fun setUpNewPipeline() {
+            viewModel.liveNewPipeline.observe(viewLifecycleOwner, Observer {
+                val pipelineView = when(val res = it ?: return@Observer) {
+                    is Either.Left -> {
+                        val text = when(res.value) {
+                            PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> {
+                                return@Observer
+                            }
+                            PipelineRepository.CacheStatus.INTERNAL_ERROR -> {
+                                //TODO("loading")
+                                return@Observer
+                            }
+                            else -> res.value.newPipelineErrorMessage
+                        }
+                        Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                            .setAnchorView(fab)
+                            .show()
+                        return@Observer
+                    }
+                    is Either.Right -> res.value
+                }
+                editPipeline(pipelineView, true)
+            })
+        }
+
         setUpFAB()
         setUpRefreshFAB()
         setUpDropDown()
         setUpPipelineRecycler()
         setUpLaunchStatus()
+        setUpNewPipeline()
     }
 
     private fun createPipeline() {
@@ -138,9 +175,8 @@ class PipelinesFragment : Fragment() {
         viewModel.refreshButton()
     }
 
-    private fun editPipeline(pipelineView: PipelineView) {
-        viewModel.editPipeline(pipelineView)
-        //Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+    private fun editPipeline(pipelineView: PipelineView, isItNewOne: Boolean = false) {
+        viewModel.editPipeline(pipelineView, isItNewOne)
         EditPipelineActivity.start(requireContext())
     }
 

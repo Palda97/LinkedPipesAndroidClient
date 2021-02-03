@@ -14,8 +14,11 @@ import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
 import cz.palda97.lpclient.model.entities.pipeline.jsonLd
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
+import cz.palda97.lpclient.model.network.PipelineRetrofit.Companion.pipelineRetrofit
+import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -41,7 +44,7 @@ class PipelineRepository(
 
     enum class CacheStatus {
         SERVER_NOT_FOUND, DOWNLOAD_ERROR, PARSING_ERROR, NO_PIPELINE_TO_LOAD, INTERNAL_ERROR;
-
+        // no connect       downloading     parsing         neutral                 loading
         companion object {
             val String.toStatus
                 get() = try {
@@ -187,6 +190,54 @@ class PipelineRepository(
 
     init {
         recover()
+    }
+
+    private suspend fun getPipelineRetrofit(server: ServerInstance): Either<CacheStatus, PipelineRetrofit> = try {
+        Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).pipelineRetrofit)
+    } catch (e: IllegalArgumentException) {
+        Either.Left(CacheStatus.SERVER_NOT_FOUND)
+    }
+
+    private suspend fun createPipelineRequest(server: ServerInstance): Either<CacheStatus, PipelineView> {
+        val retrofit = when(val res = getPipelineRetrofit(server)) {
+            is Either.Left -> return Either.Left(res.value)
+            is Either.Right -> res.value
+        }
+        val call = retrofit.createPipeline(RetrofitHelper.stringToFormData(PipelineRetrofit.OPTIONS))
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(CacheStatus.PARSING_ERROR)
+        val factory = PipelineViewFactory(server, text)
+        val wrapper = factory.serverWithPipelineViews.mailContent ?: return Either.Left(CacheStatus.PARSING_ERROR)
+        if (wrapper.pipelineViewList.size != 1) {
+            return Either.Left(CacheStatus.PARSING_ERROR)
+        }
+        val pipelineView = wrapper.pipelineViewList.first().pipelineView
+        return Either.Right(pipelineView)
+    }
+
+    private val _liveNewPipeline = MutableLiveData<Either<CacheStatus, PipelineView>>()
+    val liveNewPipeline: LiveData<Either<CacheStatus, PipelineView>>
+        get() = _liveNewPipeline
+    fun resetLiveNewPipeline() {
+        _liveNewPipeline.value = Either.Left(CacheStatus.NO_PIPELINE_TO_LOAD)
+    }
+
+    fun createPipelineInit(server: ServerInstance) {
+        _liveNewPipeline.value = Either.Left(CacheStatus.INTERNAL_ERROR)
+        retrofitScope.launch {
+            createPipeline(server)
+        }
+    }
+
+    private suspend fun createPipeline(server: ServerInstance) {
+        val pipelineView = when(val res = createPipelineRequest(server)) {
+            is Either.Left -> {
+                _liveNewPipeline.postValue(res)
+                return
+            }
+            is Either.Right -> res.value
+        }
+        Injector.pipelineViewRepository.insertPipelineView(pipelineView)
+        _liveNewPipeline.postValue(Either.Right(pipelineView))
     }
 
     companion object {

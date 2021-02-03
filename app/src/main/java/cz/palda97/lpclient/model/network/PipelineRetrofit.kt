@@ -29,8 +29,14 @@ interface PipelineRetrofit {
     @GET("api/v1/components/config")
     fun templateConfiguration(@Query("iri") id: String): Call<ResponseBody>
 
+    @Multipart
+    @POST("resources/pipelines")
+    fun createPipeline(@Part("options") options: RequestBody): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.pipelineRetrofit: PipelineRetrofit
             get() = build().create(PipelineRetrofit::class.java)
+
+        const val OPTIONS = "{\"@id\":\"http://localhost/options\",\"@type\":\"http://linkedpipes.com/ontology/UpdateOptions\"}"
     }
 }

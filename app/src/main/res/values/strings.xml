@@ -92,4 +92,6 @@
     <string name="error_while_downloading_default_configuration">Error while downloading default configuration!</string>
     <string name="error_while_parsing_default_configuration">Error while parsing default configuration!</string>
     <string name="delete_this_component">Delete this component</string>
+    <string name="error_while_downloading_response">Error while downloading response!</string>
+    <string name="error_while_parsing_response">Error while parsing response!</string>
 </resources>

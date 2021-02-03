@@ -10,9 +10,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.DialogChooseServerBinding
-import cz.palda97.lpclient.view.EditPipelineActivity
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.CommonViewModel
+import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 class CreatePipelineDialog : DialogFragment() {
@@ -23,6 +23,7 @@ class CreatePipelineDialog : DialogFragment() {
             DataBindingUtil.inflate(layoutInflater, R.layout.dialog_choose_server, null, false)
         val commonViewModel = CommonViewModel.getInstance(this)
         val settingsViewModel = SettingsViewModel.getInstance(this)
+        val pipelineViewModel = PipelinesViewModel.getInstance(this)
 
         binding.serverInstanceDropDown.setUpWithServers(
             requireContext(),
@@ -39,11 +40,12 @@ class CreatePipelineDialog : DialogFragment() {
                 //
             }
             .setPositiveButton(R.string.continue_string) { _, _ ->
-                if (commonViewModel.serverToFilter == null) {
+                val server = commonViewModel.serverToFilter
+                if (server == null) {
                     Toast.makeText(requireContext(), R.string.no_server_selected, Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-                EditPipelineActivity.start(requireContext())
+                pipelineViewModel.createPipeline(server)
             }
 
         return builder.create()

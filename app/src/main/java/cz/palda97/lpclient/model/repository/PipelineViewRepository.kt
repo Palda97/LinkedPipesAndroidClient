@@ -59,7 +59,7 @@ class PipelineViewRepository(
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
-    private suspend fun insertPipelineView(pipelineView: PipelineView) {
+    suspend fun insertPipelineView(pipelineView: PipelineView) {
         pipelineViewDao.insert(pipelineView)
     }
 
