@@ -231,7 +231,13 @@ class ComponentRepository(
 
     private suspend fun cacheBinding(component: Component) {
         val templateId = component.getRootTemplateId(pipelineDao)
+        cacheBinding(templateId)
+    }
+    suspend fun cacheBinding(templateId: String) {
         val type = ConfigDownloadStatus.TYPE_BINDING
+        val statusBinding = pipelineDao.findStatus(templateId, type)
+        if (statusBinding != null && (statusBinding.result == StatusCode.OK.name || statusBinding.result == StatusCode.DOWNLOAD_IN_PROGRESS.name))
+            return
         persistStatus(ConfigDownloadStatus(templateId, type, StatusCode.DOWNLOAD_IN_PROGRESS))
         val status = ConfigDownloadStatus(templateId, type, when(val res = downloadBindings(templateId)) {
             is Either.Left -> res.value
