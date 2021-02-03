@@ -148,9 +148,11 @@ class PipelineRepository(
     }
 
     var currentPipelineId = ""
+    var currentServerId = 0L
 
     fun cachePipelineInit(pipelineView: PipelineView) {
         currentPipelineId = pipelineView.id
+        currentServerId = pipelineView.serverId
         desyncLivePipeline()
         retrofitScope.launch {
             cachePipeline(pipelineView, false)
@@ -192,6 +194,10 @@ class PipelineRepository(
         recover()
     }
 
+    private suspend fun getPipelineRetrofit(): Either<CacheStatus, PipelineRetrofit> {
+        val server = serverDao.findById(currentServerId) ?: return Either.Left(CacheStatus.SERVER_NOT_FOUND)
+        return getPipelineRetrofit(server)
+    }
     private suspend fun getPipelineRetrofit(server: ServerInstance): Either<CacheStatus, PipelineRetrofit> = try {
         Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).pipelineRetrofit)
     } catch (e: IllegalArgumentException) {
@@ -238,6 +244,53 @@ class PipelineRepository(
         }
         Injector.pipelineViewRepository.insertPipelineView(pipelineView)
         _liveNewPipeline.postValue(Either.Right(pipelineView))
+    }
+
+    enum class StatusCode {
+        NO_CONNECT, INTERNAL_ERROR, NEUTRAL, UPLOADING_ERROR, PARSING_ERROR, OK, UPLOAD_IN_PROGRESS;
+
+        companion object {
+            val String?.toStatus
+                get() = if (this == null) {
+                    INTERNAL_ERROR
+                } else {
+                    try {
+                        valueOf(this)
+                    } catch (e: IllegalArgumentException) {
+                        INTERNAL_ERROR
+                    }
+                }
+        }
+    }
+
+    private suspend fun uploadPipelineRequest(): StatusCode {
+        val pipeline = pipelineDao.exportPipeline(currentPipelineId) ?: return StatusCode.PARSING_ERROR
+        val retrofit = when(val res = getPipelineRetrofit()) {
+            is Either.Left -> return StatusCode.NO_CONNECT
+            is Either.Right -> res.value
+        }
+        val call = retrofit.updatePipeline(pipeline.pipelineView.idNumber, RetrofitHelper.stringToFormData(pipeline.jsonLd()))
+        val text = RetrofitHelper.getStringFromCall(call) ?: return StatusCode.UPLOADING_ERROR
+        if (text.isNotEmpty()) {
+            return StatusCode.INTERNAL_ERROR
+        }
+        return StatusCode.OK
+    }
+
+    private val _liveUploadStatus = MutableLiveData<StatusCode>()
+    val liveUploadStatus: LiveData<StatusCode>
+        get() = _liveUploadStatus
+    fun resetUploadStatus() {
+        _liveUploadStatus.value = StatusCode.NEUTRAL
+    }
+    fun cannotSavePipelineForUpload() {
+        _liveUploadStatus.postValue(StatusCode.INTERNAL_ERROR)
+    }
+
+    suspend fun uploadPipeline() {
+        _liveUploadStatus.postValue(StatusCode.UPLOAD_IN_PROGRESS)
+        val status = uploadPipelineRequest()
+        _liveUploadStatus.postValue(status)
     }
 
     companion object {

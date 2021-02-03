@@ -128,6 +128,17 @@ class EditPipelineFragment : Fragment() {
             PossibleComponentRepository.StatusCode.SERVER_NOT_FOUND ->  getString(R.string.server_instance_no_longer_registered)
         }
 
+    private val PipelineRepository.StatusCode.message: String
+        get() = when(this) {
+            PipelineRepository.StatusCode.NO_CONNECT -> getString(R.string.can_not_connect_to_server)
+            PipelineRepository.StatusCode.INTERNAL_ERROR -> getString(R.string.internal_error)
+            PipelineRepository.StatusCode.NEUTRAL -> getString(R.string.internal_error)
+            PipelineRepository.StatusCode.UPLOADING_ERROR -> getString(R.string.error_while_uploading_pipeline)
+            PipelineRepository.StatusCode.PARSING_ERROR -> getString(R.string.internal_error)
+            PipelineRepository.StatusCode.OK -> getString(R.string.pipeline_has_been_saved)
+            PipelineRepository.StatusCode.UPLOAD_IN_PROGRESS -> getString(R.string.internal_error)
+        }
+
     private fun setUpComponents() {
 
         fun setUpFAB() {
@@ -142,6 +153,29 @@ class EditPipelineFragment : Fragment() {
             binding.cancelButton.setOnClickListener {
                 requireActivity().finish()
             }
+        }
+
+        fun setUpSaveButton() {
+            binding.saveButton.setOnClickListener {
+                viewModel.uploadPipeline(currentPipeline)
+            }
+            viewModel.liveUploadStatus.observe(viewLifecycleOwner, Observer {
+                val status = it ?: return@Observer
+                if (status == PipelineRepository.StatusCode.NEUTRAL)
+                    return@Observer
+                viewModel.resetUploadStatus()
+                binding.uploading = status == PipelineRepository.StatusCode.UPLOAD_IN_PROGRESS
+                binding.executePendingBindings()
+                val text = when(status) {
+                    PipelineRepository.StatusCode.UPLOAD_IN_PROGRESS -> {
+                        return@Observer
+                    }
+                    else -> status.message
+                }
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                    .setAnchorView(binding.editPipelineBottomButtons)
+                    .show()
+            })
         }
 
         fun setUpAddComponentErrors() {
@@ -159,6 +193,7 @@ class EditPipelineFragment : Fragment() {
 
         setUpCancelButton()
         setUpFAB()
+        setUpSaveButton()
         setUpAddComponentErrors()
     }
 

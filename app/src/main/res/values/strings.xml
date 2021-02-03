@@ -94,4 +94,6 @@
     <string name="delete_this_component">Delete this component</string>
     <string name="error_while_downloading_response">Error while downloading response!</string>
     <string name="error_while_parsing_response">Error while parsing response!</string>
+    <string name="error_while_uploading_pipeline">Error while uploading pipeline!</string>
+    <string name="pipeline_has_been_saved">Pipeline has been saved.</string>
 </resources>

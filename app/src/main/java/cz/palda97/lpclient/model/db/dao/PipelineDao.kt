@@ -417,4 +417,49 @@ abstract class PipelineDao {
 
     @Query("select * from possiblecomponent where id = :id and serverId = :serverId")
     abstract suspend fun findPossibleComponentByIds(id: String, serverId: Long): PossibleComponent?
+
+    //Extract Pipeline
+
+    @Query("select * from pipelineview where id = :pipelineId")
+    abstract suspend fun getPipelineView(pipelineId: String): PipelineView?
+
+    @Query("select * from profile")
+    abstract suspend fun getAllProfiles(): List<Profile>
+
+    @Query("select * from component")
+    abstract suspend fun getAllComponents(): List<Component>
+
+    @Query("select * from connection")
+    abstract suspend fun getAllConnections(): List<Connection>
+
+    @Query("select * from configuration")
+    abstract suspend fun getAllConfiguration(): List<Configuration>
+
+    @Query("select * from vertex")
+    abstract suspend fun getAllVertex(): List<Vertex>
+
+    @Query("select * from template")
+    abstract suspend fun getAllTemplates(): List<Template>
+
+    @Transaction
+    open suspend fun exportPipeline(pipelineId: String): Pipeline? {
+        val pipelineView = getPipelineView(pipelineId) ?: return null
+        val profile = getAllProfiles().let {
+            if (it.size != 1) null else it.first()
+        } ?: return null
+        val components = getAllComponents()
+        val connections = getAllConnections()
+        val configurations = getAllConfiguration()
+        val vertexes = getAllVertex()
+        val templates = getAllTemplates()
+        return Pipeline(
+            pipelineView,
+            profile,
+            components,
+            connections,
+            configurations,
+            vertexes,
+            templates
+        )
+    }
 }

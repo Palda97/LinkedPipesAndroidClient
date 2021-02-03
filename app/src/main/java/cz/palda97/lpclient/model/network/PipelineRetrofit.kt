@@ -33,6 +33,9 @@ interface PipelineRetrofit {
     @POST("resources/pipelines")
     fun createPipeline(@Part("options") options: RequestBody): Call<ResponseBody>
 
+    @PUT("resources/pipelines/{id}?unchecked=true")
+    fun updatePipeline(@Path("id") pipelineIdNumber: String, @Body jsonld: RequestBody): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.pipelineRetrofit: PipelineRetrofit
             get() = build().create(PipelineRetrofit::class.java)
