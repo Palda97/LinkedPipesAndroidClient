@@ -8,11 +8,15 @@ import retrofit2.Retrofit
 import java.io.IOException
 
 object RetrofitHelper {
-    private val TAG = Injector.tag(this)
-    private val l = Injector.generateLogFunction(TAG)
+
+    private val l = Injector.generateLogFunction("RetrofitHelper")
 
     suspend fun getStringFromCall(call: Call<ResponseBody>): String? = try {
         val executedCall = call.execute()
+        if (executedCall.code() != 200) {
+            l(executedCall.code())
+            l(executedCall.errorBody()?.string())
+        }
         val response = executedCall.body()
         //response?.string() ?: "There is no ResponseBody"
         response?.string()
