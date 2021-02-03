@@ -280,8 +280,8 @@ class ComponentRepository(
 
     suspend fun cache(component: Component) = coroutineScope {
         val statusConfigInput = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
-        val statusDialogJs = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
-        val statusBinding = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
+        val statusDialogJs = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_DIALOG_JS)
+        val statusBinding = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_BINDING)
         val list = mutableListOf<Deferred<Unit>>()
         if (statusConfigInput == null || (statusConfigInput.result != StatusCode.OK.name && statusConfigInput.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
             list.add(async { cacheConfigInput(component) })
