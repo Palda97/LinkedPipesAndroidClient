@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class PipelineView(
-    val prefLabel: String,
+    var prefLabel: String,
     @PrimaryKey(autoGenerate = false) val id: String,
     val serverId: Long
 ) {

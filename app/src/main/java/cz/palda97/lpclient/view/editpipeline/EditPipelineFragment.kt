@@ -139,6 +139,16 @@ class EditPipelineFragment : Fragment() {
             PipelineRepository.StatusCode.UPLOAD_IN_PROGRESS -> getString(R.string.internal_error)
         }
 
+    private fun uploadPipeline() {
+        val job = viewModel.uploadPipelineButton(currentPipeline) ?: return
+        job.invokeOnCompletion {
+            if (it != null) {
+                return@invokeOnCompletion
+            }
+            UploadPipelineDialog.appear(parentFragmentManager)
+        }
+    }
+
     private fun setUpComponents() {
 
         fun setUpFAB() {
@@ -157,7 +167,7 @@ class EditPipelineFragment : Fragment() {
 
         fun setUpSaveButton() {
             binding.saveButton.setOnClickListener {
-                viewModel.uploadPipeline(currentPipeline)
+                uploadPipeline()
             }
             viewModel.liveUploadStatus.observe(viewLifecycleOwner, Observer {
                 val status = it ?: return@Observer

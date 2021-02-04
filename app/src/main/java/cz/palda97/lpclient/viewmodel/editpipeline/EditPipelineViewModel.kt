@@ -66,19 +66,31 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         possibleRepository.mutableLiveAddComponentStatus.value = PossibleComponentRepository.StatusCode.OK
     }
 
-    fun uploadPipeline(pipeline: Pipeline?) = retrofitScope.launch {
-        if (pipeline == null) {
-            pipelineRepository.cannotSavePipelineForUpload()
-            return@launch
+    var currentPipelineView
+        get() = pipelineRepository.currentPipelineView!!
+        set(value) {
+            pipelineRepository.currentPipelineView = value
         }
-        pipelineRepository.savePipeline(pipeline, false)
-        pipelineRepository.uploadPipeline()
+
+    fun uploadPipelineButton(pipeline: Pipeline?) = if (pipeline == null) {
+        pipelineRepository.cannotSavePipelineForUpload()
+        null
+    } else {
+        retrofitScope.launch {
+            pipelineRepository.savePipeline(pipeline, false)
+            currentPipelineView = pipeline.pipelineView
+        }
     }
 
     val liveUploadStatus
         get() = pipelineRepository.liveUploadStatus
     fun resetUploadStatus() {
         pipelineRepository.resetUploadStatus()
+    }
+
+    fun uploadPipeline() = retrofitScope.launch {
+        pipelineRepository.insertCurrentPipelineView()
+        pipelineRepository.uploadPipeline()
     }
 
     companion object {

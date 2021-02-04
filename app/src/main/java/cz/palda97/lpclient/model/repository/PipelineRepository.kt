@@ -284,13 +284,19 @@ class PipelineRepository(
         _liveUploadStatus.value = StatusCode.NEUTRAL
     }
     fun cannotSavePipelineForUpload() {
-        _liveUploadStatus.postValue(StatusCode.INTERNAL_ERROR)
+        _liveUploadStatus.value = StatusCode.INTERNAL_ERROR
     }
 
     suspend fun uploadPipeline() {
         _liveUploadStatus.postValue(StatusCode.UPLOAD_IN_PROGRESS)
         val status = uploadPipelineRequest()
         _liveUploadStatus.postValue(status)
+    }
+
+    var currentPipelineView: PipelineView? = null
+
+    suspend fun insertCurrentPipelineView() = currentPipelineView?.let {
+        Injector.pipelineViewRepository.insertPipelineView(it)
     }
 
     companion object {
