@@ -208,9 +208,13 @@ abstract class PipelineDao {
         deleteDefinitions()
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertPipelineView(pipelineView: PipelineView)
+
     @Transaction
     open suspend fun insertPipeline(pipeline: Pipeline) {
         with(pipeline) {
+            insertPipelineView(pipelineView)
             insertProfile(profile)
             insertComponent(components)
             insertConnection(connections)
