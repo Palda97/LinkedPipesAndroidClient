@@ -53,7 +53,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun forceSaveServer(serverInstance: ServerInstance) {
+    private fun forceSaveServer(serverInstance: ServerInstance) {
         dbScope.launch {
             serverRepository.insertServer(serverInstance)
         }
@@ -89,6 +89,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         activeLiveServers.value?.mailContent?.find {
             it.name == name
         }
+
+    fun activeChange(server: ServerInstance) {
+        server.active = !server.active
+        forceSaveServer(server)
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

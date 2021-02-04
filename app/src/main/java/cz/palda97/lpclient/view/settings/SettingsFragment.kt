@@ -98,7 +98,7 @@ class SettingsFragment : Fragment() {
         }
 
         fun setUpServerRecycler() {
-            serverRecyclerAdapter = ServerRecyclerAdapter { editServer(it) }
+            serverRecyclerAdapter = ServerRecyclerAdapter(::editServer, ::activeChange)
             RecyclerViewCosmetics.makeItAllWork(
                 binding.insertServerInstancesHere,
                 serverRecyclerAdapter,
@@ -132,6 +132,11 @@ class SettingsFragment : Fragment() {
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()
+    }
+
+    private fun activeChange(server: ServerInstance) {
+        l("activeChange")
+        viewModel.activeChange(server)
     }
 
     private fun addServer() {
