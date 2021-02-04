@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -18,7 +19,7 @@ import cz.palda97.lpclient.viewmodel.executions.resource
 
 object Notifications {
 
-    private const val NOTIFICATION_ID = 420
+    private const val NOTIFICATION_ID = "NOTIFICATION_ID"
     const val NOTIFICATIONS = "NOTIFICATIONS"
 
     private fun allowNotifications(context: Context): Boolean {
@@ -75,8 +76,17 @@ object Notifications {
 
         //startForeground(NOTIFICATION_ID, builder.build())
         with(NotificationManagerCompat.from(context)) {
-            notify(NOTIFICATION_ID, builder.build())
+            notify(getNotificationId(context), builder.build())
         }
+    }
+
+    private fun getNotificationId(context: Context) = getNotificationId(SharedPreferencesFactory.sharedPreferences(context))
+    private fun getNotificationId(sharedPreferences: SharedPreferences): Int {
+        val id = sharedPreferences.getInt(NOTIFICATION_ID, 0)
+        val tmp = id + 1
+        val newId = if (tmp < 0) 0 else tmp
+        sharedPreferences.edit().putInt(NOTIFICATION_ID, newId).apply()
+        return id
     }
 
     /*fun makeExecutionNotification(context: Context, text: String) {
