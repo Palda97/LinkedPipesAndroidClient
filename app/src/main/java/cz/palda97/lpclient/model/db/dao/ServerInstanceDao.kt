@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
-import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 
 @Dao
 abstract class ServerInstanceDao {

@@ -1,9 +1,8 @@
 package cz.palda97.lpclient.model.entities.execution
 
-import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
-import cz.palda97.lpclient.model.entities.pipeline.PipelineViewFactory
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
@@ -18,8 +17,7 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
     )
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
 
         private fun fromJson(
             server: ServerInstance,

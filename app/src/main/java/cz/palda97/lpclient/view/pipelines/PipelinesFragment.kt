@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.view.pipelines
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,17 +8,22 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentPipelinesBinding
+import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.repository.PipelineRepository
+import cz.palda97.lpclient.view.EditPipelineActivity
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
+import cz.palda97.lpclient.view.editpipeline.CreatePipelineDialog
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 
 class PipelinesFragment : Fragment() {
 
@@ -28,6 +32,7 @@ class PipelinesFragment : Fragment() {
     private lateinit var refreshFab: FloatingActionButton
     private lateinit var viewModel: PipelinesViewModel
     private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var commonViewModel: CommonViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,11 +41,21 @@ class PipelinesFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_pipelines, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
-        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        viewModel = PipelinesViewModel.getInstance(this)
+        settingsViewModel = SettingsViewModel.getInstance(this)
+        commonViewModel = CommonViewModel.getInstance(this)
         setUpComponents()
         return root
     }
+
+    private val PipelineRepository.CacheStatus.newPipelineErrorMessage: String
+        get() = when(this) {
+            PipelineRepository.CacheStatus.SERVER_NOT_FOUND -> getString(R.string.can_not_connect_to_server)
+            PipelineRepository.CacheStatus.DOWNLOAD_ERROR -> getString(R.string.error_while_downloading_response)
+            PipelineRepository.CacheStatus.PARSING_ERROR -> getString(R.string.error_while_parsing_response)
+            PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> getString(R.string.internal_error)
+            PipelineRepository.CacheStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
+        }
 
     private fun setUpComponents() {
         fun setUpFAB() {
@@ -64,8 +79,8 @@ class PipelinesFragment : Fragment() {
                 requireContext(),
                 settingsViewModel,
                 viewLifecycleOwner,
-                { viewModel.setServerToFilterFun(it) },
-                viewModel.serverToFilter
+                { commonViewModel.setServerToFilterFun(it) },
+                commonViewModel.serverToFilter
             )
         }
 
@@ -119,25 +134,50 @@ class PipelinesFragment : Fragment() {
             })
         }
 
+        fun setUpNewPipeline() {
+            viewModel.liveNewPipeline.observe(viewLifecycleOwner, Observer {
+                val pipelineView = when(val res = it ?: return@Observer) {
+                    is Either.Left -> {
+                        val text = when(res.value) {
+                            PipelineRepository.CacheStatus.NO_PIPELINE_TO_LOAD -> {
+                                return@Observer
+                            }
+                            PipelineRepository.CacheStatus.INTERNAL_ERROR -> {
+                                //TODO("loading")
+                                return@Observer
+                            }
+                            else -> res.value.newPipelineErrorMessage
+                        }
+                        Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+                            .setAnchorView(fab)
+                            .show()
+                        return@Observer
+                    }
+                    is Either.Right -> res.value
+                }
+                editPipeline(pipelineView, true)
+            })
+        }
+
         setUpFAB()
         setUpRefreshFAB()
         setUpDropDown()
         setUpPipelineRecycler()
         setUpLaunchStatus()
+        setUpNewPipeline()
     }
 
     private fun createPipeline() {
-        //TODO()
-        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+        CreatePipelineDialog.appear(parentFragmentManager)
     }
 
     private fun refreshPipelines() {
         viewModel.refreshButton()
     }
 
-    private fun editPipeline(pipelineView: PipelineView) {
-        //TODO()
-        Toast.makeText(requireContext(), "edit screen coming soon", Toast.LENGTH_SHORT).show()
+    private fun editPipeline(pipelineView: PipelineView, isItNewOne: Boolean = false) {
+        viewModel.editPipeline(pipelineView, isItNewOne)
+        EditPipelineActivity.start(requireContext())
     }
 
     private fun launchPipeline(pipelineView: PipelineView) {
@@ -160,8 +200,6 @@ class PipelinesFragment : Fragment() {
     }
 
     companion object {
-        private const val TAG = "PipelinesFragment"
-        private fun l(msg: String) = Log.d(TAG, msg)
-        private fun divLog(dashCount: Int = 100) = Log.d(TAG, "-".repeat(dashCount))
+        private val l = Injector.generateLogFunction(this)
     }
 }

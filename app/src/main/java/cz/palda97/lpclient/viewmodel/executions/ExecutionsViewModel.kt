@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.viewmodel.executions
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
@@ -65,25 +64,6 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-    private fun onServerToFilterChange() {
-        //executionRepository.onServerToFilterChange()
-        RepositoryRoutines().onServerToFilterChange()
-    }
-
-    var serverToFilter: ServerInstance?
-        get() = serverRepository.serverToFilter
-        private set(value) {
-            val changed = value != serverRepository.serverToFilter
-            serverRepository.serverToFilter = value
-            if (changed) {
-                onServerToFilterChange()
-            }
-        }
-
-    fun setServerToFilterFun(serverInstance: ServerInstance?) {
-        serverToFilter = serverInstance
-    }
-
     private suspend fun downloadAllExecutions(silent: Boolean = false) {
         executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
     }
@@ -127,9 +107,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
         private const val DELETE_DELAY: Long = 5000L
         const val SCROLL = "SCROLL"
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(ExecutionsViewModel::class.java)
     }
 }

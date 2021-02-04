@@ -17,6 +17,7 @@ class MailPackage<content>(val mailContent: content?, val status: Status, val ms
 
         fun ok() = MailPackage(true)
         fun error(message: String = "") = MailPackage(false, Status.ERROR, message)
+        fun loading() = MailPackage(false, Status.LOADING, "")
     }
 
     enum class Status {

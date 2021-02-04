@@ -1,6 +1,5 @@
-package cz.palda97.lpclient.model.entities.pipeline
+package cz.palda97.lpclient.model.entities.pipelineview
 
-import android.util.Log
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
@@ -9,6 +8,7 @@ import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatId
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.giveMeThatString
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions.prepareSemiRootElement
+import cz.palda97.lpclient.model.travelobjects.LdConstants
 import cz.palda97.lpclient.model.travelobjects.LdConstants.PREF_LABEL
 import cz.palda97.lpclient.model.travelobjects.LdConstants.VALUE
 
@@ -22,8 +22,7 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
     )
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
 
         private fun fromJson(
             server: ServerInstance,
@@ -90,7 +89,9 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
                 prefLabel,
                 id,
                 server.id
-            )
+            ).apply {
+                version = giveMeThatString(map, LdConstants.VERSION, VALUE)?.toIntOrNull()
+            }
         }
     }
 }

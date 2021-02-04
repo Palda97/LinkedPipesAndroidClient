@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.viewmodel.editserver
 
-import android.util.Log
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
@@ -22,10 +21,6 @@ class EditServerViewModel : ViewModel() {
     init {
         l("init")
     }
-
-    /*private val _doneButtonEnable = MutableLiveData<Boolean>(true)
-    val doneButtonEnable: LiveData<Boolean>
-        get() = _doneButtonEnable*/
 
     private val _saveSuccessful = MutableLiveData<SaveStatus>(SaveStatus.WAITING)
     val saveSuccessful: LiveData<SaveStatus>
@@ -109,8 +104,9 @@ class EditServerViewModel : ViewModel() {
     }
 
     companion object {
-        private const val TAG = "EditServerViewModel"
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(EditServerViewModel::class.java)
     }
 
     enum class SaveStatus {

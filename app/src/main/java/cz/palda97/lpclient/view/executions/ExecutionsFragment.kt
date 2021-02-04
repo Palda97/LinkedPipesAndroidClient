@@ -1,14 +1,12 @@
 package cz.palda97.lpclient.view.executions
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -21,6 +19,7 @@ import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import cz.palda97.lpclient.viewmodel.executions.ExecutionsViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 
 class ExecutionsFragment : Fragment() {
@@ -30,6 +29,7 @@ class ExecutionsFragment : Fragment() {
     private lateinit var refreshFab: FloatingActionButton
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var pipelineViewModel: PipelinesViewModel
+    private lateinit var commonViewModel: CommonViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,9 +39,10 @@ class ExecutionsFragment : Fragment() {
         //return inflater.inflate(R.layout.fragment_executions, container, false)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_executions, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(ExecutionsViewModel::class.java)
-        settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
-        pipelineViewModel = ViewModelProvider(this).get(PipelinesViewModel::class.java)
+        viewModel = ExecutionsViewModel.getInstance(this)
+        settingsViewModel = SettingsViewModel.getInstance(this)
+        pipelineViewModel = PipelinesViewModel.getInstance(this)
+        commonViewModel = CommonViewModel.getInstance(this)
         setUpComponents()
         return root
     }
@@ -61,8 +62,8 @@ class ExecutionsFragment : Fragment() {
                 requireContext(),
                 settingsViewModel,
                 viewLifecycleOwner,
-                { viewModel.setServerToFilterFun(it) },
-                viewModel.serverToFilter
+                { commonViewModel.setServerToFilterFun(it) },
+                commonViewModel.serverToFilter
             )
         }
 
@@ -159,7 +160,6 @@ class ExecutionsFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 }

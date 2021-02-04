@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.view.executions
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -101,8 +100,7 @@ class ExecutionRecycleAdapter(
     }*/
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 
     override fun getList(): List<ExecutionV>? = executionList

@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.view.pipelines
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -9,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.view.AdapterWithList
 
 class PipelineRecyclerAdapter(
@@ -100,8 +99,7 @@ class PipelineRecyclerAdapter(
     }*/
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 
     override fun getList(): List<PipelineView>? = pipelineList

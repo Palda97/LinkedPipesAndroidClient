@@ -1,29 +1,27 @@
 package cz.palda97.lpclient.viewmodel.pipelines
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
-import androidx.work.*
 import com.google.gson.Gson
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
-import cz.palda97.lpclient.model.entities.pipeline.ServerWithPipelineViews
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import cz.palda97.lpclient.model.repository.ExecutionRepository
-import cz.palda97.lpclient.model.repository.PipelineRepository
-import cz.palda97.lpclient.model.repository.RepositoryRoutines
-import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.model.repository.*
 import cz.palda97.lpclient.model.services.ExecutionMonitor
+import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
 
 class PipelinesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val pipelineViewRepository: PipelineViewRepository = Injector.pipelineViewRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
     private val executionRepository: ExecutionRepository = Injector.executionRepository
+    private val pipelineRepository: PipelineRepository = Injector.pipelineRepository
+    private val possibleRepository: PossibleComponentRepository = Injector.possibleComponentRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -31,7 +29,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         get() = CoroutineScope(Dispatchers.IO)
 
     val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
-        pipelineRepository.liveServersWithPipelineViews.switchMap {
+        pipelineViewRepository.liveServersWithPipelineViews.switchMap {
             l("switchMap")
             liveData(Dispatchers.Default) {
                 val mail = pipelineViewTransform(it)
@@ -50,7 +48,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                     l("pipelineViewTransform - ${it.server.id} - ${it.server.name}")
                 }
                 val list = mail.mailContent.flatMap {
-                    it.pipelineViewList.filter { !(it.mark != null || pipelineRepository.deleteRepo.toBeDeleted(it.pipelineView)) }.map { it.pipelineView }.apply {
+                    it.pipelineViewList.filter { !(it.mark != null || pipelineViewRepository.deleteRepo.toBeDeleted(it.pipelineView)) }.map { it.pipelineView }.apply {
                         forEach { pipelineView ->
                             pipelineView.serverName = it.server.name
                         }
@@ -68,8 +66,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
     private suspend fun downloadAllPipelineViews() {
-        //pipelineRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
-        pipelineRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
+        //pipelineViewRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
+        pipelineViewRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
     }
 
     fun refreshButton() {
@@ -79,28 +77,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun onServerToFilterChange() {
-        //pipelineRepository.onServerToFilterChange()
-        RepositoryRoutines().onServerToFilterChange()
-    }
-
-    var serverToFilter: ServerInstance?
-        get() = serverRepository.serverToFilter
-        private set(value) {
-            val changed = value != serverRepository.serverToFilter
-            serverRepository.serverToFilter = value
-            if (changed) {
-                onServerToFilterChange()
-            }
-        }
-
-    fun setServerToFilterFun(serverInstance: ServerInstance?) {
-        serverToFilter = serverInstance
-    }
-
     private suspend fun deletePipelineRoutine(pipelineView: PipelineView) {
-        pipelineRepository.markForDeletion(pipelineView)
-        pipelineRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
+        pipelineViewRepository.markForDeletion(pipelineView)
+        pipelineViewRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
     }
 
     fun deletePipeline(pipelineView: PipelineView) {
@@ -110,8 +89,8 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private suspend fun cancelRoutine(pipelineView: PipelineView) {
-        pipelineRepository.unMarkForDeletion(pipelineView)
-        pipelineRepository.deleteRepo.cancelDeletion(pipelineView)
+        pipelineViewRepository.unMarkForDeletion(pipelineView)
+        pipelineViewRepository.deleteRepo.cancelDeletion(pipelineView)
     }
 
     fun cancelDeletion(pipelineView: PipelineView) {
@@ -132,13 +111,13 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         _launchStatus.value = LaunchStatus.WAITING
     }
 
-    private fun launchStatusCodeToLiveData(statusCode: PipelineRepository.StatusCode) {
+    private fun launchStatusCodeToLiveData(statusCode: PipelineViewRepository.StatusCode) {
         _launchStatus.postValue(
             when (statusCode) {
-                PipelineRepository.StatusCode.SERVER_ID_NOT_FOUND -> LaunchStatus.SERVER_NOT_FOUND
-                PipelineRepository.StatusCode.NO_CONNECT -> LaunchStatus.PROTOCOL_PROBLEM
-                PipelineRepository.StatusCode.NULL_RESPONSE -> LaunchStatus.PIPELINE_NOT_FOUND
-                PipelineRepository.StatusCode.INTERNAL_ERROR -> LaunchStatus.CAN_NOT_CONNECT
+                PipelineViewRepository.StatusCode.SERVER_ID_NOT_FOUND -> LaunchStatus.SERVER_NOT_FOUND
+                PipelineViewRepository.StatusCode.NO_CONNECT -> LaunchStatus.PROTOCOL_PROBLEM
+                PipelineViewRepository.StatusCode.NULL_RESPONSE -> LaunchStatus.PIPELINE_NOT_FOUND
+                PipelineViewRepository.StatusCode.INTERNAL_ERROR -> LaunchStatus.CAN_NOT_CONNECT
                 else -> LaunchStatus.INTERNAL_ERROR
             }
         )
@@ -146,7 +125,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
     private suspend fun launchPipelineRoutine(pipelineView: PipelineView) {
         val pipelineString =
-            when (val res = pipelineRepository.downloadPipelineString(pipelineView)) {
+            when (val res = pipelineViewRepository.downloadPipelineString(pipelineView)) {
                 is Either.Left -> {
                     launchStatusCodeToLiveData(res.value)
                     return
@@ -154,7 +133,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                 is Either.Right -> res.value
             }
         val pipelineRetrofit =
-            when (val res = pipelineRepository.getPipelineRetrofit(pipelineView)) {
+            when (val res = pipelineViewRepository.getPipelineRetrofit(pipelineView)) {
                 is Either.Left -> return
                 is Either.Right -> res.value
             }
@@ -193,7 +172,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     fun launchPipeline(executionV: ExecutionV) {
         retrofitScope.launch {
             val pipelineView = executionRepository.find(executionV.id)?.let {
-                pipelineRepository.findPipelineViewById(it.pipelineId)
+                pipelineViewRepository.findPipelineViewById(it.pipelineId)
             }
             if (pipelineView == null) {
                 _launchStatus.postValue(LaunchStatus.INTERNAL_ERROR)
@@ -203,12 +182,28 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun editPipeline(pipelineView: PipelineView, isItNewOne: Boolean) {
+        if (isItNewOne)
+            pipelineRepository.resetLiveNewPipeline()
+        pipelineRepository.cachePipelineInit(pipelineView)
+        possibleRepository.currentServerId = pipelineView.serverId
+        EditPipelineViewModel.scroll = true
+    }
+
+    fun createPipeline(server: ServerInstance) {
+        pipelineRepository.createPipelineInit(server)
+    }
+
+    val liveNewPipeline
+        get() = pipelineRepository.liveNewPipeline
+
     class Iri(val iri: String)
 
     companion object {
-        private const val TAG = "PipelinesViewModel"
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
 
         private const val DELETE_DELAY: Long = 5000L
+
+        fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(PipelinesViewModel::class.java)
     }
 }

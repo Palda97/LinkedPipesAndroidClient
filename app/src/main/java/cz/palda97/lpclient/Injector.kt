@@ -1,6 +1,8 @@
 package cz.palda97.lpclient
 
 import android.content.Context
+import android.util.Log
+import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.repository.*
 
@@ -14,15 +16,40 @@ object Injector {
     val editServerRepository: EditServerRepository by lazy {
         EditServerRepository()
     }
-    val pipelineRepository: PipelineRepository by lazy {
+    val pipelineViewRepository: PipelineViewRepository by lazy {
         val db = AppDatabase.getInstance(context)
-        PipelineRepository(db.pipelineViewDao(), db.serverDao(), db.markForDeletionDao())
+        PipelineViewRepository(db.pipelineViewDao(), db.serverDao(), db.markForDeletionDao())
     }
     val executionRepository: ExecutionRepository by lazy {
         val db = AppDatabase.getInstance(context)
         ExecutionRepository(db.executionDao(), db.serverDao(), db.markForDeletionDao())
     }
+    val pipelineRepository: PipelineRepository by lazy {
+        val db = AppDatabase.getInstance(context)
+        val sharedPreferences = SharedPreferencesFactory.sharedPreferences(context)
+        PipelineRepository(db.serverDao(), db.pipelineDao(), sharedPreferences)
+    }
+    val componentRepository: ComponentRepository by lazy {
+        val db = AppDatabase.getInstance(context)
+        val sharedPreferences = SharedPreferencesFactory.sharedPreferences(context)
+        ComponentRepository(db.serverDao(), db.pipelineDao(), sharedPreferences)
+    }
+    val possibleComponentRepository: PossibleComponentRepository by lazy {
+        val db = AppDatabase.getInstance(context)
+        PossibleComponentRepository(db.serverDao(), db.pipelineDao())
+    }
 
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
+
+    fun generateLogFunction(tag: String): (Any?) -> Int {
+        return {
+            Log.d(tag, it.toString())
+        }
+    }
+
+    fun generateLogFunction(companion: Any): (Any?) -> Int {
+        val t = tag(companion)
+        return generateLogFunction(t)
+    }
 }

@@ -1,4 +1,4 @@
-package cz.palda97.lpclient.model.entities.pipeline
+package cz.palda97.lpclient.model.entities.pipelineview
 
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class PipelineView(
-    val prefLabel: String,
+    var prefLabel: String,
     @PrimaryKey(autoGenerate = false) val id: String,
     val serverId: Long
 ) {
@@ -15,4 +15,6 @@ data class PipelineView(
 
     val idNumber: String
         get() = id.split("/").last()
+
+    var version: Int? = null
 }

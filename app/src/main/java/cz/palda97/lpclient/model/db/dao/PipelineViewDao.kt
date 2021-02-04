@@ -1,7 +1,7 @@
 package cz.palda97.lpclient.model.db.dao
 
 import androidx.room.*
-import cz.palda97.lpclient.model.entities.pipeline.PipelineView
+import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 
 @Dao
 abstract class PipelineViewDao {

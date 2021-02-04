@@ -1,7 +1,6 @@
 package cz.palda97.lpclient.view.settings
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +9,15 @@ import android.widget.Filter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
-import cz.palda97.lpclient.viewmodel.settings.NightModeEnum
 import cz.palda97.lpclient.viewmodel.settings.NightModeFactory
 import cz.palda97.lpclient.viewmodel.settings.NightModeInstance
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
@@ -39,42 +37,14 @@ class SettingsFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
         val root = binding.root
-        viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        viewModel = SettingsViewModel.getInstance(this)
         setUpComponents()
         //tmpButtons()
         return root
     }
 
-    /*private fun tmpButtons() {
-        binding.tmpButtonDeleteAllInstances.setOnClickListener {
-            viewModel.deleteAllInstances()
-        }
-        binding.tmpButtonAddSomeInstances.setOnClickListener {
-            val list = listOf(
-                ServerInstance("Home server", "192.168.1.10"),
-                ServerInstance("Work server", "10.0.42.111"),
-                ServerInstance("Test server", "192.168.1.11")
-            )
-            list.forEach {
-                viewModel.forceSaveServer(it)
-            }
-        }
-    }*/
-
-    //
-
     private fun setUpComponents() {
 
-        /*fun setUpNightMode() {
-            val adapter =  ArrayAdapter<ExecutionV>(requireContext(), R.layout.dropdown_item_text_view)
-            val executions = listOf(
-                ExecutionV("1", "home", "empty pipeline", "1.1.1970", 0),
-                ExecutionV("2", "test", "new pipeline", "31.12.1999", 0),
-                ExecutionV("3", "work", "old pipeline", "1.2.3456", 0)
-            )
-            adapter.addAll(executions)
-            binding.nightModeDropDown.setAdapter(adapter)
-        }*/
         fun setUpNightMode() {
             l("setUpNightMode start")
             val enum = viewModel.nightMode
@@ -140,14 +110,9 @@ class SettingsFragment : Fragment() {
                     return@Observer
                 if (it.isOk) {
                     it.mailContent!!
-                    Log.d(TAG, "it.isOk")
-                    Log.d(TAG, "item count: ${it.mailContent.size}")
+                    l("it.isOk")
+                    l("item count: ${it.mailContent.size}")
 
-                    /*it.mailContent.forEach {
-                        with(it) {
-                            Log.d(TAG, "name: $name\nurl: $url\nid: $id")
-                        }
-                    }*/
                     serverRecyclerAdapter.updateServerList(it.mailContent)
                     binding.noInstances = it.mailContent.isEmpty()
                 }
@@ -205,7 +170,6 @@ class SettingsFragment : Fragment() {
     }
 
     companion object {
-        private const val TAG = "SettingsFragment"
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 }

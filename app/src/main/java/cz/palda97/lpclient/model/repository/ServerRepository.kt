@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
@@ -11,8 +10,7 @@ import cz.palda97.lpclient.Injector
 class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
 
     companion object {
-        private val TAG = Injector.tag(this)
-        private fun l(msg: String) = Log.d(TAG, msg)
+        private val l = Injector.generateLogFunction(this)
     }
 
     suspend fun insertServer(serverInstance: ServerInstance) {

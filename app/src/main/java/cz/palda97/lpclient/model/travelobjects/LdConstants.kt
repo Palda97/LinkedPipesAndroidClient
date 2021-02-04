@@ -19,6 +19,10 @@ object LdConstants {
     const val TARGET_COMPONENT = "http://linkedpipes.com/ontology/targetComponent"
     const val REPO_POLICY = "http://linkedpipes.com/ontology/rdfRepositoryPolicy"
     const val REPO_TYPE = "http://linkedpipes.com/ontology/rdfRepositoryType"
+    const val DESCRIPTION = "http://purl.org/dc/terms/description"
+    const val ORDER = "http://linkedpipes.com/ontology/order"
+    const val VERTEX = "http://linkedpipes.com/ontology/vertex"
+    const val BINDING = "http://linkedpipes.com/ontology/binding"
 
     const val TYPE_PIPELINE = "http://linkedpipes.com/ontology/Pipeline"
     const val TYPE_COMPONENT = "http://linkedpipes.com/ontology/Component"
@@ -26,6 +30,12 @@ object LdConstants {
     const val TYPE_EXECUTION_PROFILE = "http://linkedpipes.com/ontology/ExecutionProfile"
     const val TYPE_EXECUTION = "http://etl.linkedpipes.com/ontology/Execution"
     const val TYPE_TOMBSTONE = "http://linkedpipes.com/ontology/Tombstone"
+    const val TYPE_VERTEX = "http://linkedpipes.com/ontology/Vertex"
+    const val TYPE_TEMPLATE = "http://linkedpipes.com/ontology/Template"
+    const val TYPE_RUNTIME_CONFIGURATION = "http://linkedpipes.com/ontology/RuntimeConfiguration"
+    const val TYPE_PORT_INPUT = "http://linkedpipes.com/ontology/Input"
+    const val TYPE_PORT_OUTPUT = "http://linkedpipes.com/ontology/Output"
+    const val TYPE_TEMPLATE_JAR = "http://linkedpipes.com/ontology/JarTemplate"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"
@@ -46,4 +56,6 @@ object LdConstants {
     const val EXECUTION_STATUS_CANCELLING = "http://etl.linkedpipes.com/resources/status/cancelling"
     const val EXECUTION_STATUS_QUEUED = "http://etl.linkedpipes.com/resources/status/queued"
 
+    const val SCHEMA_INT = "http://www.w3.org/2001/XMLSchema#int"
+    const val SCHEMA_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
 }

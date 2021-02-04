@@ -1,6 +1,6 @@
 package cz.palda97.lpclient.model.entities.execution
 
-import android.util.Log
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
@@ -8,7 +8,7 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 object ExecutionStatusUtilities {
 
     fun fromDirectRequest(json: String?): ExecutionStatus? {
-        return when(val res = CommonFunctions.getRootArrayList(json)) {
+        return when (val res = CommonFunctions.getRootArrayList(json)) {
             is Either.Left -> null
             is Either.Right -> {
                 if (res.value.size != 1)
@@ -23,14 +23,16 @@ object ExecutionStatusUtilities {
     }
 
     private fun fromMap(map: Map<*, *>): ExecutionStatus? {
-        val statusString = CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_STATUS, LdConstants.ID) ?: return null
+        val statusString =
+            CommonFunctions.giveMeThatString(map, LdConstants.EXECUTION_STATUS, LdConstants.ID)
+                ?: return null
         return fromString(statusString)
     }
 
-    private const val TAG = "ExecutionStatus"
-    private fun l(msg: String) = Log.d(TAG, msg)
+    private const val TAG = "ExecutionStatusUtilities"
+    private val l = Injector.generateLogFunction(TAG)
 
-    fun fromString(string: String): ExecutionStatus? = when(string) {
+    fun fromString(string: String): ExecutionStatus? = when (string) {
         LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
         LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED
         LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING

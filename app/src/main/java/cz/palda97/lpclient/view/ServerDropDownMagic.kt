@@ -18,7 +18,8 @@ object ServerDropDownMagic {
         settingsViewModel: SettingsViewModel,
         lifecycleOwner: LifecycleOwner,
         setServerToFilter: (ServerInstance?) -> Unit,
-        serverToFilter: ServerInstance?
+        serverToFilter: ServerInstance?,
+        includeNoServerOption: Boolean = true
     ) {
         val adapter = ArrayAdapter<String>(context, R.layout.dropdown_item_text_view)
         settingsViewModel.activeLiveServers.observe(lifecycleOwner, Observer {
@@ -28,7 +29,8 @@ object ServerDropDownMagic {
             mail.mailContent!!
             adapter.clear()
             adapter.addAll(mail.mailContent.map(ServerInstance::name))
-            adapter.add("")
+            if (includeNoServerOption)
+                adapter.add("")
             adapter.notifyDataSetChanged()
             setAdapter(adapter)
         })
