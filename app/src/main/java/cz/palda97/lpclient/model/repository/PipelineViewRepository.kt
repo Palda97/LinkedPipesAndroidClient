@@ -55,7 +55,8 @@ class PipelineViewRepository(
         val serverRepo = Injector.serverRepository
         val serverToFilter = serverRepo.serverToFilter ?: return MailPackage(it)
         val serverWithPipelineViews = it.find { it.server == serverToFilter }
-            ?: return MailPackage.brokenPackage<List<ServerWithPipelineViews>>("ServerWithPipelineViews not fund: ${serverToFilter.name}")
+            //?: return MailPackage.brokenPackage<List<ServerWithPipelineViews>>("ServerWithPipelineViews not fund: ${serverToFilter.name}")
+            ?: return MailPackage.brokenPackage<List<ServerWithPipelineViews>>(RepositoryRoutines.SERVER_NOT_FOUND)
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
@@ -110,7 +111,8 @@ class PipelineViewRepository(
     private suspend fun downloadPipelineViews(serverList: List<ServerInstance>?): MailPackage<List<ServerWithPipelineViews>> =
         coroutineScope {
             if (serverList == null)
-                return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("server list is null")
+                //return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("server list is null")
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>(RepositoryRoutines.INTERNAL_ERROR)
             val jobs = serverList.map {
                 async {
                     downloadPipelineViews(it) to it
@@ -119,7 +121,8 @@ class PipelineViewRepository(
             val list = jobs.map {
                 val (mail, server) = it.await()
                 if (!mail.isOk)
-                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("error while parsing pipelines from ${server.name}")
+                    //return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>("error while parsing pipelines from ${server.name}")
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithPipelineViews>>(server.name)
                 mail.mailContent!!
             }
 

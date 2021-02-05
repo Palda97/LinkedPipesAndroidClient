@@ -97,4 +97,6 @@
     <string name="error_while_uploading_pipeline">Error while uploading pipeline!</string>
     <string name="pipeline_has_been_saved">Pipeline has been saved.</string>
     <string name="pipeline_label">Pipeline Label</string>
+    <string name="error_while_getting_executions_from">Error while getting executions from</string>
+    <string name="error_while_getting_pipelines_from">Error while getting pipelines from</string>
 </resources>
