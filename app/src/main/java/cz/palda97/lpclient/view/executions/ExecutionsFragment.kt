@@ -13,6 +13,8 @@ import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
+import cz.palda97.lpclient.model.MailPackage
+import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
@@ -94,7 +96,15 @@ class ExecutionsFragment : Fragment() {
                         binding.insertExecutionsHere.layoutManager?.startSmoothScroll(smoothScroller)
                     }
                 }
-                binding.mail = mail
+                binding.mail = if (mail.isError) {
+                    MailPackage.error(when(mail.msg) {
+                        RepositoryRoutines.SERVER_NOT_FOUND -> getString(R.string.server_instance_no_longer_registered)
+                        RepositoryRoutines.INTERNAL_ERROR -> getString(R.string.internal_error)
+                        else -> "${getString(R.string.error_while_getting_executions_from)} ${mail.msg}"
+                    })
+                } else {
+                    mail
+                }
                 binding.executePendingBindings()
             })
             binding.fastscroll.setRecyclerView(binding.insertExecutionsHere)

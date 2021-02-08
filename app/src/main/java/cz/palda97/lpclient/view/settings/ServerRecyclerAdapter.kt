@@ -6,11 +6,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
-import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
+import cz.palda97.lpclient.databinding.ListItemTwoLineSwitchBinding
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.AdapterWithList
 
-class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
+class ServerRecyclerAdapter(
+    private val editServer: (ServerInstance) -> Unit,
+    private val activeChange: (ServerInstance) -> Unit
+) :
     RecyclerView.Adapter<ServerRecyclerAdapter.ServerViewHolder>(), AdapterWithList<ServerInstance> {
     private var serverList: List<ServerInstance>? = null
 
@@ -45,7 +48,7 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
                 ): Boolean {
                     val newItem = newServerList[newItemPosition]
                     val oldItem = serverList!![oldItemPosition]
-                    return newItem.url == oldItem.url && newItem.name == oldItem.name
+                    return newItem.url == oldItem.url && newItem.name == oldItem.name && newItem.active == oldItem.active
                 }
             })
             serverList = newServerList
@@ -53,13 +56,13 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
         }
     }
 
-    class ServerViewHolder(val binding: ListItemTwoLineBinding) :
+    class ServerViewHolder(val binding: ListItemTwoLineSwitchBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerViewHolder {
         val binding = DataBindingUtil
-            .inflate<ListItemTwoLineBinding>(
-                LayoutInflater.from(parent.context), R.layout.list_item_two_line,
+            .inflate<ListItemTwoLineSwitchBinding>(
+                LayoutInflater.from(parent.context), R.layout.list_item_two_line_switch,
                 parent, false
             )
         return ServerViewHolder(binding)
@@ -74,10 +77,14 @@ class ServerRecyclerAdapter(private val editServer: (ServerInstance) -> Unit) :
 
         holder.binding.upperText = serverInstance.name
         holder.binding.bottomText = serverInstance.url
+        holder.binding.activeSwitch.isChecked = serverInstance.active
         holder.binding.executePendingBindings()
 
         holder.itemView.setOnClickListener {
             editServer(serverList!![holder.adapterPosition])
+        }
+        holder.binding.activeSwitch.setOnCheckedChangeListener { _, _ ->
+            activeChange(serverList!![holder.adapterPosition])
         }
     }
 

@@ -17,6 +17,9 @@ class RepositoryRoutines {
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        const val SERVER_NOT_FOUND = "SERVER_NOT_FOUND"
+        const val INTERNAL_ERROR = "INTERNAL_ERROR"
     }
 
     /**

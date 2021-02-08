@@ -28,7 +28,8 @@ class ExecutionRepository(
         val serverRepo = Injector.serverRepository
         val serverToFilter = serverRepo.serverToFilter ?: return MailPackage(it)
         val filtered = it.find { it.server == serverToFilter }
-            ?: return MailPackage.brokenPackage("The right server not fund: ${serverToFilter.name}")
+            //?: return MailPackage.brokenPackage("The right server not fund: ${serverToFilter.name}")
+            ?: return MailPackage.brokenPackage(RepositoryRoutines.SERVER_NOT_FOUND)
         return MailPackage(listOf(filtered))
     }
 
@@ -79,7 +80,8 @@ class ExecutionRepository(
     private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> =
         coroutineScope {
             if (serverList == null)
-                return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("server list is null")
+                //return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("server list is null")
+                return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>(RepositoryRoutines.INTERNAL_ERROR)
             val jobs = serverList.map {
                 async {
                     downloadExecutions(it) to it
@@ -88,7 +90,8 @@ class ExecutionRepository(
             val list = jobs.map {
                 val (mail, server) = it.await()
                 if (!mail.isOk)
-                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("error while parsing executions from ${server.name}")
+                    //return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("error while parsing executions from ${server.name}")
+                    return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>(server.name)
                 mail.mailContent!!
             }
             return@coroutineScope MailPackage(list)

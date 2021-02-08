@@ -39,9 +39,15 @@ class EditComponentActivity : AppCompatActivity() {
         fun setUpToolbar() {
             setSupportActionBar(binding.toolbar)
             title = viewModel.currentComponent?.prefLabel
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         }
 
         setUpToolbar()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

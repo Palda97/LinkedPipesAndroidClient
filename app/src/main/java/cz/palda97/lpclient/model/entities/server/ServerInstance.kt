@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class ServerInstance(
     val name: String = "",
     val url: String = "",
-    val active: Boolean = true,
+    var active: Boolean = true,
     val description: String = "",
     val auth: Boolean = false
 ) {

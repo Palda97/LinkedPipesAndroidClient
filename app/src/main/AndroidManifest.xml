@@ -23,7 +23,6 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".view.EditComponentActivity"
-            android:parentActivityName=".view.EditPipelineActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.MainActivity"
