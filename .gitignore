@@ -110,7 +110,7 @@ lint/tmp/
 schemas/
 
 # Private tests
-/app/src/test/java/cz/palda97/lpclient/ignored/
+/app/src/test/**/ignored/
 
 # My PC crashed and when I opened the project, it did something and this folder was created
 /projectFilesBackup/
