@@ -354,7 +354,7 @@ abstract class PipelineDao {
     @Transaction
     open suspend fun findConfigurationByComponentId(componentId: String): Configuration? {
         val component = findComponentById(componentId) ?: return null
-        return findConfigurationById(component.configurationId)
+        return component.configurationId?.let { findConfigurationById(it) }
     }
 
     @Query("select * from configuration where id = :configurationId")

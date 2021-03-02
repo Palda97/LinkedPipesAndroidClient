@@ -139,7 +139,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
                 map,
                 LdConstants.CONFIGURATION_GRAPH,
                 LdConstants.ID
-            ) ?: return null
+            )
             val templateId =
                 CommonFunctions.giveMeThatString(map, LdConstants.TEMPLATE, LdConstants.ID)
                     ?: return null

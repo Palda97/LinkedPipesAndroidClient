@@ -22,7 +22,9 @@ fun Pipeline.jsonLd(): String {
         sb.append("\"${LdConstants.ID}\":\"${component.id}\",")
         val type = if (hasPosition) LdConstants.TYPE_COMPONENT else LdConstants.TYPE_TEMPLATE
         sb.append("\"${LdConstants.TYPE}\":[\"${type}\"],")
-        sb.append("\"${LdConstants.CONFIGURATION_GRAPH}\":[{\"${LdConstants.ID}\":\"${component.configurationId}\"}],")
+        component.configurationId?.let {
+            sb.append("\"${LdConstants.CONFIGURATION_GRAPH}\":[{\"${LdConstants.ID}\":\"${it}\"}],")
+        }
         sb.append("\"${LdConstants.TEMPLATE}\":[{\"${LdConstants.ID}\":\"${component.templateId}\"}],")
         if (hasPosition) {
             sb.append("\"${LdConstants.X}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.x}\"}],")

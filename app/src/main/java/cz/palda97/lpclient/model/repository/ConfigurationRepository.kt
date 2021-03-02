@@ -28,7 +28,7 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
             field = value
             value?.let {
                 currentComponentId = it.id
-                currentConfigurationId = it.configurationId
+                currentConfigurationId = it.configurationId ?: ""
             }
         }
 
