@@ -24,8 +24,8 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     // -------------------- configuration ----------------------------------------
     val liveConfigInputContext
         get() = componentRepository.configurationRepository.liveConfigInputContext
-    fun configGetString(key: String) = componentRepository.configurationRepository.getString(key)
-    fun configSetString(key: String, value: String) = componentRepository.configurationRepository.setString(key, value)
+    fun configGetString(key: String, configType: String) = componentRepository.configurationRepository.getString(key, configType)
+    fun configSetString(key: String, value: String, configType: String) = componentRepository.configurationRepository.setString(key, value, configType)
     fun persistConfiguration() {
         val componentId = componentRepository.currentComponentId
         if (componentId.isEmpty()) {

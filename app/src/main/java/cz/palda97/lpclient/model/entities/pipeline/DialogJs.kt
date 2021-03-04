@@ -9,8 +9,11 @@ data class DialogJs(
     val map: Map<String, String>,
     @PrimaryKey(autoGenerate = false) val componentId: String
 ) {
+
     fun getFullPropertyName(key: String): String? {
         val string = map[key] ?: return null
         return "$namespace$string"
     }
+
+    fun getConfigType() = "${namespace}Configuration"
 }

@@ -7,23 +7,15 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 
 @Entity
 data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = false) val id: String) {
-    fun getString(key: String): String? {
-        settings.forEach {
-            val value = it.getString(key)
-            if (value != null) {
-                return value
-            }
-        }
-        return null
+
+    fun getString(key: String, configType: String): String? {
+        val config = settings.find { it.type == configType } ?: return null
+        return config.getString(key)
     }
-    fun setString(key: String, newValue: String) {
-        settings.forEach {
-            val value = it.getString(key)
-            if (value != null) {
-                it.setString(key, newValue)
-                return
-            }
-        }
+
+    fun setString(key: String, newValue: String, configType: String) {
+        val config = settings.find { it.type == configType } ?: return
+        config.setString(key, newValue)
     }
 }
 

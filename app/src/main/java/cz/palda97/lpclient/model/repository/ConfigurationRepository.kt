@@ -113,6 +113,6 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
             return@synchronized getConfigInputMediator()
         }
 
-    fun getString(key: String) = configStorage.configurationMap[currentComponentId]?.getString(key)
-    fun setString(key: String, value: String) = configStorage.configurationMap[currentComponentId]?.setString(key, value)
+    fun getString(key: String, configType: String) = configStorage.configurationMap[currentComponentId]?.getString(key, configType)
+    fun setString(key: String, value: String, configType: String) = configStorage.configurationMap[currentComponentId]?.setString(key, value, configType)
 }

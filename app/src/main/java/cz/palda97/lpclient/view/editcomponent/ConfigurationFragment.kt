@@ -54,8 +54,8 @@ class ConfigurationFragment : Fragment() {
         fun setUpConfigInputRecycler() {
             val adapter = ConfigInputAdapter(
                 requireContext(),
-                { viewModel.configGetString(it) },
-                { key, value -> viewModel.configSetString(key, value) }
+                viewModel::configGetString,
+                viewModel::configSetString
             )
             binding.insertConfigInputsHere.adapter = adapter
             viewModel.liveConfigInputContext.observe(viewLifecycleOwner, Observer {

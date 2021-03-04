@@ -17,8 +17,8 @@ import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 
 class ConfigInputAdapter(
     private val context: Context,
-    private val configGetString: (String) -> String?,
-    private val configSetString: (String, String) -> Unit
+    private val configGetString: (String, String) -> String?,
+    private val configSetString: (String, String, String) -> Unit?
 ) : RecyclerView.Adapter<ConfigInputAdapter.ConfigInputViewHolder>(),
     AdapterWithList<ConfigInput> {
 
@@ -33,7 +33,8 @@ class ConfigInputAdapter(
         val dialogJs = configInputComplete?.dialogJs ?: return null
         val item = configInputList[position]
         val translated = dialogJs.getFullPropertyName(item.id) ?: item.id
-        return configGetString(translated) ?: ""
+        val configType = dialogJs.getConfigType()
+        return configGetString(translated, configType) ?: ""
     }
 
     fun updateConfigInputList(newConfigInputComplete: ConfigInputComplete) {
@@ -99,20 +100,21 @@ class ConfigInputAdapter(
         val dialogJs = configInputComplete?.dialogJs ?: return
         holder.binding.configInput = configInput
         val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
-        val string = configGetString(translated) ?: ""
+        val configType = dialogJs.getConfigType()
+        val string = configGetString(translated, configType) ?: ""
         //l("onBindViewHolder configGetString: $string")
         when(configInput.type) {
             ConfigInput.Type.EDIT_TEXT -> {
                 holder.binding.editText.setText(string)
                 holder.binding.editText.doOnTextChanged { text, _, _, _ ->
                     val newValue: String = text?.toString() ?: ""
-                    configSetString(translated, newValue)
+                    configSetString(translated, newValue, configType)
                 }
             }
             ConfigInput.Type.SWITCH -> {
                 holder.binding.switchMaterial.isChecked = string.toBoolean()
                 holder.binding.switchMaterial.setOnCheckedChangeListener { _, isChecked ->
-                    configSetString(translated, isChecked.toString())
+                    configSetString(translated, isChecked.toString(), configType)
                 }
             }
             ConfigInput.Type.DROPDOWN -> {
@@ -123,7 +125,7 @@ class ConfigInputAdapter(
                 holder.binding.textArea.setText(string)
                 holder.binding.textArea.doOnTextChanged { text, _, _, _ ->
                     val newValue: String = text?.toString() ?: ""
-                    configSetString(translated, newValue)
+                    configSetString(translated, newValue, configType)
                 }
             }
         }
