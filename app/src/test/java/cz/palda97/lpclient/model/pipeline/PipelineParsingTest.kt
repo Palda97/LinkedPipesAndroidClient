@@ -31,6 +31,26 @@ class PipelineParsingTest {
     }
 
     @Test
+    fun parseSameAsTagNullProfile() {
+        val json = stringFromFile("sameAsTagNullProfile.jsonld")
+        val mail = PipelineFactory(server, json).parse()
+        assertTrue("Mail is not ok!", mail.isOk)
+        val pipeline = mail.mailContent!!
+        assertEquals(1, pipeline.mapping.size)
+        assertEquals("https://fit1.opendata.cz/resources/components/1490269248292", pipeline.mapping.first().id)
+        assertEquals("https://demo.etl.linkedpipes.com/resources/components/1519816576399", pipeline.mapping.first().sameAs)
+        assertEquals(1, pipeline.tags.size)
+        assertEquals("Brno", pipeline.tags.first().value)
+    }
+
+    @Test
+    fun parseNullConfiguration() {
+        val json = stringFromFile("nullConfigurationId.jsonld")
+        val mail = PipelineFactory(server, json).parse()
+        assertTrue("Mail is not ok!", mail.isOk)
+    }
+
+    @Test
     fun parseConfiguration() {
         val mail = PipelineFactory(server, TABULAR_CONFIGURATION).parseConfigurationOnly()
         assertTrue("Mail is not ok!", mail.isOk)
