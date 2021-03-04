@@ -23,6 +23,7 @@ object LdConstants {
     const val ORDER = "http://linkedpipes.com/ontology/order"
     const val VERTEX = "http://linkedpipes.com/ontology/vertex"
     const val BINDING = "http://linkedpipes.com/ontology/binding"
+    const val TAG = "http://etl.linkedpipes.com/ontology/tag"
 
     const val TYPE_PIPELINE = "http://linkedpipes.com/ontology/Pipeline"
     const val TYPE_COMPONENT = "http://linkedpipes.com/ontology/Component"
@@ -58,4 +59,7 @@ object LdConstants {
 
     const val SCHEMA_INT = "http://www.w3.org/2001/XMLSchema#int"
     const val SCHEMA_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
+
+    const val SAME_AS = "http://www.w3.org/2002/07/owl#sameAs"
+    const val MAPPING = "http://etl.linkedpipes.com/resources/plugins/mapping"
 }

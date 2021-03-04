@@ -73,6 +73,18 @@ abstract class PipelineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertStatus(list: List<ConfigDownloadStatus>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertSameAs(sameAs: SameAs)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertSameAs(list: List<SameAs>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertTag(tag: Tag)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertTag(list: List<Tag>)
+
     //LiveData
 
     @Query("select * from profile")
@@ -125,6 +137,12 @@ abstract class PipelineDao {
     @Transaction
     @Query("select * from configdownloadstatus where type = ${ConfigDownloadStatus.TYPE_BINDING}")
     abstract fun liveBindingWithStatus(): LiveData<List<StatusWithBinding>>
+
+    @Query("select * from sameas")
+    abstract fun liveMappings(): LiveData<List<SameAs>>
+
+    @Query("select * from tag")
+    abstract fun liveTags(): LiveData<List<Tag>>
 
     //Delete
 
@@ -184,6 +202,12 @@ abstract class PipelineDao {
     @Query("delete from binding")
     abstract suspend fun deleteAllBindings()
 
+    @Query("delete from sameas")
+    abstract suspend fun deleteAllMappings()
+
+    @Query("delete from tag")
+    abstract suspend fun deleteAllTags()
+
     //Routines
 
     @Transaction
@@ -194,6 +218,8 @@ abstract class PipelineDao {
         deleteAllConfigurations()
         deleteAllVertexes()
         deleteAllTemplates()
+        deleteAllMappings()
+        deleteAllTags()
     }
 
     @Transaction
@@ -221,6 +247,8 @@ abstract class PipelineDao {
             insertConfiguration(configurations)
             insertVertex(vertexes)
             insertTemplate(templates)
+            insertSameAs(mapping)
+            insertTag(tags)
         }
     }
 
@@ -242,7 +270,7 @@ abstract class PipelineDao {
         val mutablePipeline = PipelineFactory.MutablePipeline()
         val mediator: MediatorLiveData<MailPackage<Pipeline>> = MediatorLiveData()
         val readyStatuses = mutableListOf<Boolean>().apply {
-            for (i in 1..7) {
+            for (i in 1..9) {
                 add(false)
             }
         }
@@ -298,6 +326,20 @@ abstract class PipelineDao {
                 if (it != null) {
                     mutablePipeline.templates = it.toMutableList()
                     readyStatuses[6] = true
+                    post(mutablePipeline.mail)
+                }
+            }
+            addSource(liveMappings()) {
+                if (it != null) {
+                    mutablePipeline.mapping = it.toMutableList()
+                    readyStatuses[7] = true
+                    post(mutablePipeline.mail)
+                }
+            }
+            addSource(liveTags()) {
+                if (it != null) {
+                    mutablePipeline.tags = it.toMutableList()
+                    readyStatuses[8] = true
                     post(mutablePipeline.mail)
                 }
             }
@@ -445,6 +487,12 @@ abstract class PipelineDao {
     @Query("select * from template")
     abstract suspend fun getAllTemplates(): List<Template>
 
+    @Query("select * from sameas")
+    abstract suspend fun getAllMappings(): List<SameAs>
+
+    @Query("select * from tag")
+    abstract suspend fun getAllTags(): List<Tag>
+
     @Transaction
     open suspend fun exportPipeline(pipelineId: String): Pipeline? {
         val pipelineView = getPipelineView(pipelineId) ?: return null
@@ -456,6 +504,8 @@ abstract class PipelineDao {
         val configurations = getAllConfiguration()
         val vertexes = getAllVertex()
         val templates = getAllTemplates()
+        val mappings = getAllMappings()
+        val tags = getAllTags()
         return Pipeline(
             pipelineView,
             profile,
@@ -463,7 +513,9 @@ abstract class PipelineDao {
             connections,
             configurations,
             vertexes,
-            templates
+            templates,
+            mappings,
+            tags
         )
     }
 }

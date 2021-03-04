@@ -18,7 +18,9 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         var connections: MutableList<Connection> = mutableListOf(),
         var configurations: MutableList<Configuration> = mutableListOf(),
         var vertexes: MutableList<Vertex> = mutableListOf(),
-        var templates: MutableList<Template> = mutableListOf()
+        var templates: MutableList<Template> = mutableListOf(),
+        var mapping: List<SameAs> = emptyList(),
+        var tags: List<Tag> = emptyList()
         ) {
         fun toPipeline(): Pipeline? {
             return Pipeline(
@@ -28,7 +30,9 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
                 connections,
                 configurations,
                 vertexes,
-                templates
+                templates,
+                mapping,
+                tags
             )
         }
         constructor(pipeline: Pipeline): this(
@@ -38,7 +42,9 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
             pipeline.connections.toMutableList(),
             pipeline.configurations.toMutableList(),
             pipeline.vertexes.toMutableList(),
-            pipeline.templates.toMutableList()
+            pipeline.templates.toMutableList(),
+            pipeline.mapping,
+            pipeline.tags.toMutableList()
         )
     }
 
@@ -102,6 +108,12 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
             mutablePipeline: MutablePipeline,
             server: ServerInstance
         ): Boolean {
+
+            val id = CommonFunctions.giveMeThatId(item)
+            if (id != null && id == LdConstants.MAPPING) {
+                return parseMapping(item, mutablePipeline)
+            }
+
             val graph = CommonFunctions.prepareSemiRootElement(item) ?: return false.also { l("no graph") }
             graph.forEach {
                 val map = it as? Map<*, *> ?: return false.also {
@@ -112,7 +124,8 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
                     LdConstants.TYPE_PIPELINE -> {
                         val pipelineView = PipelineViewFactory.makePipelineView(map, server)
                         mutablePipeline.pipelineView = pipelineView
-                        (pipelineView != null).also { if (!it) l("TYPE_PIPELINE") }
+                        val tags = parseTags(map, mutablePipeline)
+                        (pipelineView != null && tags).also { if (!it) l("TYPE_PIPELINE") }
                     }
                     LdConstants.TYPE_COMPONENT -> parseComponent(map, mutablePipeline).also { if (!it) l("TYPE_COMPONENT") }
                     LdConstants.TYPE_CONNECTION -> parseConnection(map, mutablePipeline).also { if (!it) l("TYPE_CONNECTION") }
@@ -127,6 +140,17 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
             }
             return true
         }
+
+        private fun parseTags(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
+            if (!map.contains(LdConstants.TAG)) {
+                return true
+            }
+            val values = CommonFunctions.giveMeAllStrings(map, LdConstants.TAG, LdConstants.VALUE) ?: return false
+            val tags = values.map { Tag(it) }
+            mutablePipeline.tags = tags
+            return true
+        }
+
 
         private fun parseTemplate(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
             val template = makeTemplate(map) ?: return false
@@ -245,6 +269,23 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
             mutablePipeline.configurations.add(
                 Configuration(configs, id)
             )
+            return true
+        }
+
+        private fun parseSameAs(map: Map<*, *>): SameAs? {
+            val id = CommonFunctions.giveMeThatId(map) ?: return null
+            val sameAs = CommonFunctions.giveMeThatString(map, LdConstants.SAME_AS, LdConstants.ID) ?: return null
+            return SameAs(id, sameAs)
+        }
+
+        private fun parseMapping(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
+            val arrayList = CommonFunctions.prepareSemiRootElement(map) ?: return false
+            val list = arrayList.map {
+                val sameAsMap = it as? Map<*, *> ?: return false
+                val sameAs = parseSameAs(sameAsMap) ?: return false
+                sameAs
+            }
+            mutablePipeline.mapping = list
             return true
         }
 

@@ -15,6 +15,15 @@ fun Pipeline.jsonLd(): String {
         profile?.let {
             sb.append("\"${LdConstants.PROFILE}\":[{\"${LdConstants.ID}\":\"${it.id}\"}],")
         }
+        if (tags.isNotEmpty()) {
+            sb.append("\"${LdConstants.TAG}\":[")
+            tags.forEachIndexed { i, tag ->
+                if (i != 0)
+                    sb.append(",")
+                sb.append("{\"${LdConstants.VALUE}\":\"${tag.value}\"}")
+            }
+            sb.append("],")
+        }
         sb.append("\"${LdConstants.PREF_LABEL}\":[{\"${LdConstants.VALUE}\":\"${pipelineView.prefLabel}\"}]")
         sb.append("}")
     }
@@ -118,8 +127,25 @@ fun Pipeline.jsonLd(): String {
         }
     }
 
+    fun sameAsPart(sb: StringBuilder) {
+        if (mapping.isEmpty())
+            return
+        sb.append("{\"${LdConstants.GRAPH}\":[")
+        mapping.forEachIndexed { i, sameAs ->
+            if (i != 0)
+                sb.append(",")
+            sb.append("{\"${LdConstants.ID}\":\"${sameAs.id}\",")
+            sb.append("\"${LdConstants.SAME_AS}\":[{\"${LdConstants.ID}\":\"${sameAs.sameAs}\"}]")
+            sb.append("}")
+        }
+        sb.append("],")
+        sb.append("\"${LdConstants.ID}\":\"${LdConstants.MAPPING}\"")
+        sb.append("},")
+    }
+
     val sb = StringBuilder()
     sb.append("[")
+    sameAsPart(sb)
     templatePart(sb)
     firstPart(sb)
     secondPart(sb)
