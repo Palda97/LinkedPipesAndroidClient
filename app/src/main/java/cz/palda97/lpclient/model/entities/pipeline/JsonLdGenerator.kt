@@ -12,7 +12,9 @@ fun Pipeline.jsonLd(): String {
         pipelineView.version?.let {
             sb.append("\"${LdConstants.VERSION}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INT}\",\"${LdConstants.VALUE}\":\"${it}\"}],")
         }
-        sb.append("\"${LdConstants.PROFILE}\":[{\"${LdConstants.ID}\":\"${profile.id}\"}],")
+        profile?.let {
+            sb.append("\"${LdConstants.PROFILE}\":[{\"${LdConstants.ID}\":\"${it.id}\"}],")
+        }
         sb.append("\"${LdConstants.PREF_LABEL}\":[{\"${LdConstants.VALUE}\":\"${pipelineView.prefLabel}\"}]")
         sb.append("}")
     }
@@ -46,6 +48,7 @@ fun Pipeline.jsonLd(): String {
     }
 
     fun parseProfile(sb: StringBuilder) {
+        require(profile != null)
         sb.append("{")
         sb.append("\"${LdConstants.ID}\":\"${profile.id}\",")
         sb.append("\"${LdConstants.TYPE}\":[\"${LdConstants.TYPE_EXECUTION_PROFILE}\"]")
@@ -61,16 +64,18 @@ fun Pipeline.jsonLd(): String {
     fun firstPart(sb: StringBuilder) {
         sb.append("{\"${LdConstants.GRAPH}\":[")
         parsePipelineView(sb)
-        sb.append(",")
         components.forEach {
-            parseComponent(sb, it)
             sb.append(",")
+            parseComponent(sb, it)
         }
         connections.forEach {
-            parseConnection(sb, it)
             sb.append(",")
+            parseConnection(sb, it)
         }
-        parseProfile(sb)
+        if (profile != null){
+            sb.append(",")
+            parseProfile(sb)
+        }
         sb.append("],")
         sb.append("\"${LdConstants.ID}\":\"${pipelineView.id}\"")
         sb.append("}")

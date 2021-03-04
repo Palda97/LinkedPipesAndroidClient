@@ -215,7 +215,7 @@ abstract class PipelineDao {
     open suspend fun insertPipeline(pipeline: Pipeline) {
         with(pipeline) {
             insertPipelineView(pipelineView)
-            insertProfile(profile)
+            profile?.let { insertProfile(it) }
             insertComponent(components)
             insertConnection(connections)
             insertConfiguration(configurations)
@@ -253,8 +253,8 @@ abstract class PipelineDao {
                 postValue(value)
             }
             addSource(liveProfile()) {
-                if (it != null && it.size == 1) {
-                    mutablePipeline.profile = it[0]
+                if (it != null && it.size <= 1) {
+                    mutablePipeline.profile = it.firstOrNull()
                     readyStatuses[0] = true
                     post(mutablePipeline.mail)
                 }
@@ -449,8 +449,8 @@ abstract class PipelineDao {
     open suspend fun exportPipeline(pipelineId: String): Pipeline? {
         val pipelineView = getPipelineView(pipelineId) ?: return null
         val profile = getAllProfiles().let {
-            if (it.size != 1) null else it.first()
-        } ?: return null
+            if (it.size > 1) return null else it.firstOrNull()
+        }
         val components = getAllComponents()
         val connections = getAllConnections()
         val configurations = getAllConfiguration()

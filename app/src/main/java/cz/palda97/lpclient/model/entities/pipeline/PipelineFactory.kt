@@ -23,7 +23,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         fun toPipeline(): Pipeline? {
             return Pipeline(
                 pipelineView ?: return null,
-                profile ?: return null,
+                profile,
                 components,
                 connections,
                 configurations,
