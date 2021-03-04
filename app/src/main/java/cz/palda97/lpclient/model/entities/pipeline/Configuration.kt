@@ -16,10 +16,13 @@ data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = 
     fun setString(key: String, newValue: String, configType: String) {
         val config = settings.find { it.type == configType } ?: return
         config.setString(key, newValue)
+        if (config.id.contains("/new/")) {
+            config.id = id
+        }
     }
 }
 
-data class Config(val settings: MutableMap<*, *>, val type: String, val id: String) {
+data class Config(val settings: MutableMap<*, *>, val type: String, var id: String) {
     fun getString(key: String) = CommonFunctions.giveMeThatString(settings, key, LdConstants.VALUE)
     fun setString(key: String, value: String) {
         CommonFunctions.saveMeThatString(settings, key, LdConstants.VALUE, value)
