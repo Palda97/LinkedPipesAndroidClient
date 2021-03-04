@@ -62,7 +62,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         }
     }
 
-    fun parseConfigurationOnly(): MailPackage<Configuration> {
+    fun parseConfigurationOnly(componentId: String? = null): MailPackage<Configuration> {
         val arrayList = when (val res = CommonFunctions.getRootArrayList(string)) {
             is Either.Left -> return MailPackage.brokenPackage(res.value)
             is Either.Right -> res.value
@@ -72,7 +72,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         }
         val map = arrayList[0] as? Map<*, *> ?: return MailPackage.brokenPackage("item is not map")
         val mutablePipeline = MutablePipeline()
-        parseConfiguration(map, mutablePipeline)
+        parseConfiguration(map, mutablePipeline, componentId)
         if (mutablePipeline.configurations.size != 1) {
             return MailPackage.brokenPackage("parseConfiguration error")
         }
@@ -258,8 +258,8 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
             return Config(configMap.toMutableMap(), type, id)
         }
 
-        private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline): Boolean {
-            val id = CommonFunctions.giveMeThatId(map) ?: return false
+        private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline, componentId: String? = null): Boolean {
+            val id = componentId?.let { "$it/configuration" } ?: CommonFunctions.giveMeThatId(map) ?: return false
             val arrayList = CommonFunctions.prepareSemiRootElement(map) ?: return false
             val configs = arrayList.map {
                 val configMap = it as? Map<*, *> ?: return false

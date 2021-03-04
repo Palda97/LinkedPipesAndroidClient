@@ -144,7 +144,7 @@ class PossibleComponentRepository(
         val call = retrofit.componentDefaultConfiguration(component.id)
         val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
         val factory = PipelineFactory(server, text)
-        val configuration = factory.parseConfigurationOnly().mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
+        val configuration = factory.parseConfigurationOnly(component.id).mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
         return Either.Right(configuration)
     }
 
