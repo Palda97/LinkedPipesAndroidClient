@@ -3,17 +3,11 @@ package cz.palda97.lpclient.model.pipeline
 import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.pipeline.Binding
 import cz.palda97.lpclient.model.entities.pipeline.BindingFactory
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.Test
 
 import org.junit.Assert.*
 
 class BindingFactoryTest {
-
-    private inline fun <reified T> listContentMatch(expected: List<T>, actual: List<T>) =
-        listContentMatch("", expected, actual)
-    private inline fun <reified T> listContentMatch(msg: String, expected: List<T>, actual: List<T>) =
-        assertThat(msg, actual, containsInAnyOrder(*(expected.toTypedArray())))
 
     @Test
     fun parseFileHasher() {
@@ -37,7 +31,7 @@ class BindingFactoryTest {
                 "http://etl.linkedpipes.com/resources/components/t-fileHasher/0.0.0/output"
             )
         )
-        listContentMatch(expectedBindings, bindings)
+        assertListContentMatch(expectedBindings, bindings)
     }
 
     @Test
@@ -62,7 +56,7 @@ class BindingFactoryTest {
                 "http://etl.linkedpipes.com/resources/components/e-httpGetFile/0.0.0/output"
             )
         )
-        listContentMatch(expectedBindings, bindings)
+        assertListContentMatch(expectedBindings, bindings)
     }
 
     @Test
@@ -94,7 +88,7 @@ class BindingFactoryTest {
                 "http://etl.linkedpipes.com/resources/components/t-packZip/0.0.0/output"
             )
         )
-        listContentMatch(expectedBindings, bindings)
+        assertListContentMatch(expectedBindings, bindings)
     }
 
     companion object {
