@@ -33,7 +33,7 @@ class ConfigInputAdapter(
         val dialogJs = configInputComplete?.dialogJs ?: return null
         val item = configInputList[position]
         val translated = dialogJs.getFullPropertyName(item.id) ?: item.id
-        val configType = dialogJs.getConfigType()
+        val configType = dialogJs.configType
         return configGetString(translated, configType) ?: ""
     }
 
@@ -100,7 +100,7 @@ class ConfigInputAdapter(
         val dialogJs = configInputComplete?.dialogJs ?: return
         holder.binding.configInput = configInput
         val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
-        val configType = dialogJs.getConfigType()
+        val configType = dialogJs.configType
         val string = configGetString(translated, configType) ?: ""
         //l("onBindViewHolder configGetString: $string")
         when(configInput.type) {

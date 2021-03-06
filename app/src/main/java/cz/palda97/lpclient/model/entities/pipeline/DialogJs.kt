@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.model.entities.pipeline
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity
@@ -15,5 +16,6 @@ data class DialogJs(
         return "$namespace$string"
     }
 
-    fun getConfigType() = "${namespace}Configuration"
+    @Ignore
+    val configType = "${namespace}Configuration"
 }
