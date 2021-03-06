@@ -62,4 +62,7 @@ object LdConstants {
 
     const val SAME_AS = "http://www.w3.org/2002/07/owl#sameAs"
     const val MAPPING = "http://etl.linkedpipes.com/resources/plugins/mapping"
+
+    const val INHERITANCE_NONE = "http://plugins.linkedpipes.com/resource/configuration/None"
+    const val INHERITANCE_INHERIT = "http://plugins.linkedpipes.com/resource/configuration/Inherit"
 }

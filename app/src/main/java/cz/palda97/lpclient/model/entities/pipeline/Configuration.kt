@@ -22,11 +22,34 @@ data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = 
             config.id = id
         }
     }
+
+    fun getInheritances(regex: Regex, configType: String): List<Pair<String, Boolean>>? {
+        val config = getMainConfig(configType) ?: return null
+        return config.getControlsAndIds(regex)
+    }
 }
 
 data class Config(val settings: MutableMap<*, *>, val type: String, var id: String) {
     fun getString(key: String) = CommonFunctions.giveMeThatString(settings, key, LdConstants.VALUE)
     fun setString(key: String, value: String) {
         CommonFunctions.saveMeThatString(settings, key, LdConstants.VALUE, value)
+    }
+    fun getControlsAndIds(regex: Regex): List<Pair<String, Boolean>>? {
+        val controlMap = settings.filterKeys {
+            val key = it as? String ?: return null
+            key matches regex
+        }
+        return controlMap.map {
+            val key = it.key as? String ?: return null
+            val innerList = it.value as? List<*> ?: return null
+            val innerMap = innerList.firstOrNull() as? Map<*, *> ?: return null
+            val inheritanceString = innerMap[LdConstants.ID] as? String ?: return null
+            val inheritance = when(inheritanceString) {
+                LdConstants.INHERITANCE_NONE -> false
+                LdConstants.INHERITANCE_INHERIT -> true
+                else -> return null
+            }
+            key to inheritance
+        }
     }
 }

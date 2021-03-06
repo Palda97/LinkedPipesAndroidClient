@@ -18,4 +18,22 @@ data class DialogJs(
 
     @Ignore
     val configType = "${namespace}Configuration"
+
+    @Ignore
+    val controlRegex = "${Regex.escape(namespace)}.+$CONTROL".toRegex()
+
+    @Ignore
+    private val reversedMap = map.entries.associate { it.value to it.key }
+
+    private fun getReversedName(fullName: String): String? {
+        val key = fullName.removePrefix(namespace)
+        return reversedMap[key]
+    }
+
+    fun fullControlNameToReverse(controlName: String) =
+        getReversedName(controlName.removeSuffix(CONTROL))
+
+    companion object {
+        private const val CONTROL = "Control"
+    }
 }
