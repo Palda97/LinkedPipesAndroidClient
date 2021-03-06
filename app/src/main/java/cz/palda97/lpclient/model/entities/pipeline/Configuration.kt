@@ -8,13 +8,15 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 @Entity
 data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = false) val id: String) {
 
+    private fun getMainConfig(configType: String) = settings.find { it.type == configType }
+
     fun getString(key: String, configType: String): String? {
-        val config = settings.find { it.type == configType } ?: return null
+        val config = getMainConfig(configType) ?: return null
         return config.getString(key)
     }
 
     fun setString(key: String, newValue: String, configType: String) {
-        val config = settings.find { it.type == configType } ?: return
+        val config = getMainConfig(configType) ?: return
         config.setString(key, newValue)
         if (config.id.contains("/new/")) {
             config.id = id
