@@ -113,6 +113,12 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
             return@synchronized getConfigInputMediator()
         }
 
-    fun getString(key: String, configType: String) = configStorage.configurationMap[currentComponentId]?.getString(key, configType)
-    fun setString(key: String, value: String, configType: String) = configStorage.configurationMap[currentComponentId]?.setString(key, value, configType)
+    private val currentConfiguration
+        get() = configStorage.configurationMap[currentComponentId]
+
+    fun getString(key: String, configType: String) = currentConfiguration?.getString(key, configType)
+    fun setString(key: String, value: String, configType: String) = currentConfiguration?.setString(key, value, configType)
+
+    fun getInheritances(regex: Regex, configType: String) = currentConfiguration?.getInheritances(regex, configType)
+    fun setInheritance(key: String, value: String, configType: String) = currentConfiguration?.setInheritance(key, value, configType)
 }

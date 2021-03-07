@@ -18,21 +18,31 @@ data class Configuration(val settings: List<Config>, @PrimaryKey(autoGenerate = 
     fun setString(key: String, newValue: String, configType: String) {
         val config = getMainConfig(configType) ?: return
         config.setString(key, newValue)
-        if (config.id.contains("/new/")) {
-            config.id = id
-        }
+        config.removeNewId()
     }
 
     fun getInheritances(regex: Regex, configType: String): List<Pair<String, Boolean>>? {
-        val config = getMainConfig(configType) ?: return null
+        val config = getMainConfig(configType) ?: return emptyList()
         return config.getControlsAndIds(regex)
+    }
+
+    fun setInheritance(key: String, newValue: String, configType: String) {
+        val config = getMainConfig(configType) ?: return
+        config.setString(key, newValue, LdConstants.ID)
+        config.removeNewId()
+    }
+
+    private fun Config.removeNewId() {
+        if (id.contains("/new/")) {
+            id = this@Configuration.id
+        }
     }
 }
 
 data class Config(val settings: MutableMap<*, *>, val type: String, var id: String) {
     fun getString(key: String) = CommonFunctions.giveMeThatString(settings, key, LdConstants.VALUE)
-    fun setString(key: String, value: String) {
-        CommonFunctions.saveMeThatString(settings, key, LdConstants.VALUE, value)
+    fun setString(key: String, value: String, key2: String = LdConstants.VALUE) {
+        CommonFunctions.saveMeThatString(settings, key, key2, value)
     }
     fun getControlsAndIds(regex: Regex): List<Pair<String, Boolean>>? {
         val controlMap = settings.filterKeys {

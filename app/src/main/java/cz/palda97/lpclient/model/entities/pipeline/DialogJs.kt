@@ -25,9 +25,9 @@ data class DialogJs(
     @Ignore
     private val reversedMap = map.entries.associate { it.value to it.key }
 
-    private fun getReversedName(fullName: String): String? {
+    private fun getReversedName(fullName: String): String {
         val key = fullName.removePrefix(namespace)
-        return reversedMap[key]
+        return reversedMap[key] ?: key
     }
 
     fun fullControlNameToReverse(controlName: String) =
