@@ -25,7 +25,8 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
         get() = CoroutineScope(Dispatchers.IO)
 
     fun addComponent(possibleComponent: PossibleComponent) = retrofitScope.launch {
-        val configuration = when(val res = possibleRepository.downloadDefaultConfiguration(possibleComponent)) {
+        val id = IdGenerator.componentId(pipelineRepository.currentPipelineId)
+        val configuration = when(val res = possibleRepository.downloadDefaultConfiguration(possibleComponent, id)) {
             is Either.Left -> {
                 possibleRepository.mutableLiveAddComponentStatus.postValue(res.value)
                 return@launch
@@ -45,7 +46,7 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
             coords.second,
             possibleComponent.prefLabel,
             null,
-            IdGenerator.componentId(pipelineRepository.currentPipelineId)
+            id
         )
         val (templateBranch, rootTemplate) = when(val res = possibleRepository.getTemplatesAndConfigurations(possibleComponent)) {
             is Either.Left -> {
