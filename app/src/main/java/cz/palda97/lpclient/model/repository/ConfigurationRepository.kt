@@ -2,6 +2,7 @@ package cz.palda97.lpclient.model.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.db.dao.PipelineDao
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Configuration
@@ -42,6 +43,9 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
             statusConfigInput = null
             statusDialogJs = null
         }
+        override fun toString(): String {
+            return "statusConfigInput: $statusConfigInput\nstatusDialogJs: $statusDialogJs\ncurrentConfiguration: ${configurationMap[currentComponentId]}"
+        }
     }
 
     private fun getConfigInputMediator() = MediatorLiveData<ConfigInputContext>().also { mediator ->
@@ -50,22 +54,30 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
             configStorage.statusDialogJs?.let {
                 if (configStorage.statusConfigInput == null) {
                     mediator.value = OnlyStatus(it.status.result.toStatus)
+                    l("updateConfigInputMediator - statusConfigInput == null")
+                    l(configStorage)
                 }
             }
             val sConfigInput = configStorage.statusConfigInput ?: return
             val sConfigInputStatus = sConfigInput.status.result.toStatus
             if (sConfigInputStatus != ComponentRepository.StatusCode.OK) {
                 mediator.value = OnlyStatus(sConfigInputStatus)
+                l("updateConfigInputMediator - sConfigInputStatus != OK")
+                l(configStorage)
                 return
             }
             val sDialog = configStorage.statusDialogJs ?: return
             val sDialogStatus = sDialog.status.result.toStatus
             if (sDialogStatus != ComponentRepository.StatusCode.OK) {
                 mediator.value = OnlyStatus(sDialogStatus)
+                l("updateConfigInputMediator - sDialogStatus != OK")
+                l(configStorage)
                 return
             }
             if (sDialog.dialogJs == null) {
                 mediator.value = OnlyStatus(ComponentRepository.StatusCode.INTERNAL_ERROR)
+                l("updateConfigInputMediator - sDialog.dialogJs == null")
+                l(configStorage)
                 return
             }
             if (configStorage.configurationMap[currentComponentId] == null)
@@ -121,4 +133,8 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
 
     fun getInheritances(regex: Regex, configType: String) = currentConfiguration?.getInheritances(regex, configType)
     fun setInheritance(key: String, value: String, configType: String) = currentConfiguration?.setInheritance(key, value, configType)
+
+    companion object {
+        private val l = Injector.generateLogFunction(this)
+    }
 }

@@ -2,6 +2,7 @@ package cz.palda97.lpclient.model.entities.pipeline
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import cz.palda97.lpclient.Injector
 
 class DialogJsFactory(private val js: String, private val componentId: String) {
 
@@ -18,12 +19,19 @@ class DialogJsFactory(private val js: String, private val componentId: String) {
             Gson().fromJson(json, Any::class.java) as? Map<*, *>
         } catch (e: JsonSyntaxException) {
             null
-        } ?: return null
-        val namespace = jsonObject[NAMESPACE] as? String ?: return null
+        } ?: return null.also {
+            l(0)
+            l(json)
+        }
+        val namespace = jsonObject[NAMESPACE] as? String ?: return null.also {
+            l(1)
+        }
         val map: MutableMap<String, String> = HashMap()
         jsonObject.forEach {
             if (it.key is String) {
-                val key = (it.key as? String) ?: return null
+                val key = (it.key as? String) ?: return null.also {
+                    l(2)
+                }
                 val skip = key.startsWith(PREFIX)
                 if (!skip) {
                     val innerMap = it.value as? Map<*, *>
@@ -46,5 +54,7 @@ class DialogJsFactory(private val js: String, private val componentId: String) {
         private const val SEMICOLON = ";"
         private const val PROPERTY = "\$property"
         private const val NAMESPACE = "\$namespace"
+
+        private val l = Injector.generateLogFunction(this)
     }
 }
