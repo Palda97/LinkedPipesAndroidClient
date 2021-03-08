@@ -1,11 +1,20 @@
 package cz.palda97.lpclient.model.pipeline
 
 import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
+import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory.Companion.removeAnonFunctions
 import org.junit.Test
 
 import org.junit.Assert.*
 
 class DialogJsFactoryTest {
+
+    @Test
+    fun anonFunctions() {
+        val noAnons = BING_EDITED_DIALOGJS.removeAnonFunctions()
+        assertEquals(BING_EXPECTED, noAnons)
+        val dialogJs = DialogJsFactory(BING_EDITED_DIALOGJS, COMPONENT_ID).parse()
+        assertNotNull(dialogJs)
+    }
 
     @Test
     fun parseHttpGet() {
@@ -36,6 +45,56 @@ class DialogJsFactoryTest {
     companion object {
 
         const val COMPONENT_ID = "http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9"
+
+        private const val BING_EXPECTED = "{\n" +
+                "            \"\$namespace\": \"http://plugins.linkedpipes.com/ontology/t-bingTranslator#\",\n" +
+                "            \"\$type\": \"Configuration\",\n" +
+                "            \"\$options\": {\n" +
+                "                \"\$predicate\": \"auto\",\n" +
+                "                \"\$control\": \"auto\"\n" +
+                "            },\n" +
+                "            \"targetLanguage\": {\n" +
+                "                \"\$array\": true,\n" +
+                "                \"\$type\": \"str\",\n" +
+                "                \"\$label\": \"Target language\"\n" +
+                "            },\n" +
+                "            \"useBCP47\": {\n" +
+                "                \"\$type\": \"bool\",\n" +
+                "                \"\$label\": \"Use BCP47 extension T\"\n" +
+                "            }\n" +
+                "        }"
+
+        private const val BING_EDITED_DIALOGJS = "{\n" +
+                "            \"\$namespace\": \"http://plugins.linkedpipes.com/ontology/t-bingTranslator#\",\n" +
+                "            \"\$type\": \"Configuration\",\n" +
+                "            \"\$options\": {\n" +
+                "                \"\$predicate\": \"auto\",\n" +
+                "                \"\$control\": \"auto\"\n" +
+                "            },\n" +
+                "            \"targetLanguage\": {\n" +
+                "                \"\$first\": (value) => {{{\n" +
+                "                    return value.join(\",\");\n" +
+                "                }}},\n" +
+                "                \"\$second\": (value) => {{{\n" +
+                "                    return value.join(\",\");\n" +
+                "                }}},\n" +
+                "                \"\$array\": true,\n" +
+                "                \"\$type\": \"str\",\n" +
+                "                \"\$label\": \"Target language\",\n" +
+                "                \"\$onLoad\": (value) => {\n" +
+                "                    return value.join(\",\");\n" +
+                "                },\n" +
+                "                \"\$onSave\": (value) => {\n" +
+                "                    {{{\n" +
+                "                        return value.split(\",\");\n" +
+                "                    }}}\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"useBCP47\": {\n" +
+                "                \"\$type\": \"bool\",\n" +
+                "                \"\$label\": \"Use BCP47 extension T\"\n" +
+                "            }\n" +
+                "        }"
 
         private const val TABULAR_UV = "define([\"jsonld\"], function (jsonld) {\n" +
                 "    \"use strict\";\n" +
