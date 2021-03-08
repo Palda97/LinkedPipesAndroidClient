@@ -20,6 +20,15 @@ object CommonFunctions {
         return innerMap[key2] as? String ?: return null
     }
 
+    fun giveMeAllStrings(map: Map<*, *>, key1: String, key2: String): List<String>? {
+        val list = (map[key1] ?: return null) as? List<*> ?: return null
+        return list.map {
+            val innerMap = it as? Map<*, *> ?: return null
+            val string = innerMap[key2] as? String ?: return null
+            string
+        }
+    }
+
     fun saveMeThatString(map: MutableMap<*, *>, key1: String, key2: String, value: String) {
         val list = map[key1] as? ArrayList<*>
         val innerMap = list?.let {

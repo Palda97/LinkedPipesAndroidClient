@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Template(
-    val configurationId: String,
+    val configurationId: String?,
     val templateId: String,
     val prefLabel: String,
     val description: String?,

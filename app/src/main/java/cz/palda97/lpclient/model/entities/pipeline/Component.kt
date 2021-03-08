@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Component(
-    var configurationId: String,
+    var configurationId: String?,
     var templateId: String,
     var x: Int,
     var y: Int,

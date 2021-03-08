@@ -1,13 +1,54 @@
 package cz.palda97.lpclient.model.pipeline
 
+import android.util.Log
 import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import org.junit.Test
 
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoAnnotations
+import org.powermock.api.mockito.PowerMockito
+import org.powermock.core.classloader.annotations.PrepareForTest
+import org.powermock.modules.junit4.PowerMockRunner
 
+@RunWith(PowerMockRunner::class)
+@PrepareForTest(Log::class)
 class PipelineParsingTest {
+
+    @Before
+    fun setUp() {
+        MockitoAnnotations.initMocks(this)
+        PowerMockito.mockStatic(Log::class.java)
+        //PowerMockito.`when`(Log.d(any(), any())).thenReturn(0)
+        PowerMockito.`when`(Log.d(any(), any())).thenAnswer {
+            println("${it.arguments[0]}: ${it.arguments[1]}")
+            0
+        }
+    }
+
+    @Test
+    fun parseSameAsTagNullProfile() {
+        val json = stringFromFile("sameAsTagNullProfile.jsonld")
+        val mail = PipelineFactory(server, json).parse()
+        assertTrue("Mail is not ok!", mail.isOk)
+        val pipeline = mail.mailContent!!
+        assertEquals(1, pipeline.mapping.size)
+        assertEquals("https://fit1.opendata.cz/resources/components/1490269248292", pipeline.mapping.first().id)
+        assertEquals("https://demo.etl.linkedpipes.com/resources/components/1519816576399", pipeline.mapping.first().sameAs)
+        assertEquals(1, pipeline.tags.size)
+        assertEquals("Brno", pipeline.tags.first().value)
+    }
+
+    @Test
+    fun parseNullConfiguration() {
+        val json = stringFromFile("nullConfigurationId.jsonld")
+        val mail = PipelineFactory(server, json).parse()
+        assertTrue("Mail is not ok!", mail.isOk)
+    }
 
     @Test
     fun parseConfiguration() {

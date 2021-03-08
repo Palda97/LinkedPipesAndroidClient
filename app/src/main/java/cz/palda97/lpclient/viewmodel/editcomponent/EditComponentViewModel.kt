@@ -3,12 +3,14 @@ package cz.palda97.lpclient.viewmodel.editcomponent
 import android.app.Application
 import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.IdGenerator
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.ComponentRepository.Companion.getRootTemplateId
 import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Companion.toStatus
 import cz.palda97.lpclient.model.repository.PipelineRepository
+import cz.palda97.lpclient.model.travelobjects.LdConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,8 +26,8 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
     // -------------------- configuration ----------------------------------------
     val liveConfigInputContext
         get() = componentRepository.configurationRepository.liveConfigInputContext
-    fun configGetString(key: String) = componentRepository.configurationRepository.getString(key)
-    fun configSetString(key: String, value: String) = componentRepository.configurationRepository.setString(key, value)
+    fun configGetString(key: String, configType: String) = componentRepository.configurationRepository.getString(key, configType)
+    fun configSetString(key: String, value: String, configType: String) = componentRepository.configurationRepository.setString(key, value, configType)
     fun persistConfiguration() {
         val componentId = componentRepository.currentComponentId
         if (componentId.isEmpty()) {
@@ -37,6 +39,27 @@ class EditComponentViewModel(application: Application) : AndroidViewModel(applic
         }
     }
     // -------------------- configuration / ------------------------------------
+
+    // -------------------- inheritance ------------------------------------------
+    val liveInheritances
+        get() = liveConfigInputContext.map<ConfigInputContext, Either<ComponentRepository.StatusCode, InheritanceVWrapper>> {
+            val cic = when(it) {
+                is ConfigInputComplete -> it
+                else -> return@map Either.Left(it.status)
+            }
+            val inheritances = componentRepository.configurationRepository.getInheritances(cic.dialogJs.controlRegex, cic.dialogJs.configType)
+                ?: return@map Either.Left(ComponentRepository.StatusCode.PARSING_ERROR)
+            val list = inheritances.map {
+                val reversedName = cic.dialogJs.fullControlNameToReverse(it.first)
+                val configInput = cic.configInputs.find { it.id == reversedName }
+                val label = configInput?.label ?: reversedName
+                InheritanceV(it.first, label, it.second)
+            }
+            l(list)
+            return@map Either.Right(InheritanceVWrapper(list, cic.dialogJs.configType))
+        }
+    fun setInheritance(key: String, value: Boolean, configType: String) = componentRepository.configurationRepository.setInheritance(key, if (value) LdConstants.INHERITANCE_INHERIT else LdConstants.INHERITANCE_NONE, configType)
+    // -------------------- inheritance / ----------------------------------------
 
     // -------------------- component ------------------------------------------
     val currentComponent

@@ -22,6 +22,9 @@ class DialogJsFactoryTest {
         assertEquals(expectedMap, dialogJs!!.map)
         assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#", dialogJs.namespace)
         assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUri", dialogJs.getFullPropertyName("uri"))
+
+        val uriControl = "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUriControl"
+        assertEquals("uri", dialogJs.fullControlNameToReverse(uriControl))
     }
 
     @Test
@@ -32,7 +35,7 @@ class DialogJsFactoryTest {
 
     companion object {
 
-        private const val COMPONENT_ID = "http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9"
+        const val COMPONENT_ID = "http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9"
 
         private const val TABULAR_UV = "define([\"jsonld\"], function (jsonld) {\n" +
                 "    \"use strict\";\n" +
@@ -276,7 +279,7 @@ class DialogJsFactoryTest {
                 "    return controller;\n" +
                 "});"
 
-        private const val HTTP_GET = "define([], function () {\n" +
+        const val HTTP_GET = "define([], function () {\n" +
                 "    \"use strict\";\n" +
                 "\n" +
                 "    const DESC = {\n" +

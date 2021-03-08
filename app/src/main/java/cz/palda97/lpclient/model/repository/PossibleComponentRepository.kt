@@ -132,11 +132,11 @@ class PossibleComponentRepository(
         mutableLiveAddComponentStatus.value = StatusCode.OK
     }
 
-    suspend fun downloadDefaultConfiguration(component: PossibleComponent): Either<StatusCode, Configuration> {
+    suspend fun downloadDefaultConfiguration(component: PossibleComponent, newComponentId: String): Either<StatusCode, Configuration> {
         val server = serverDao.findById(currentServerId) ?: return Either.Left(StatusCode.SERVER_NOT_FOUND)
-        return downloadDefaultConfiguration(component, server)
+        return downloadDefaultConfiguration(component, newComponentId, server)
     }
-    suspend fun downloadDefaultConfiguration(component: PossibleComponent, server: ServerInstance): Either<StatusCode, Configuration> {
+    suspend fun downloadDefaultConfiguration(component: PossibleComponent, newComponentId: String, server: ServerInstance): Either<StatusCode, Configuration> {
         val retrofit = when(val res = getPipelineRetrofit(server)) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
@@ -144,7 +144,7 @@ class PossibleComponentRepository(
         val call = retrofit.componentDefaultConfiguration(component.id)
         val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.DOWNLOADING_ERROR)
         val factory = PipelineFactory(server, text)
-        val configuration = factory.parseConfigurationOnly().mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
+        val configuration = factory.parseConfigurationOnly(newComponentId).mailContent ?: return Either.Left(StatusCode.PARSING_ERROR)
         return Either.Right(configuration)
     }
 
