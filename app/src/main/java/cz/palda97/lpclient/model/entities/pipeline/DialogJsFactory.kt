@@ -15,6 +15,7 @@ class DialogJsFactory(private val js: String, private val componentId: String) {
             .replaceAfter(JSON_END, "")
             .replace(",\\s*\\};".toRegex(), "\n};")
             .removeSuffix(SEMICOLON)
+            .removeAnonFunctions()
         val jsonObject = try {
             Gson().fromJson(json, Any::class.java) as? Map<*, *>
         } catch (e: JsonSyntaxException) {
@@ -56,5 +57,57 @@ class DialogJsFactory(private val js: String, private val componentId: String) {
         private const val NAMESPACE = "\$namespace"
 
         private val l = Injector.generateLogFunction(this)
+
+        /**
+         * Removes anonymous functions like this:
+         *
+         * &nbsp;
+         *
+         * "$onLoad": (value) => {
+         *
+         * &nbsp;&nbsp;&nbsp;&nbsp;return value.join(",");
+         *
+         * }
+         */
+        fun String.removeAnonFunctions(): String {
+
+            val r = "\\n\\s*\".+\"\\s*:\\s*\\(.+\\)\\s*=>\\s*\\{"
+            val r1 = ",\\s*$r".toRegex()
+            val r2 = r.toRegex()
+
+            tailrec fun loop(comma: Boolean, json: String): String {
+
+                val regex = if (comma) r1 else r2
+
+                fun findEnd(json: String): Int? {
+                    var openCnt = 0
+                    json.forEachIndexed { i, c ->
+                        when(c) {
+                            '{' -> openCnt += 1
+                            '}' -> openCnt -= 1
+                        }
+                        if (openCnt == 0) {
+                            return i
+                        }
+                    }
+                    return null
+                }
+
+                val match = regex.find(json) ?: return json
+                val start = match.range.first
+                val tmpEnd = findEnd(json.removeRange(0, match.range.last)) ?: return json
+                val tmpEnd2 = tmpEnd + match.range.last + 1
+                val end = if (!comma && json[tmpEnd2] == ',') {
+                    tmpEnd2 + 1
+                } else {
+                    tmpEnd2
+                }
+                val newJson = json.removeRange(start, end)
+                return loop(comma, newJson)
+            }
+
+            val firstStage = loop(true, this)
+            return loop(false, firstStage)
+        }
     }
 }
