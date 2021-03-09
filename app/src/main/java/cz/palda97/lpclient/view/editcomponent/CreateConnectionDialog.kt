@@ -66,9 +66,9 @@ class CreateConnectionDialog : DialogFragment() {
             val options = components.map {
                 it to it.prefLabel
             }
-            componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), options) {
-                viewModel.lastSelectedComponentPosition = it
-                componentAdapter?.lastSelectedItemId?.let {
+            componentAdapter = binding.componentDropDown.fillWithOptions<Component>(requireContext(), options) { position, component ->
+                viewModel.lastSelectedComponentPosition = position
+                component?.let {
                     viewModel.prepareBindings(it)
                 }
             }.apply {
@@ -84,8 +84,8 @@ class CreateConnectionDialog : DialogFragment() {
             val options = statusWithBinding.list.map {
                 it to it.prefLabel
             }
-            bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext(), options) {
-                viewModel.lastSelectedBindingPosition = it
+            bindingAdapter = binding.bindingDropDown.fillWithOptions<Binding>(requireContext(), options) { position, _ ->
+                viewModel.lastSelectedBindingPosition = position
             }.apply {
                 lastSelectedPosition = viewModel.lastSelectedBindingPosition
             }

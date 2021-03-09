@@ -6,7 +6,11 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 
 object ConfigDropdownMagic {
-    fun <T> MaterialAutoCompleteTextView.fillWithOptions(context: Context, options: List<Pair<T, String>>? = null, onItemClick: (position: Int) -> Unit = {}): SmartArrayAdapter<T> {
+    fun <T> MaterialAutoCompleteTextView.fillWithOptions(
+        context: Context,
+        options: List<Pair<T, String>>? = null,
+        onItemClick: (position: Int, item: T?) -> Unit = {_, _ -> }
+    ): SmartArrayAdapter<T> {
         val adapter = SmartArrayAdapter<T>(
             context,
             R.layout.dropdown_item_text_view
@@ -17,7 +21,7 @@ object ConfigDropdownMagic {
         setAdapter(adapter)
         setOnItemClickListener { _, _, position, _ ->
             adapter.lastSelectedPosition = position
-            onItemClick(position)
+            onItemClick(position, adapter.lastSelectedItemId)
         }
         return adapter
     }
