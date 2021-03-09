@@ -11,6 +11,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.ConfigInputBinding
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
+import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
@@ -29,10 +30,12 @@ class ConfigInputAdapter(
         //setHasStableIds(true)
     }
 
+    private fun DialogJs.translate(configInput: ConfigInput) = getFullPropertyName(configInput.id) ?: configInput.id
+
     private fun positionToString(position: Int): String? {
         val dialogJs = configInputComplete?.dialogJs ?: return null
         val item = configInputList[position]
-        val translated = dialogJs.getFullPropertyName(item.id) ?: item.id
+        val translated = dialogJs.translate(item)
         val configType = dialogJs.configType
         return configGetString(translated, configType) ?: ""
     }
@@ -96,25 +99,27 @@ class ConfigInputAdapter(
     }
 
     override fun onBindViewHolder(holder: ConfigInputViewHolder, position: Int) {
+        //holder.setIsRecyclable(false)
         val configInput = configInputList[position]
         val dialogJs = configInputComplete?.dialogJs ?: return
         holder.binding.configInput = configInput
-        val translated = dialogJs.getFullPropertyName(configInput.id) ?: configInput.id
+        val translated = dialogJs.translate(configInput)
         val configType = dialogJs.configType
         val string = configGetString(translated, configType) ?: ""
-        //l("onBindViewHolder configGetString: $string")
         when(configInput.type) {
             ConfigInput.Type.EDIT_TEXT -> {
                 holder.binding.editText.setText(string)
                 holder.binding.editText.doOnTextChanged { text, _, _, _ ->
                     val newValue: String = text?.toString() ?: ""
-                    configSetString(translated, newValue, configType)
+                    val ci = holder.binding.configInput ?: return@doOnTextChanged
+                    configSetString(dialogJs.translate(ci), newValue, configType)
                 }
             }
             ConfigInput.Type.SWITCH -> {
                 holder.binding.switchMaterial.isChecked = string.toBoolean()
                 holder.binding.switchMaterial.setOnCheckedChangeListener { _, isChecked ->
-                    configSetString(translated, isChecked.toString(), configType)
+                    val ci = holder.binding.configInput ?: return@setOnCheckedChangeListener
+                    configSetString(dialogJs.translate(ci), isChecked.toString(), configType)
                 }
             }
             ConfigInput.Type.DROPDOWN -> {
@@ -125,7 +130,8 @@ class ConfigInputAdapter(
                 holder.binding.textArea.setText(string)
                 holder.binding.textArea.doOnTextChanged { text, _, _, _ ->
                     val newValue: String = text?.toString() ?: ""
-                    configSetString(translated, newValue, configType)
+                    val ci = holder.binding.configInput ?: return@doOnTextChanged
+                    configSetString(dialogJs.translate(ci), newValue, configType)
                 }
             }
         }
