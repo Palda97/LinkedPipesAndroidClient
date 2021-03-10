@@ -14,6 +14,7 @@ import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.DialogJs
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
+import cz.palda97.lpclient.view.ConfigDropdownMagic.setItem
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 
 class ConfigInputAdapter(
@@ -123,8 +124,15 @@ class ConfigInputAdapter(
                 }
             }
             ConfigInput.Type.DROPDOWN -> {
-                holder.binding.dropdown.fillWithOptions(context, configInput.options)
-                //TODO()
+                holder.binding.dropdown.fillWithOptions(context, configInput.options, false) { _, item ->
+                    if (item == null) {
+                        l("dropdown.onItemClick - item == null")
+                        return@fillWithOptions
+                    }
+                    val ci = holder.binding.configInput ?: return@fillWithOptions
+                    configSetString(dialogJs.translate(ci), item, configType)
+                }
+                holder.binding.dropdown.setItem(string)
             }
             ConfigInput.Type.TEXT_AREA -> {
                 holder.binding.textArea.setText(string)
