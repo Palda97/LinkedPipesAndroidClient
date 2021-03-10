@@ -65,8 +65,8 @@ class AddComponentDialog : DialogFragment() {
             val options = statusWithPossibles.list.map {
                 it to it.prefLabel
             }
-            componentAdapter = binding.componentDropDown.fillWithOptions(requireContext(), options) {
-                viewModel.lastSelectedComponentPosition = it
+            componentAdapter = binding.componentDropDown.fillWithOptions(requireContext(), options) { position, _ ->
+                viewModel.lastSelectedComponentPosition = position
             }.apply {
                 lastSelectedPosition = viewModel.lastSelectedComponentPosition
             }

@@ -82,7 +82,8 @@ class InheritanceAdapter(
         holder.binding.text = inheritanceV.label
         holder.binding.checked = inheritanceV.inherit
         holder.binding.mSwitch.setOnCheckedChangeListener { _, isChecked ->
-            setInheritance(inheritanceV.id, isChecked, inheritanceVWrapper!!.configType)
+            val inheritance = inheritanceVList[holder.adapterPosition]
+            setInheritance(inheritance.id, isChecked, inheritanceVWrapper!!.configType)
         }
         holder.binding.executePendingBindings()
     }
