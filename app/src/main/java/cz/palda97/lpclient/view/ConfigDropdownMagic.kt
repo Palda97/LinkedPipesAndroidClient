@@ -9,11 +9,13 @@ object ConfigDropdownMagic {
     fun <T> MaterialAutoCompleteTextView.fillWithOptions(
         context: Context,
         options: List<Pair<T, String>>? = null,
+        shouldFilter: Boolean = true,
         onItemClick: (position: Int, item: T?) -> Unit = {_, _ -> }
     ): SmartArrayAdapter<T> {
         val adapter = SmartArrayAdapter<T>(
             context,
-            R.layout.dropdown_item_text_view
+            R.layout.dropdown_item_text_view,
+            shouldFilter
         )
         options?.let {
             adapter.items = it
