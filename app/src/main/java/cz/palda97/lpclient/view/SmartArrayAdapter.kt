@@ -11,17 +11,26 @@ class SmartArrayAdapter<T>(context: Context, resource: Int) :
     }
 
     var lastSelectedPosition: Int? = null
+        set(value) {
+            if (value != null && value < 0)
+                return
+            field = value
+        }
 
-    fun setItems(list: List<Pair<T, String>>) {
-        lastSelectedPosition = null
-        clear()
-        addAll(
-            list.map {
-                PairWrapper(it)
-            }
-        )
-        notifyDataSetChanged()
-    }
+    var items: List<Pair<T, String>> = emptyList()
+        set(value) {
+            field = value
+            lastSelectedPosition = null
+            clear()
+            addAll(
+                value.map {
+                    PairWrapper(it)
+                }
+            )
+            notifyDataSetChanged()
+        }
+
+    fun indexOf(item: Any?) = items.map { it.first }.indexOf(item)
 
     override fun getItem(position: Int): PairWrapper<T>? {
         if (position != LAST_SELECTED)
