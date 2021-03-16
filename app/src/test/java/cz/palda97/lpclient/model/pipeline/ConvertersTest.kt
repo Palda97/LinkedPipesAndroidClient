@@ -8,7 +8,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class ConvertersTest {
+class ConvertersTest
+    : PowerMockTest() {
 
     fun parseConfigList(): List<Config>? {
         val string = CONFIG_LIST

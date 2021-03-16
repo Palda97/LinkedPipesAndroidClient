@@ -7,7 +7,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class BindingFactoryTest {
+class BindingFactoryTest
+    : PowerMockTest() {
 
     @Test
     fun parseFileHasher() {

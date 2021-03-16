@@ -8,7 +8,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class JsonLdGeneratorTest {
+class JsonLdGeneratorTest
+    : PowerMockTest() {
 
     @Test
     fun parseAbc() {

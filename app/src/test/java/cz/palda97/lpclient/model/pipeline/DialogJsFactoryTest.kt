@@ -1,12 +1,14 @@
 package cz.palda97.lpclient.model.pipeline
 
+import cz.palda97.lpclient.PowerMockTest
 import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
 import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory.Companion.removeAnonFunctions
 import org.junit.Test
 
 import org.junit.Assert.*
 
-class DialogJsFactoryTest {
+class DialogJsFactoryTest
+    : PowerMockTest() {
 
     @Test
     fun anonFunctions() {
