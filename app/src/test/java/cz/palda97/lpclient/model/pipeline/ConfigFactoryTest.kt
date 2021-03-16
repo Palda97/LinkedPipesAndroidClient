@@ -6,7 +6,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class ConfigFactoryTest {
+class ConfigFactoryTest
+    : PowerMockTest() {
 
     @Test
     fun parseTabular() {

@@ -6,7 +6,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class ComponentTest {
+class ComponentTest
+    : PowerMockTest() {
 
     @Test
     fun parseTest() {

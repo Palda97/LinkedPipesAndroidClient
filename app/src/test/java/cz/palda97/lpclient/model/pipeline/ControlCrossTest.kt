@@ -7,7 +7,8 @@ import org.junit.Test
 
 import org.junit.Assert.*
 
-class ControlCrossTest {
+class ControlCrossTest
+    : PowerMockTest() {
 
     @Test
     fun test() {

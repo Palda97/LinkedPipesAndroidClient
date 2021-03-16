@@ -1,34 +1,14 @@
 package cz.palda97.lpclient.model.pipeline
 
-import android.util.Log
 import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import org.junit.Test
 
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoAnnotations
-import org.powermock.api.mockito.PowerMockito
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.junit4.PowerMockRunner
 
-@RunWith(PowerMockRunner::class)
-@PrepareForTest(Log::class)
-class PipelineParsingTest {
-
-    @Before
-    fun setUp() {
-        MockitoAnnotations.initMocks(this)
-        PowerMockito.mockStatic(Log::class.java)
-        //PowerMockito.`when`(Log.d(any(), any())).thenReturn(0)
-        PowerMockito.`when`(Log.d(any(), any())).thenAnswer {
-            println("${it.arguments[0]}: ${it.arguments[1]}")
-            0
-        }
-    }
+class PipelineParsingTest
+    : PowerMockTest() {
 
     @Test
     fun parseSameAsTagNullProfile() {
