@@ -11,11 +11,12 @@ class ConfigInputFactory(private val html: String, private val componentId: Stri
         val doc = Jsoup.parse(html) ?: return null
         doc.getElementsByTag(MD_TABS).remove()
         val switches = parseSwitches(doc)
+        val autocompletes = parseAutocomplete(doc)
         val nonSwitches = parseContainers(doc)
-        if (switches == null || nonSwitches == null) {
+        if (switches == null || autocompletes == null || nonSwitches == null) {
             return null
         }
-        return nonSwitches + switches
+        return nonSwitches + autocompletes + switches
     }
 
     private fun parseOptions(select: Element): MutableList<Pair<String, String>> {
@@ -50,6 +51,9 @@ class ConfigInputFactory(private val html: String, private val componentId: Stri
             }
             val input = inputs[0]
             val id = input.attr(NG_MODEL).removeSurrounding(ID_PREFIX, ID_SUFFIX)
+            if (id.isBlank()) {
+                return null
+            }
             when(val tag = input.tag().name) {
                 INPUT -> ConfigInput(label, ConfigInput.Type.EDIT_TEXT, id, componentId)
                 MD_SELECT -> ConfigInput(label, ConfigInput.Type.DROPDOWN, id, componentId, parseOptions(input))
@@ -64,8 +68,23 @@ class ConfigInputFactory(private val html: String, private val componentId: Stri
         val switches = doc.getElementsByTag(MD_SWITCH)
         return switches.map {
             val id = it.attr(NG_MODEL).removeSurrounding(ID_PREFIX, ID_SUFFIX)
+            if (id.isBlank()) {
+                return null
+            }
             val label = it.ownText()
             ConfigInput(label, ConfigInput.Type.SWITCH, id, componentId)
+        }
+    }
+
+    private fun parseAutocomplete(doc: Document): List<ConfigInput>? {
+        val autocompletes = doc.getElementsByTag(MD_AUTOCOMPLETE)
+        return autocompletes.map {
+            val id = it.attr(MD_SELECTED_ITEM).removeSurrounding(ID_PREFIX, ID_SUFFIX)
+            if (id.isBlank()) {
+                return null
+            }
+            val label = it.attr(MD_FLOATING_LABEL)
+            ConfigInput(label, ConfigInput.Type.EDIT_TEXT, id, componentId)
         }
     }
 
@@ -84,5 +103,8 @@ class ConfigInputFactory(private val html: String, private val componentId: Stri
         private const val LP_YASQE = "lp-yasqe"
         private const val TEXTAREA = "textarea"
         private const val MD_TABS = "md-tabs"
+        private const val MD_AUTOCOMPLETE = "md-autocomplete"
+        private const val MD_SELECTED_ITEM = "md-selected-item"
+        private const val MD_FLOATING_LABEL = "md-floating-label"
     }
 }

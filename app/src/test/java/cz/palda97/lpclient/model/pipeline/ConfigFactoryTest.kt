@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.model.pipeline
 
 import cz.palda97.lpclient.*
+import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInputFactory
 import org.junit.Test
 
@@ -8,6 +9,21 @@ import org.junit.Assert.*
 
 class ConfigFactoryTest
     : PowerMockTest() {
+
+    @Test
+    fun parseAutocomplete() {
+        val html = stringFromFile("e-sparqlEndpoint.html")
+        val factory = ConfigInputFactory(html, COMPONENT_ID)
+        val configInputs = factory.parse()
+        assertNotNull(configInputs)
+        configInputs!!
+        val id = "headerAccept"
+        val autocomplete = configInputs.find { it.id == id }
+        assertEquals(
+            ConfigInput("MIME type", ConfigInput.Type.EDIT_TEXT, id, COMPONENT_ID),
+            autocomplete
+        )
+    }
 
     @Test
     fun parseTabular() {
