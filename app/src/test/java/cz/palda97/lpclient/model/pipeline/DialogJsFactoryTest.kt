@@ -33,6 +33,7 @@ class DialogJsFactoryTest
         assertEquals(expectedMap, dialogJs!!.map)
         assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#", dialogJs.namespace)
         assertEquals("http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUri", dialogJs.getFullPropertyName("uri"))
+        assertEquals("http://localhost:8080/resources/pipelines/1604082676059/component/a0db-a8d9", dialogJs.componentId)
 
         val uriControl = "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUriControl"
         assertEquals("uri", dialogJs.fullControlNameToReverse(uriControl))

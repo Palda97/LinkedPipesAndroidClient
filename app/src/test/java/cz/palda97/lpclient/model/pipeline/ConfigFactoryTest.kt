@@ -19,10 +19,17 @@ class ConfigFactoryTest
         configInputs!!
         val id = "headerAccept"
         val autocomplete = configInputs.find { it.id == id }
+        val expected = ConfigInput("MIME type", ConfigInput.Type.EDIT_TEXT, id, COMPONENT_ID)
         assertEquals(
-            ConfigInput("MIME type", ConfigInput.Type.EDIT_TEXT, id, COMPONENT_ID),
+            expected,
             autocomplete
         )
+
+        //For broken coverage
+        autocomplete!!
+        assertEquals(expected.label, autocomplete.label)
+        assertEquals(expected.type, autocomplete.type)
+        assertEquals(expected.componentId, autocomplete.componentId)
     }
 
     @Test

@@ -12,6 +12,16 @@ class JsonLdGeneratorTest
     : PowerMockTest() {
 
     @Test
+    fun componentWithDescription() {
+        val source = stringFromFile("componentWithDescription.jsonld")
+        val expectedPipeline = PipelineFactory(server, source).parse().mailContent!!
+        assertEquals("my description", expectedPipeline.components.first().description)
+        val testPipeline = PipelineFactory(server, expectedPipeline.jsonLd()).parse().mailContent
+        assertNotNull("testPipeline parse error", testPipeline)
+        assertEquals(expectedPipeline, testPipeline)
+    }
+
+    @Test
     fun parseAbc() {
         val source = ABC
         val pipeline = PipelineFactory(server, source).parse().mailContent!!

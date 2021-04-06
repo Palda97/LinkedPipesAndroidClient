@@ -41,6 +41,9 @@ fun Pipeline.jsonLd(): String {
             sb.append("\"${LdConstants.X}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.x}\"}],")
             sb.append("\"${LdConstants.Y}\":[{\"${LdConstants.TYPE}\":\"${LdConstants.SCHEMA_INTEGER}\",\"${LdConstants.VALUE}\":\"${component.y}\"}],")
         }
+        component.description?.let {
+            sb.append("\"${LdConstants.DESCRIPTION}\":[{\"${LdConstants.VALUE}\":\"${it}\"}],")
+        }
         sb.append("\"${LdConstants.PREF_LABEL}\":[{\"${LdConstants.VALUE}\":\"${component.prefLabel}\"}]")
         sb.append("}")
     }

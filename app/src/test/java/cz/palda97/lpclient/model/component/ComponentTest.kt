@@ -11,12 +11,19 @@ class ComponentTest
 
     @Test
     fun parseTest() {
+        val serverId = 777L
         val json = LIGHT_LIST
-        val factory = PossibleComponentFactory(json, 777L)
+        val factory = PossibleComponentFactory(json, serverId)
         val list = factory.parse()
         assertNotNull("parsing failed", list)
         list!!
         assertEquals(2, list.size)
+        val labels = listOf(
+            "download crab",
+            "HTTP get"
+        )
+        assertListContentMatch("labels not match", labels, list.map { it.prefLabel })
+        assertTrue(list.all { it.serverId == serverId })
     }
 
     @Test

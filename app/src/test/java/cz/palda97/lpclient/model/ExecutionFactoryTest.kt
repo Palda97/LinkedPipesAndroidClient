@@ -1,14 +1,53 @@
 package cz.palda97.lpclient.model
 
 import cz.palda97.lpclient.PowerMockTest
+import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.*
 import org.junit.Test
 
 import org.junit.Assert.*
 
 class ExecutionFactoryTest
     : PowerMockTest() {
+
+    @Test
+    fun entityTest() {
+        val serverWithExecutions = ExecutionFactory(
+            SERVER,
+            ENTITY_EXECUTION
+        ).serverWithExecutions.mailContent
+        assertNotNull(serverWithExecutions)
+        val executions = serverWithExecutions!!.executionList
+        assertEquals(1, executions.size)
+        val execution = executions.first().execution
+        assertEquals(1, execution.componentExecuted)
+        assertEquals(2, execution.componentFinished)
+        assertEquals(3, execution.componentMapped)
+        assertEquals(4, execution.componentToExecute)
+        assertEquals(5, execution.componentToMap)
+        assertEquals(114907L, execution.size)
+        val start = DateParser.toDate("2021-02-09T19:57:27.638+01:00")!!
+        assertEquals(start, execution.start)
+        val end = DateParser.toDate("2021-02-09T19:57:27.738+01:00")!!
+        assertEquals(end, execution.end)
+        assertEquals(ExecutionStatus.FAILED, execution.status)
+        assertEquals(777L, execution.serverId)
+        assertEquals("http://localhost:8080/resources/executions/1612897047621-1-96d64e6d-7b7d-4a76-ac9d-21c2262448e1", execution.id)
+        assertEquals("1612897047621-1-96d64e6d-7b7d-4a76-ac9d-21c2262448e1", execution.idNumber)
+
+        val executionSame = Execution("http://localhost:8080/resources/executions/1612897047621-1-96d64e6d-7b7d-4a76-ac9d-21c2262448e1", null, null, null, null, null, null, null, null, ExecutionStatus.FINISHED, 0L)
+        val executionDifferent = Execution("http://localhost:8081/resources/executions/1612897047621-1-96d64e6d-7b7d-4a76-ac9d-21c2262448e1", null, null, null, null, null, null, null, null, ExecutionStatus.FINISHED, 0L)
+        assertEquals(execution, executionSame)
+        assertNotEquals(execution, executionDifferent)
+        assertEquals(execution.hashCode(), executionSame.hashCode())
+        assertNotEquals(execution.hashCode(), executionDifferent.hashCode())
+
+        assertEquals("Test server", serverWithExecutions.server.name)
+        assertNull(serverWithExecutions.executionList.first().mark)
+    }
 
     @Test
     fun parseExecutions() {
@@ -48,7 +87,7 @@ class ExecutionFactoryTest
                 "http://example.com",
                 true,
                 ""
-            )
+            ).apply { id = 777L }
 
         private const val ENTITY_EXECUTION = "[\n" +
                 "    {\n" +

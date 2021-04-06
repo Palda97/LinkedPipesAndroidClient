@@ -90,7 +90,7 @@ object CommonFunctions {
         val gsonObject = try {
             Gson().fromJson(string, Any::class.java)
         } catch (e: JsonSyntaxException) {
-            println(string)
+            //println(string)
             null
         } ?: return Either.Left("null pointer")
         return when (gsonObject) {

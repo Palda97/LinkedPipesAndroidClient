@@ -11,6 +11,16 @@ class BindingFactoryTest
     : PowerMockTest() {
 
     @Test
+    fun bindingSide() {
+        val input = Binding("", Binding.Type.INPUT, "", "", "")
+        val output = Binding("", Binding.Type.OUTPUT, "", "", "")
+        val config = Binding("", Binding.Type.CONFIGURATION, "", "", "")
+        assertFalse(input isSameSideAs output)
+        assertTrue(input isSameSideAs config)
+        assertFalse(output isSameSideAs config)
+    }
+
+    @Test
     fun parseFileHasher() {
         val json = FILE_HASHER
         val bindings = BindingFactory(json).parse()
@@ -33,6 +43,13 @@ class BindingFactoryTest
             )
         )
         assertListContentMatch(expectedBindings, bindings)
+
+        //For broken coverage
+        val binding = bindings.find { it.bindingValue == "InputFiles" }!!
+        assertEquals("http://etl.linkedpipes.com/resources/components/t-fileHasher/0.0.0", binding.templateId)
+        assertEquals(Binding.Type.INPUT, binding.type)
+        assertEquals("Input", binding.prefLabel)
+        assertEquals("http://etl.linkedpipes.com/resources/components/t-fileHasher/0.0.0/input", binding.id)
     }
 
     @Test
