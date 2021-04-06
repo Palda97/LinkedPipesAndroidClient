@@ -1,5 +1,6 @@
 package cz.palda97.lpclient
 
+import android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
@@ -8,6 +9,11 @@ import java.io.File
 
 fun <T: Any?>T.println(cosmetics: (String) -> String = {it}): T {
     println(cosmetics(this.toString()))
+    return this
+}
+
+fun <T: Any?>T.log(cosmetics: (String) -> String = {it}): T {
+    Log.d("androidTest", cosmetics(this.toString()))
     return this
 }
 
