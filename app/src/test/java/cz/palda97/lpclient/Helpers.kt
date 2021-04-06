@@ -6,10 +6,12 @@ import org.hamcrest.Matchers
 import org.junit.Assert
 import java.io.File
 
-fun <T: Any?>T.println(): T {
-    println(this)
+fun <T: Any?>T.println(cosmetics: (String) -> String = {it}): T {
+    println(cosmetics(this.toString()))
     return this
 }
+
+fun String.newLineInsteadOfComma() = replace(", ", ",\n")
 
 fun sleep(timeMillis: Long) = runBlocking {
     delay(timeMillis)
