@@ -111,6 +111,7 @@ schemas/
 
 # Private tests
 /app/src/test/**/ignored/
+/app/src/androidTest/**/ignored/
 
 # My PC crashed and when I opened the project, it did something and this folder was created
 /projectFilesBackup/
