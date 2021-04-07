@@ -1,11 +1,15 @@
 package cz.palda97.lpclient
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
 import org.junit.Assert
 import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 fun <T: Any?>T.println(cosmetics: (String) -> String = {it}): T {
     println(cosmetics(this.toString()))
@@ -35,3 +39,20 @@ inline fun <reified T> assertListContentMatch(expected: List<T>, actual: List<T>
     assertListContentMatch("", expected, actual)
 inline fun <reified T> assertListContentMatch(msg: String, expected: List<T>, actual: List<T>) =
     Assert.assertThat(msg, actual, Matchers.containsInAnyOrder(*(expected.toTypedArray())))
+
+fun <T> LiveData<T>.await(count: Int = 1): T? {
+    require(count > 0) { "count has to be bigger than 0" }
+    //"waitForValue - start".log()
+    var value: T? = null
+    val latch = CountDownLatch(count)
+    val observer = Observer<T> {
+        value = it ?: return@Observer
+        //"waitForValue - observer".log()
+        latch.countDown()
+    }
+    observeForever(observer)
+    latch.await(2, TimeUnit.SECONDS)
+    removeObserver(observer)
+    //"waitForValue - end".log()
+    return value
+}
