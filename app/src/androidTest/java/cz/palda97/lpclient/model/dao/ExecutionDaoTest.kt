@@ -1,9 +1,6 @@
 package cz.palda97.lpclient.model.dao
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import cz.palda97.lpclient.AndroidTest
 import cz.palda97.lpclient.*
-import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
@@ -12,16 +9,12 @@ import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import kotlinx.coroutines.*
 import org.junit.*
-import java.io.IOException
 import org.junit.Assert.*
 
 class ExecutionDaoTest
-    : AndroidTest() {
-
-    @Rule @JvmField val rule = InstantTaskExecutorRule()
+    : TestWithDb() {
 
     private lateinit var executionDao: ExecutionDao
-    private lateinit var db: AppDatabase
     private lateinit var serverDao: ServerInstanceDao
     private lateinit var markDao: MarkForDeletionDao
 
@@ -29,8 +22,7 @@ class ExecutionDaoTest
     private val server777 = ServerInstance("server777").apply { id = 777L }
 
     @Before
-    fun createDbAddServers() {
-        db = newDb
+    fun addServers() {
         executionDao = db.executionDao()
         serverDao = db.serverDao()
         markDao = db.markForDeletionDao()
@@ -39,12 +31,6 @@ class ExecutionDaoTest
             serverDao.insertServer(server666)
             serverDao.insertServer(server777)
         }
-    }
-
-    @After
-    @Throws(IOException::class)
-    fun closeDb() {
-        db.close()
     }
 
     private val executionFullList = listOf(

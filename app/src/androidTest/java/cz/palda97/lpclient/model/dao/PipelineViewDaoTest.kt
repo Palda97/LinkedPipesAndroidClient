@@ -1,9 +1,6 @@
 package cz.palda97.lpclient.model.dao
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import cz.palda97.lpclient.AndroidTest
 import cz.palda97.lpclient.*
-import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
 import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
@@ -12,17 +9,11 @@ import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import kotlinx.coroutines.runBlocking
 import org.junit.*
-import java.io.IOException
 import org.junit.Assert.*
 
 class PipelineViewDaoTest
-    : AndroidTest() {
+    : TestWithDb() {
 
-    @Rule
-    @JvmField
-    val rule = InstantTaskExecutorRule()
-
-    private lateinit var db: AppDatabase
     private lateinit var serverDao: ServerInstanceDao
     private lateinit var pipelineDao: PipelineViewDao
     private lateinit var markDao: MarkForDeletionDao
@@ -39,8 +30,7 @@ class PipelineViewDaoTest
     )
 
     @Before
-    fun createDbAddServers() {
-        db = newDb
+    fun addServers() {
         serverDao = db.serverDao()
         pipelineDao = db.pipelineViewDao()
         markDao = db.markForDeletionDao()
@@ -49,12 +39,6 @@ class PipelineViewDaoTest
             serverDao.insertServer(server666)
             serverDao.insertServer(server777)
         }
-    }
-
-    @After
-    @Throws(IOException::class)
-    fun closeDb() {
-        db.close()
     }
 
     private fun List<ServerWithPipelineViews>.extractPipelines(server: ServerInstance) =
