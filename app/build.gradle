@@ -126,4 +126,7 @@ dependencies {
 
     //Observing LiveData in android tests
     androidTestImplementation "android.arch.core:core-testing:1.1.1"
+
+    //Mockk
+    androidTestImplementation "io.mockk:mockk-android:1.11.0"
 }
