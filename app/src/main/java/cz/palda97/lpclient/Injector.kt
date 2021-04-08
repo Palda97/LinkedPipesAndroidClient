@@ -38,6 +38,9 @@ object Injector {
         val db = AppDatabase.getInstance(context)
         PossibleComponentRepository(db.serverDao(), db.pipelineDao())
     }
+    val repositoryRoutines: RepositoryRoutines by lazy {
+        RepositoryRoutines()
+    }
 
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
