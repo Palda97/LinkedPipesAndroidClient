@@ -76,11 +76,19 @@ inline fun <reified T : Any> mockRetrofit(
     server: ServerInstance? = null,
     noinline extensionBuildFun: MockKMatcherScope.(builder: Retrofit.Builder) -> T
 ): Pair<T, Call<ResponseBody>> {
+    mockkObject(RetrofitHelper)
+    return mockRetrofitAddServer(stringFromCall, server, extensionBuildFun)
+}
+
+inline fun <reified T : Any> mockRetrofitAddServer(
+    stringFromCall: String? = "",
+    server: ServerInstance? = null,
+    noinline extensionBuildFun: MockKMatcherScope.(builder: Retrofit.Builder) -> T
+): Pair<T, Call<ResponseBody>> {
     val mCall: Call<ResponseBody> = mockk()
     val mRetrofit: T = mockk()
     val mBuilder: Retrofit.Builder = mockk()
     every { extensionBuildFun(mBuilder) } returns mRetrofit
-    mockkObject(RetrofitHelper)
     every {
         RetrofitHelper.getBuilder(
             server ?: any(),
