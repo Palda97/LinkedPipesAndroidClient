@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.model.network
 
 import cz.palda97.lpclient.Injector
+import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import okhttp3.*
 import retrofit2.Call
@@ -11,7 +12,29 @@ object RetrofitHelper {
 
     private val l = Injector.generateLogFunction("RetrofitHelper")
 
-    suspend fun getStringFromCall(call: Call<ResponseBody>): String? = try {
+    suspend fun getStringFromCallOrCode(call: Call<ResponseBody>): Either<Int, String?> {
+        try {
+            val executedCall = call.execute()
+            if (executedCall.code() != 200) {
+                l(executedCall.code())
+                l(executedCall.errorBody()?.string())
+                return Either.Left(executedCall.code())
+            }
+            val response = executedCall.body()
+            //response?.string() ?: "There is no ResponseBody"
+            return Either.Right(response?.string())
+        } catch (e: IOException) {
+            l("getStringFromCall ${e.toString()}")
+            return Either.Right(null)
+        }
+    }
+
+    suspend fun getStringFromCall(call: Call<ResponseBody>): String? = when(val res = getStringFromCallOrCode(call)) {
+        is Either.Left -> null
+        is Either.Right -> res.value
+    }
+
+    /*suspend fun getStringFromCall(call: Call<ResponseBody>): String? = try {
         val executedCall = call.execute()
         if (executedCall.code() != 200) {
             l(executedCall.code())
@@ -23,7 +46,7 @@ object RetrofitHelper {
     } catch (e: IOException) {
         l("getStringFromCall ${e.toString()}")
         null
-    }
+    }*/
 
     private const val TEXT_PLAIN = "text/plain"
 
