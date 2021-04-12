@@ -63,11 +63,6 @@ class ExecutionRepositoryTest
         mockRepo = ExecutionRepository(mockExecutionDao, mockServerDao, mockDeleteDao)
     }
 
-    @After
-    fun unMock() {
-        unmockkAll()
-    }
-
     private val executionList = listOf(
         easyExecution("0", ExecutionStatus.FINISHED, SERVER_LIST.first()),
         easyExecution("1", ExecutionStatus.FINISHED, SERVER_LIST.first()),

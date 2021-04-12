@@ -44,11 +44,6 @@ class ServerRepositoryTest
         mockRepo = ServerRepository(mockDao)
     }
 
-    @After
-    fun unMock() {
-        unmockkAll()
-    }
-
     @Test
     fun insertServerAndLiveData() {
         fun <T> LiveData<MailPackage<List<T>>>.assertSize(size: Int): List<T> {

@@ -34,11 +34,6 @@ class RepositoryRoutinesTest
         routines = RepositoryRoutines()
     }
 
-    @After
-    fun unMock() {
-        unmockkAll()
-    }
-
     @Test
     fun update() {
         val server = mockk<ServerInstance>()

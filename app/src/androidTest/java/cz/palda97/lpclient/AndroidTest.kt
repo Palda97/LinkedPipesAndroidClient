@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import cz.palda97.lpclient.model.db.AppDatabase
+import io.mockk.unmockkAll
+import org.junit.After
 import org.junit.runner.RunWith
 import java.util.concurrent.Executors
 
@@ -17,4 +19,9 @@ abstract class AndroidTest {
             .inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), AppDatabase::class.java)
             .setTransactionExecutor(Executors.newSingleThreadExecutor())
             .build()
+
+    @After
+    fun unMock() {
+        unmockkAll()
+    }
 }

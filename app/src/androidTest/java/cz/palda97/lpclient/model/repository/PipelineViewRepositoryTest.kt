@@ -62,11 +62,6 @@ class PipelineViewRepositoryTest
         mockRepo = PipelineViewRepository(mockPipelineDao, mockServerDao, mockDeleteDao)
     }
 
-    @After
-    fun unMock() {
-        unmockkAll()
-    }
-
     private val pipelineViewList = listOf(
         PipelineView("0", "0", SERVER_LIST.first().id),
         PipelineView("1", "1", SERVER_LIST.first().id),
