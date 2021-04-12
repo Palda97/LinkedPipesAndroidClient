@@ -16,4 +16,9 @@ object IdGenerator {
         require(pipelineId.isNotEmpty())
         return "$pipelineId/component/$timeUUID"
     }
+
+    fun configurationId(componentId: String): String {
+        require(componentId.isNotEmpty())
+        return "$componentId/configuration"
+    }
 }
