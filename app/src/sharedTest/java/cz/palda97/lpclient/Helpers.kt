@@ -104,3 +104,7 @@ fun <T> Pair<T, Call<ResponseBody>>.finishMock(f: MockKMatcherScope.(retrofit: T
     every { f(mRetro) } returns mCall
     return mRetro
 }
+
+fun assertFail(msg: String = ""): Nothing {
+    throw AssertionError(msg)
+}
