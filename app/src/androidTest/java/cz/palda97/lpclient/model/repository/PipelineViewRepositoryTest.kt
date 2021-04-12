@@ -51,7 +51,7 @@ class PipelineViewRepositoryTest
     @Before
     fun mock() {
         routines = mockk()
-        every { routines.update(any()) } returns Unit
+        every { routines.update(any()) } returns mockk()
         mockkObject(Injector)
         every { Injector.repositoryRoutines } returns routines
         every { Injector.serverRepository } returns serverRepo
