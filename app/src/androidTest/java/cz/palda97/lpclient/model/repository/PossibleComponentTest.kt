@@ -324,7 +324,7 @@ class PossibleComponentTest
                 "    }\n" +
                 "]"
 
-        private const val DEFAULT_CONFIGURATION = "[\n" +
+        const val DEFAULT_CONFIGURATION = "[\n" +
                 "    {\n" +
                 "        \"@graph\": [\n" +
                 "            {\n" +
