@@ -99,11 +99,13 @@ inline fun <reified T : Any> mockRetrofitAddServer(
     return mRetrofit to mCall
 }
 
-fun <T> Pair<T, Call<ResponseBody>>.finishMock(f: MockKMatcherScope.(retrofit: T) -> Call<ResponseBody>): T {
+fun <T> Pair<T, Call<ResponseBody>>.addMock(f: MockKMatcherScope.(retrofit: T) -> Call<ResponseBody>): Pair<T, Call<ResponseBody>> {
     val (mRetro, mCall) = this
     every { f(mRetro) } returns mCall
-    return mRetro
+    return mRetro to mCall
 }
+
+fun <T> Pair<T, Call<ResponseBody>>.finishMock(f: MockKMatcherScope.(retrofit: T) -> Call<ResponseBody>): T = addMock(f).first
 
 fun assertFail(msg: String = ""): Nothing {
     throw AssertionError(msg)
