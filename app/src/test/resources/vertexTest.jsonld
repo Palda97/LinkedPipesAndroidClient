@@ -1,0 +1,275 @@
+[ {
+  "@graph" : [ {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338",
+    "@type" : [ "http://linkedpipes.com/ontology/Pipeline" ],
+    "http://etl.linkedpipes.com/ontology/version" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#int",
+      "@value" : "2"
+    } ],
+    "http://linkedpipes.com/ontology/profile" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/profile/default"
+    } ],
+    "http://www.w3.org/2004/02/skos/core#prefLabel" : [ {
+      "@value" : "vertex test"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/7173-b6d8",
+    "@type" : [ "http://linkedpipes.com/ontology/Component" ],
+    "http://linkedpipes.com/ontology/configurationGraph" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/7173-b6d8/configuration"
+    } ],
+    "http://linkedpipes.com/ontology/template" : [ {
+      "@id" : "http://etl.linkedpipes.com/resources/components/e-httpGetFile/0.0.0"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "100"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "123"
+    } ],
+    "http://www.w3.org/2004/02/skos/core#prefLabel" : [ {
+      "@value" : "HTTP get"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/97ce-a109",
+    "@type" : [ "http://linkedpipes.com/ontology/Component" ],
+    "http://linkedpipes.com/ontology/configurationGraph" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/97ce-a109/configuration"
+    } ],
+    "http://linkedpipes.com/ontology/template" : [ {
+      "@id" : "http://etl.linkedpipes.com/resources/components/l-filesToScp/0.0.0"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "408"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "110"
+    } ],
+    "http://www.w3.org/2004/02/skos/core#prefLabel" : [ {
+      "@value" : "Files to SCP"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/connection/4e10-a378",
+    "@type" : [ "http://linkedpipes.com/ontology/Connection" ],
+    "http://linkedpipes.com/ontology/sourceBinding" : [ {
+      "@value" : "FilesOutput"
+    } ],
+    "http://linkedpipes.com/ontology/sourceComponent" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/7173-b6d8"
+    } ],
+    "http://linkedpipes.com/ontology/targetBinding" : [ {
+      "@value" : "FilesInput"
+    } ],
+    "http://linkedpipes.com/ontology/targetComponent" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/97ce-a109"
+    } ],
+    "http://linkedpipes.com/ontology/vertex" : [ {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/c0c2-8ec5"
+    }, {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/7d21-b13f"
+    }, {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/0fb3-8270"
+    }, {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/f4d5-bd27"
+    }, {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/acd2-9265"
+    }, {
+      "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/ec8c-8ffc"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/profile/default",
+    "@type" : [ "http://linkedpipes.com/ontology/ExecutionProfile" ],
+    "http://linkedpipes.com/ontology/rdfRepositoryPolicy" : [ {
+      "@id" : "http://linkedpipes.com/ontology/repository/SingleRepository"
+    } ],
+    "http://linkedpipes.com/ontology/rdfRepositoryType" : [ {
+      "@id" : "http://linkedpipes.com/ontology/repository/NativeStore"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/0fb3-8270",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "3"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "652"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "250"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/7d21-b13f",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "2"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "250"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "251"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/acd2-9265",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "5"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "332"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "46"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/c0c2-8ec5",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "1"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "250"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "142"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/ec8c-8ffc",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "6"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "334"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "153"
+    } ]
+  }, {
+    "@id" : "http://localhost:8080/resources/pipelines/1617549545338/vertex/f4d5-bd27",
+    "@type" : [ "http://linkedpipes.com/ontology/Vertex" ],
+    "http://linkedpipes.com/ontology/order" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "4"
+    } ],
+    "http://linkedpipes.com/ontology/x" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "651"
+    } ],
+    "http://linkedpipes.com/ontology/y" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "48"
+    } ]
+  } ],
+  "@id" : "http://localhost:8080/resources/pipelines/1617549545338"
+}, {
+  "@graph" : [ {
+    "@id" : "http://etl.linkedpipes.com/resources/components/e-httpGetFile/0.0.0/new/1",
+    "@type" : [ "http://plugins.linkedpipes.com/ontology/e-httpGetFile#Configuration" ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#encodeUrlControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileName" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileNameControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUri" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#fileUriControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#hardRedirect" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#boolean",
+      "@value" : "false"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#hardRedirectControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#userAgent" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#userAgentControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/e-httpGetFile#utf8RedirectControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ]
+  } ],
+  "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/7173-b6d8/configuration"
+}, {
+  "@graph" : [ {
+    "@id" : "http://etl.linkedpipes.com/resources/components/l-filesToScp/0.0.0/new/1",
+    "@type" : [ "http://plugins.linkedpipes.com/ontology/l-filesToScp#Configuration" ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#clearDirectory" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#boolean",
+      "@value" : "false"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#clearDirectoryControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#connectionTimeOutControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#createDirectory" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#boolean",
+      "@value" : "true"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#createDirectoryControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#directory" : [ {
+      "@value" : "/tmp/upload/"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#directoryControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#host" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#hostControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#password" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#passwordControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#port" : [ {
+      "@type" : "http://www.w3.org/2001/XMLSchema#integer",
+      "@value" : "22"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#portControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#userName" : [ {
+      "@value" : ""
+    } ],
+    "http://plugins.linkedpipes.com/ontology/l-filesToScp#userNameControl" : [ {
+      "@id" : "http://plugins.linkedpipes.com/resource/configuration/None"
+    } ]
+  } ],
+  "@id" : "http://localhost:8080/resources/pipelines/1617549545338/component/97ce-a109/configuration"
+} ]

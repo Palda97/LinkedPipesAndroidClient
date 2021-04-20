@@ -11,7 +11,30 @@ class PipelineParsingTest
     : PowerMockTest() {
 
     @Test
-    fun parseSameAsTagNullProfile() {
+    fun badJson() {
+        val json = "bad json"
+        val mail = PipelineFactory(server, json).parse()
+        assertTrue(mail.isError)
+    }
+
+    @Test
+    fun vertexes() {
+        val json = stringFromFile("vertexTest.jsonld")
+        val pipeline = PipelineFactory(server, json).parse().mailContent
+        assertNotNull(pipeline)
+        pipeline!!
+        assertEquals(6, pipeline.vertexes.size)
+        assertEquals(6, pipeline.connections.flatMap { it.vertexIds }.size)
+        val vertex = pipeline.vertexes.find { it.id == "http://localhost:8080/resources/pipelines/1617549545338/vertex/0fb3-8270" }
+        assertNotNull("Vertex with this id is not present.", vertex)
+        vertex!!
+        assertEquals(3, vertex.order)
+        assertEquals(652, vertex.x)
+        assertEquals(250, vertex.y)
+    }
+
+    @Test
+    fun parseSameAsTagVertexesNullProfile() {
         val json = stringFromFile("sameAsTagNullProfile.jsonld")
         val mail = PipelineFactory(server, json).parse()
         assertTrue("Mail is not ok!", mail.isOk)
@@ -20,7 +43,9 @@ class PipelineParsingTest
         assertEquals("https://fit1.opendata.cz/resources/components/1490269248292", pipeline.mapping.first().id)
         assertEquals("https://demo.etl.linkedpipes.com/resources/components/1519816576399", pipeline.mapping.first().sameAs)
         assertEquals(1, pipeline.tags.size)
-        assertEquals("Brno", pipeline.tags.first().value)
+        val tag = pipeline.tags.first()
+        assertEquals("Brno", tag.value)
+        assertEquals(tag.value, tag.toString())
     }
 
     @Test
@@ -36,6 +61,14 @@ class PipelineParsingTest
         assertTrue("Mail is not ok!", mail.isOk)
         val configuration = mail.mailContent!!
         assertEquals(3, configuration.settings.size)
+
+        val id = "http://plugins.linkedpipes.com/ontology/t-tabular#fullMapping"
+        val type = "http://www.w3.org/ns/csvw#Table"
+        assertEquals("true", configuration.getString(id, type))
+        configuration.setString(id, "false", type)
+        assertEquals("false", configuration.getString(id, type))
+
+
     }
 
     @Test
@@ -46,6 +79,9 @@ class PipelineParsingTest
         assertEquals(2, pipeline.components.size)
         assertEquals(1, pipeline.connections.size)
         assertEquals(2, pipeline.configurations.size)
+
+        assertEquals("1604082676059", pipeline.pipelineView.idNumber)
+        assertEquals(server.id, pipeline.pipelineView.serverId)
     }
 
     @Test

@@ -208,7 +208,7 @@ class PipelineViewRepository(
         }
         val call = pipelineRetrofit.getPipeline(pipelineView.idNumber)
         //val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
-        val text = try {
+        /*val text = try {
             val executedCall = call.execute()
             if (executedCall.code() == 404)
                 return Either.Left(StatusCode.NULL_RESPONSE)
@@ -219,7 +219,11 @@ class PipelineViewRepository(
             null
         }
             ?: return Either.Left(StatusCode.INTERNAL_ERROR)
-        return Either.Right(text)
+        return Either.Right(text)*/
+        return when(val res = RetrofitHelper.getStringFromCallOrCode(call)) {
+            is Either.Left -> if (res.value == 404) Either.Left(StatusCode.NULL_RESPONSE) else Either.Left(StatusCode.INTERNAL_ERROR)
+            is Either.Right -> if (res.value != null) Either.Right(res.value) else Either.Left(StatusCode.INTERNAL_ERROR)
+        }
     }
 
     suspend fun markForDeletion(pipelineView: PipelineView) {

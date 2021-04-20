@@ -3,10 +3,7 @@ package cz.palda97.lpclient.model.repository
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.entities.server.ServerInstance
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class RepositoryRoutines {
 
@@ -25,17 +22,13 @@ class RepositoryRoutines {
     /**
      * Called when active server is added, or an old server is now active.
      */
-    fun update(serverInstance: ServerInstance) {
-        CoroutineScope(Dispatchers.IO).launch {
-            launch {
-                pipelineViewRepository.update(serverInstance)
-            }
-            launch {
-                executionRepository.update(serverInstance)
-            }
-            launch {
-                possibleComponentRepository.cachePossibleComponents(serverInstance)
-            }
+    fun update(serverInstance: ServerInstance) = CoroutineScope(Dispatchers.IO).launch {
+        listOf(
+            launch { pipelineViewRepository.update(serverInstance) },
+            launch { executionRepository.update(serverInstance) },
+            launch { possibleComponentRepository.cachePossibleComponents(serverInstance) }
+        ).forEach {
+            it.join()
         }
     }
 

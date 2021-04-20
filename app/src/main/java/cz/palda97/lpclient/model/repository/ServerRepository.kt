@@ -18,7 +18,7 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
         serverInstance.id = id
         l("insertServer: id: ${serverInstance.id.toString()}")
         if (serverInstance.active)
-            RepositoryRoutines().update(serverInstance)
+            Injector.repositoryRoutines.update(serverInstance)
     }
 
     suspend fun matchUrlOrNameExcept(

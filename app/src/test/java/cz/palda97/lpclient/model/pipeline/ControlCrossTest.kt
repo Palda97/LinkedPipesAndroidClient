@@ -3,6 +3,7 @@ package cz.palda97.lpclient.model.pipeline
 import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.pipeline.DialogJsFactory
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
+import cz.palda97.lpclient.model.travelobjects.LdConstants
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -29,6 +30,13 @@ class ControlCrossTest
         )
 
         assertListContentMatch(expectedList, controlList)
+
+        val changeKey = "http://plugins.linkedpipes.com/ontology/e-httpGetFile#utf8RedirectControl"
+        configuration.setInheritance(changeKey, LdConstants.INHERITANCE_INHERIT, dialogJs.configType)
+        val inheritances = configuration.getInheritances(dialogJs.controlRegex, dialogJs.configType)
+        assertNotNull(inheritances)
+        inheritances!!
+        assertEquals(true, inheritances.find { it.first == changeKey }?.second)
     }
 
     companion object {

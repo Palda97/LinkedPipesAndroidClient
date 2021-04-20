@@ -109,14 +109,15 @@ class PipelineRepository(
     val livePipeline: LiveData<MailPackage<Pipeline>>
         get() = mediatorPipeline
 
-    suspend fun savePipeline(pipeline: Pipeline, cacheComponents: Boolean) {
+    suspend fun savePipeline(pipeline: Pipeline, cacheComponents: Boolean): Job? {
         persistStatus(null)
         persistPipeline(pipeline)
         if (cacheComponents) {
-            retrofitScope.launch {
+            return retrofitScope.launch {
                 Injector.componentRepository.cache(pipeline.components)
             }
         }
+        return null
     }
 
     private suspend fun saveStatus(cacheStatus: CacheStatus) {
@@ -126,7 +127,10 @@ class PipelineRepository(
 
     private suspend fun save(wrappedPipeline: WrappedPipeline) = when(wrappedPipeline) {
         is Either.Left -> saveStatus(wrappedPipeline.value)
-        is Either.Right -> savePipeline(wrappedPipeline.value, true)
+        is Either.Right -> {
+            savePipeline(wrappedPipeline.value, true)
+            Unit
+        }
     }
 
     private val cachePipelineMutex: Mutex = Mutex()
@@ -150,11 +154,11 @@ class PipelineRepository(
     var currentPipelineId = ""
     var currentServerId = 0L
 
-    fun cachePipelineInit(pipelineView: PipelineView) {
+    fun cachePipelineInit(pipelineView: PipelineView): Job {
         currentPipelineId = pipelineView.id
         currentServerId = pipelineView.serverId
         desyncLivePipeline()
-        retrofitScope.launch {
+        return retrofitScope.launch {
             cachePipeline(pipelineView, false)
         }
     }
@@ -227,9 +231,9 @@ class PipelineRepository(
         _liveNewPipeline.value = Either.Left(CacheStatus.NO_PIPELINE_TO_LOAD)
     }
 
-    fun createPipelineInit(server: ServerInstance) {
+    fun createPipelineInit(server: ServerInstance): Job {
         _liveNewPipeline.value = Either.Left(CacheStatus.INTERNAL_ERROR)
-        retrofitScope.launch {
+        return retrofitScope.launch {
             createPipeline(server)
         }
     }

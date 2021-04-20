@@ -2,6 +2,7 @@ package cz.palda97.lpclient.model.entities.pipeline
 
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
+import cz.palda97.lpclient.model.IdGenerator
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
@@ -259,7 +260,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         }
 
         private fun parseConfiguration(map: Map<*, *>, mutablePipeline: MutablePipeline, componentId: String? = null): Boolean {
-            val id = componentId?.let { "$it/configuration" } ?: CommonFunctions.giveMeThatId(map) ?: return false
+            val id = componentId?.let { IdGenerator.configurationId(it) } ?: CommonFunctions.giveMeThatId(map) ?: return false
             val arrayList = CommonFunctions.prepareSemiRootElement(map) ?: return false
             val configs = arrayList.map {
                 val configMap = it as? Map<*, *> ?: return false

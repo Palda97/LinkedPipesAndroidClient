@@ -1,0 +1,59 @@
+<lp-dialog-control-config lp-dialog="dialog" lp-application="application"></lp-dialog-control-config>
+<div>
+	<md-input-container class="md-block" ng-hide="dialog.endpoint.hide">
+		<label>Endpoint URL</label>
+		<input type="url" ng-model="dialog.endpoint.value"
+               placeholder="http://example.com/sparql"
+               ng-disabled="dialog.endpoint.disabled || dialog.endpoint.inherit"
+               required>
+    </md-input-container>
+		<md-switch ng-model="dialog.useAuthentication.value"
+			ng-disabled="dialog.useAuthentication.disabled || dialog.useAuthentication.inherit"
+			ng-hide="dialog.useAuthentication.hide">Use authentication
+		</md-switch>
+		<div layout-gt-sm="row" ng-show="dialog.useAuthentication.value">
+			<md-input-container class="md-block" ng-hide="dialog.userName.hide" flex>
+				<label>User name</label>
+				<input ng-model="dialog.userName.value"
+                   ng-disabled="dialog.userName.disabled || dialog.userName.inherit"
+                   placeholder="dba">
+        </md-input-container>
+				<md-input-container class="md-block" ng-hide="dialog.password.hide" flex>
+					<label>Password</label>
+					<input type="password" ng-model="dialog.password.value"
+                   ng-disabled="dialog.password.disabled || dialog.password.inherit">
+        </md-input-container>
+		</div>
+		<md-autocomplete ng-hide="dialog.headerAccept.hide"
+			ng-disabled="dialog.headerAccept.disabled || dialog.headerAccept.inherit" md-no-cache="true"
+			md-min-length="0" md-clear-button="false" md-selected-item="dialog.headerAccept.value"
+			md-search-text="mimeTypeSearchText" md-items="item in getMimeTypes(mimeTypeSearchText)" md-item-text="item"
+			md-floating-label="MIME type">
+			<span>{{item}}</span>
+		</md-autocomplete>
+		<md-switch ng-model="dialog.encodeRdf.value" ng-hide="dialog.encodeRdf.hide"
+			ng-disabled="dialog.encodeRdf.disabled || dialog.encodeRdf.inherit">
+			Encode invalid IRIs
+			<md-tooltip>Fix IRI by encoding unencoded special characters
+			</md-tooltip>
+		</md-switch>
+		<md-switch ng-model="dialog.useTolerantRepository.value" ng-hide="dialog.useTolerantRepository.hide"
+			ng-disabled="dialog.useTolerantRepository.disabled || dialog.useTolerantRepository.inherit">
+			Fix missing language tags on rdf:langString literals
+			<md-tooltip>Fix rdf:langString without language tag.
+			</md-tooltip>
+		</md-switch>
+		<md-switch ng-model="dialog.handleInvalidData.value" ng-hide="dialog.handleInvalidData.hide"
+			ng-disabled="dialog.handleInvalidData.disabled || dialog.handleInvalidData.inherit">
+			Try to handle invalid data
+			<md-tooltip>Depends on user parser
+			</md-tooltip>
+		</md-switch>
+		<lp-iri-list label-top="Default graph" label-item="Graph IRI" ng-model="dialog.defaultGraph.value"
+			lp-disabled="dialog.defaultGraph.disabled || dialog.defaultGraph.inherit"
+			ng-hide="dialog.defaultGraph.hide"></lp-iri-list>
+		<md-input-container class="md-block" ng-hide="dialog.query.hide">
+			SPARQL CONSTRUCT query
+			<lp-yasqe ng-model="dialog.query.value" ng-disabled="dialog.query.disabled || dialog.query.inherit" />
+		</md-input-container>
+</div>
