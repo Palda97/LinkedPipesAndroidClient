@@ -115,3 +115,6 @@ schemas/
 
 # My PC crashed and when I opened the project, it did something and this folder was created
 /projectFilesBackup/
+
+# Markdown backup files
+*.md.backup
