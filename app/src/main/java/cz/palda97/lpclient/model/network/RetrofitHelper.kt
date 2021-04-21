@@ -15,10 +15,13 @@ object RetrofitHelper {
     suspend fun getStringFromCallOrCode(call: Call<ResponseBody>): Either<Int, String?> {
         try {
             val executedCall = call.execute()
-            if (executedCall.code() != 200) {
-                l(executedCall.code())
-                l(executedCall.errorBody()?.string())
-                return Either.Left(executedCall.code())
+            val code = executedCall.code()
+            if (code != 200) {
+                l(code)
+                val body = executedCall.errorBody() ?: return Either.Left(code)
+                val string = body.string() //this also closes the response
+                l(string)
+                return Either.Left(code)
             }
             val response = executedCall.body()
             //response?.string() ?: "There is no ResponseBody"
@@ -34,20 +37,6 @@ object RetrofitHelper {
         is Either.Right -> res.value
     }
 
-    /*suspend fun getStringFromCall(call: Call<ResponseBody>): String? = try {
-        val executedCall = call.execute()
-        if (executedCall.code() != 200) {
-            l(executedCall.code())
-            l(executedCall.errorBody()?.string())
-        }
-        val response = executedCall.body()
-        //response?.string() ?: "There is no ResponseBody"
-        response?.string()
-    } catch (e: IOException) {
-        l("getStringFromCall ${e.toString()}")
-        null
-    }*/
-
     private const val TEXT_PLAIN = "text/plain"
 
     fun stringToFormData(string: String): RequestBody = RequestBody.create(
@@ -57,22 +46,6 @@ object RetrofitHelper {
 
     private fun getBuilder(baseUrl: String) = Retrofit.Builder().baseUrl(baseUrl)
 
-    /*private fun Retrofit.Builder.basicAuth(username: String, password: String) = client(
-        OkHttpClient.Builder()
-            .addInterceptor {
-                var request = it.request()
-                request = request.newBuilder()
-                    .header("Authorization", Credentials.basic(username, password)).build()
-                it.proceed(request)
-            }
-            .build()
-    )*/
-
-    /*fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
-        val builder = getBuilder(url)
-        val auth = server.credentials ?: return builder
-        return builder.basicAuth(auth.first, auth.second)
-    }*/
     fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
         val auth = server.credentials
         return getBuilder(url).client(
@@ -81,7 +54,6 @@ object RetrofitHelper {
                     var request = it.request()
                     request = request.newBuilder()
                         .header("Accept", "application/ld+json")
-                        //.header("Authorization", Credentials.basic(username, password)).build()
                         .let {
                             if (auth == null) {
                                 it

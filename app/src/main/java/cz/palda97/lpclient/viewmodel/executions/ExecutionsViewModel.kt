@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
-import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ExecutionRepository
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
@@ -23,20 +22,16 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     private var lastSilent: Boolean = false
 
-    val liveExecutions: LiveData<MailPackage<List<ExecutionV>>> =
-        executionRepository.liveExecutions.switchMap {
-            liveData(Dispatchers.Default) {
-                l("update: ${it.status.name}")
-                val mail = executionTransformation(it)
-                lastSilent = false
-                emit(mail)
-            }
+    val liveExecutions: LiveData<MailPackage<List<ExecutionV>>>
+        get() = executionRepository.liveExecutions.map {
+            val mail = executionTransformation(it)
+            lastSilent = false
+            mail
         }
 
-    private suspend fun executionTransformation(it: MailPackage<List<ServerWithExecutions>>?): MailPackage<List<ExecutionV>> =
-        withContext(Dispatchers.Default) {
-            val mail = it ?: return@withContext MailPackage.loadingPackage<List<ExecutionV>>()
-            return@withContext when (mail.status) {
+    private fun executionTransformation(it: MailPackage<List<ServerWithExecutions>>?): MailPackage<List<ExecutionV>> {
+            val mail = it ?: return MailPackage.loadingPackage<List<ExecutionV>>()
+            return when (mail.status) {
                 MailPackage.Status.OK -> {
                     mail.mailContent!!
                     val list = mail.mailContent.flatMap { serverWithExecutions ->

@@ -28,20 +28,14 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
-    val livePipelineViews: LiveData<MailPackage<List<PipelineView>>> =
-        pipelineViewRepository.liveServersWithPipelineViews.switchMap {
-            l("switchMap")
-            liveData(Dispatchers.Default) {
-                val mail = pipelineViewTransform(it)
-                emit(mail)
-                l("switchMap end")
-            }
+    val livePipelineViews: LiveData<MailPackage<List<PipelineView>>>
+        get() = pipelineViewRepository.liveServersWithPipelineViews.map {
+            pipelineViewTransform(it)
         }
 
-    private suspend fun pipelineViewTransform(it: MailPackage<List<ServerWithPipelineViews>>?): MailPackage<List<PipelineView>> =
-        withContext(Dispatchers.Default) {
+    private fun pipelineViewTransform(it: MailPackage<List<ServerWithPipelineViews>>?): MailPackage<List<PipelineView>> {
             l("pipelineViewTransform thread: ${Thread.currentThread().name}")
-            val mail = it ?: return@withContext MailPackage.loadingPackage<List<PipelineView>>()
+            val mail = it ?: return MailPackage.loadingPackage<List<PipelineView>>()
             if (mail.isOk) {
                 mail.mailContent!!
                 mail.mailContent.forEach {
@@ -57,12 +51,12 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                 }
                 l("pipelineViewTransform before ok return")
-                return@withContext MailPackage(list)
+                return MailPackage(list)
             }
             if (mail.isError)
-                return@withContext MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
+                return MailPackage.brokenPackage<List<PipelineView>>(mail.msg)
             l("still loading")
-            return@withContext MailPackage.loadingPackage<List<PipelineView>>()
+            return MailPackage.loadingPackage<List<PipelineView>>()
         }
 
     private suspend fun downloadAllPipelineViews() {
