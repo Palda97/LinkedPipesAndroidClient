@@ -107,6 +107,9 @@ class ComponentRepository(
         components: List<Component>,
         retrofit: ComponentRetrofit? = null
     ) = coroutineScope<List<Pair<Component, Either<StatusCode, List<ConfigInput>>>>> {
+        /*components.map {
+            it to downloadConfigInputs(it, retrofit)
+        }*/
         val jobs = components.map {
             async {
                 it to downloadConfigInputs(it, retrofit)
@@ -121,6 +124,9 @@ class ComponentRepository(
         components: List<Component>,
         retrofit: ComponentRetrofit? = null
     ) = coroutineScope<List<Pair<Component, Either<StatusCode, DialogJs>>>> {
+        /*components.map {
+            it to downloadDialogJs(it, retrofit)
+        }*/
         val jobs = components.map {
             async {
                 it to downloadDialogJs(it, retrofit)
@@ -135,6 +141,9 @@ class ComponentRepository(
         components: List<String>,
         retrofit: ComponentRetrofit? = null
     ) = coroutineScope<List<Pair<String, Either<StatusCode, List<Binding>>>>> {
+        /*components.map {
+            it to downloadBindings(it, retrofit)
+        }*/
         val jobs = components.map {
             async {
                 it to downloadBindings(it, retrofit)
@@ -170,12 +179,12 @@ class ComponentRepository(
         persistStatus(status)
     }
 
-    private suspend fun cacheConfigInput(components: List<Component>) {
+    private suspend fun cacheConfigInput(components: List<Component>, retrofit: ComponentRetrofit) {
         val type = ConfigDownloadStatus.TYPE_CONFIG_INPUT
         persistStatus(components.map {
             ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
         })
-        val list = downloadConfigInputs(components)
+        val list = downloadConfigInputs(components, retrofit)
         val statuses = list.map {
             val (component, either) = it
             ConfigDownloadStatus(component.id, type, when(either) {
@@ -206,12 +215,12 @@ class ComponentRepository(
         persistStatus(status)
     }
 
-    private suspend fun cacheDialogJs(components: List<Component>) {
+    private suspend fun cacheDialogJs(components: List<Component>, retrofit: ComponentRetrofit) {
         val type = ConfigDownloadStatus.TYPE_DIALOG_JS
         persistStatus(components.map {
             ConfigDownloadStatus(it.id, type, StatusCode.DOWNLOAD_IN_PROGRESS)
         })
-        val list = downloadDialogJs(components)
+        val list = downloadDialogJs(components, retrofit)
         val statuses = list.map {
             val (component, either) = it
             ConfigDownloadStatus(component.id, type, when(either) {
@@ -249,7 +258,7 @@ class ComponentRepository(
         persistStatus(status)
     }
 
-    private suspend fun cacheBinding(components: List<Component>) {
+    private suspend fun cacheBinding(components: List<Component>, retrofit: ComponentRetrofit) {
 
         val templateIds = components.map {
             it.getRootTemplateId(pipelineDao)
@@ -259,7 +268,7 @@ class ComponentRepository(
         persistStatus(templateIds.map {
             ConfigDownloadStatus(it, type, StatusCode.DOWNLOAD_IN_PROGRESS)
         })
-        val list = downloadBindings(templateIds)
+        val list = downloadBindings(templateIds, retrofit)
         val statuses = list.map {
             val (templateId, either) = it
             ConfigDownloadStatus(templateId, type, when(either) {
@@ -274,29 +283,36 @@ class ComponentRepository(
     }
 
     suspend fun cache(components: List<Component>) = coroutineScope {
+        val retrofit = when(val res = getComponentRetrofit()) {
+            is Either.Left -> return@coroutineScope
+            is Either.Right -> res.value
+        }
         val list = listOf(
-            async { cacheConfigInput(components) },
-            async { cacheDialogJs(components) },
-            async { cacheBinding(components) }
+            async { cacheConfigInput(components, retrofit) },
+            async { cacheDialogJs(components, retrofit) },
+            async { cacheBinding(components, retrofit) }
         )
         list.forEach {
             it.await()
         }
     }
 
-    suspend fun cache(component: Component) = coroutineScope {
-        val statusConfigInput = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
-        val statusDialogJs = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_DIALOG_JS)
-        val statusBinding = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_BINDING)
-        val list = mutableListOf<Deferred<Unit>>()
-        if (statusConfigInput == null || (statusConfigInput.result != StatusCode.OK.name && statusConfigInput.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
-            list.add(async { cacheConfigInput(component) })
-        if (statusDialogJs == null || (statusDialogJs.result != StatusCode.OK.name && statusDialogJs.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
-            list.add(async { cacheDialogJs(component) })
-        if (statusBinding == null || (statusBinding.result != StatusCode.OK.name && statusBinding.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
-            list.add(async { cacheBinding(component) })
-        list.forEach {
-            it.await()
+    private val cacheMutex = Mutex()
+    suspend fun cache(component: Component) = cacheMutex.withLock {
+        coroutineScope {
+            val statusConfigInput = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
+            val statusDialogJs = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_DIALOG_JS)
+            val statusBinding = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_BINDING)
+            val list = mutableListOf<Deferred<Unit>>()
+            if (statusConfigInput == null || (statusConfigInput.result != StatusCode.OK.name && statusConfigInput.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+                list.add(async { cacheConfigInput(component) })
+            if (statusDialogJs == null || (statusDialogJs.result != StatusCode.OK.name && statusDialogJs.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+                list.add(async { cacheDialogJs(component) })
+            if (statusBinding == null || (statusBinding.result != StatusCode.OK.name && statusBinding.result != StatusCode.DOWNLOAD_IN_PROGRESS.name))
+                list.add(async { cacheBinding(component) })
+            list.forEach {
+                it.await()
+            }
         }
     }
 
