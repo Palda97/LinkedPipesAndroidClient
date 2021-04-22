@@ -7,7 +7,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class ComponentTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun parseTest() {

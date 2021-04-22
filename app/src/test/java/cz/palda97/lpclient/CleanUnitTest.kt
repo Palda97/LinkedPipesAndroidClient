@@ -5,7 +5,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class CleanUnitTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun test() {

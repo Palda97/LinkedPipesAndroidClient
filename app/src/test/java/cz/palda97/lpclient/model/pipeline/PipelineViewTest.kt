@@ -6,7 +6,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class PipelineViewTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun parse() {

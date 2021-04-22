@@ -1,6 +1,6 @@
 package cz.palda97.lpclient.model.execution
 
-import cz.palda97.lpclient.PowerMockTest
+import cz.palda97.lpclient.MockkTest
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatusUtilities
 import org.junit.Test
@@ -8,7 +8,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class ExecutionStatusUtilitiesTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun fromJson() {
