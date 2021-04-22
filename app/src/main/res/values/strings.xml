@@ -100,4 +100,5 @@
     <string name="pipeline_label">Pipeline Label</string>
     <string name="error_while_getting_executions_from">Error while getting executions from</string>
     <string name="error_while_getting_pipelines_from">Error while getting pipelines from</string>
+    <string name="licenses">licenses</string>
 </resources>

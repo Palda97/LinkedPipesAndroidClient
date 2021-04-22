@@ -1,11 +1,11 @@
 package cz.palda97.lpclient.model
 
-import cz.palda97.lpclient.PowerMockTest
+import cz.palda97.lpclient.MockkTest
 import org.junit.Assert
 import org.junit.Test
 
 class DateParserTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun dateParserBasic() {

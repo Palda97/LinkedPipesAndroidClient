@@ -8,7 +8,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class ConfigFactoryTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun parseAutocomplete() {

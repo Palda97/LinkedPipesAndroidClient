@@ -1,6 +1,5 @@
 package cz.palda97.lpclient.model
 
-import cz.palda97.lpclient.PowerMockTest
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
@@ -11,7 +10,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class ExecutionFactoryTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun entityTest() {

@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.view.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.Filter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
@@ -128,10 +130,17 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        fun setUpLicenseButton() {
+            binding.licenseButton.setOnClickListener {
+                startActivity(Intent(requireContext(), OssLicensesMenuActivity::class.java))
+            }
+        }
+
         setUpNightMode()
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()
+        setUpLicenseButton()
     }
 
     private fun activeChange(server: ServerInstance) {

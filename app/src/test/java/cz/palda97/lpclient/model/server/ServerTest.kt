@@ -7,7 +7,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class ServerTest
-    : PowerMockTest() {
+    : MockkTest() {
 
     @Test
     fun json() {
