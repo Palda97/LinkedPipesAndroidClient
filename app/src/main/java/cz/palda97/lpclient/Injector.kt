@@ -45,9 +45,13 @@ object Injector {
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
 
+    //private val RELEASE: Boolean = !BuildConfig.DEBUG
+    const val RELEASE: Boolean = true
+    private val logFun: (tag: String, msg: String) -> Int = if (RELEASE) {_, _ -> 0 } else Log::d
+
     fun generateLogFunction(tag: String): (Any?) -> Int {
         return {
-            Log.d(tag, it.toString())
+            logFun(tag, it.toString())
         }
     }
 

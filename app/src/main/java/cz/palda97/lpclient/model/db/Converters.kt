@@ -176,10 +176,4 @@ class Converters {
             null
         }
     }
-
-    private fun l(msg: Any?) {
-        //val prefix = "Converters: "
-        val prefix = "**********************************: "
-        println("${prefix}${msg.toString()}")
-    }
 }
