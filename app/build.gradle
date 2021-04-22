@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.jk1.dependency-license-report'
-
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 
 android {
     compileSdkVersion 29
@@ -134,4 +134,7 @@ dependencies {
     //Mockk
     androidTestImplementation "io.mockk:mockk-android:1.11.0"
     testImplementation "io.mockk:mockk:1.11.0"
+
+    //Oss-Licenses
+    implementation("com.google.android.gms:play-services-oss-licenses:17.0.0")
 }
