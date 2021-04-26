@@ -91,3 +91,6 @@ I/O | Add New Connection
 	<li>36) Clicking the "cancel" button or outside of the dialog window will cancel the connection creation.</li>
 	<li>37) Clicking the "continue" button will save the connection.</li>
 </ul>
+
+### Video tutorials
+Video tutorials can be found [here](https://palda97.github.io/AndroidEtlClientDeveloperDocumentation/videos.html).
