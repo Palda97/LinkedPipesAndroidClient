@@ -353,6 +353,10 @@ abstract class PipelineDao {
     @Query("select * from vertex where id in (:ids)")
     abstract suspend fun findVertexesByConnectionIds(ids: List<String>): List<Vertex>
 
+    /**
+     * Removes connection with according vertexes.
+     * @return Vertexes that have been removed.
+     */
     @Transaction
     open suspend fun deleteConnectionWithVertexes(connection: Connection): List<Vertex> {
         val vertexes = findVertexesByConnectionIds(connection.vertexIds)
@@ -367,6 +371,9 @@ abstract class PipelineDao {
     @Delete
     abstract suspend fun deleteConnection(connections: List<Connection>)
 
+    /**
+     * Deletes the component with all it's connections and their vertexes.
+     */
     @Transaction
     open suspend fun purgeComponent(component: Component) {
         val connections = selectComponentConnections(component.id)
@@ -437,6 +444,10 @@ abstract class PipelineDao {
     @Query("delete from possiblecomponent where serverId = :serverId")
     abstract suspend fun deletePossibleComponents(serverId: Long)
 
+    /**
+     * Sets download status for possible components for this server
+     * and delete it's previously downloaded possible components.
+     */
     @Transaction
     open suspend fun prepareForPossibleComponentsDownload(serverId: Long) {
         insertPossibleStatus(PossibleStatus(serverId, PossibleComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS))
@@ -451,6 +462,10 @@ abstract class PipelineDao {
     @Query("delete from possiblecomponent where serverId in (:serverIds)")
     abstract suspend fun deletePossibleComponents(serverIds: List<Long>)
 
+    /**
+     * Sets download status for possible components for this server
+     * and delete it's previously downloaded possible components.
+     */
     @Transaction
     open suspend fun prepareForPossibleComponentsDownload(serverIds: List<Long>) {
         val statusCode = PossibleComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS
@@ -493,6 +508,10 @@ abstract class PipelineDao {
     @Query("select * from tag")
     abstract suspend fun getAllTags(): List<Tag>
 
+    /**
+     * Make a pipeline from everything stored in database.
+     * @return Pipeline or null if not successful.
+     */
     @Transaction
     open suspend fun exportPipeline(pipelineId: String): Pipeline? {
         val pipelineView = getPipelineView(pipelineId) ?: return null

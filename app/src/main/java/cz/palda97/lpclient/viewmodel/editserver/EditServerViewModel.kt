@@ -10,6 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * ViewModel for the [EditServerActivity][cz.palda97.lpclient.view.EditServerActivity].
+ */
 class EditServerViewModel : ViewModel() {
 
     private val serverRepository = Injector.serverRepository
@@ -23,6 +26,10 @@ class EditServerViewModel : ViewModel() {
     }
 
     private val _saveSuccessful = MutableLiveData<SaveStatus>(SaveStatus.WAITING)
+
+    /**
+     * LiveData with information about server saving.
+     */
     val saveSuccessful: LiveData<SaveStatus>
         get() = _saveSuccessful
 
@@ -49,6 +56,10 @@ class EditServerViewModel : ViewModel() {
         )
     }
 
+    /**
+     * Check attributes of this server instance by [ServerInstanceAttributeCheck]
+     * and if successful, insert it into database.
+     */
     fun saveServer(serverInstance: ServerInstance = tmpServer) {
         val status = ServerInstanceAttributeCheck(serverInstance).status
         _saveSuccessful.value = status
@@ -59,14 +70,24 @@ class EditServerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Sets the [saveSuccessful] to [WAITING][SaveStatus.WAITING].
+     */
     fun resetStatus() {
         _saveSuccessful.value = SaveStatus.WAITING
     }
 
     private val _pingStatus = MutableLiveData<MailPackage<Pair<String, Ping.Status>>>()
+
+    /**
+     * LiveData with url paired with information about ping.
+     */
     val pingStatus: LiveData<MailPackage<Pair<String, Ping.Status>>>
         get() = _pingStatus
 
+    /**
+     * Sets the [pingStatus] to [LOADING][MailPackage.Status.LOADING].
+     */
     fun resetPingStatus() {
         _pingStatus.value = MailPackage.loadingPackage()
     }
@@ -97,6 +118,9 @@ class EditServerViewModel : ViewModel() {
         l("ping end")
     }
 
+    /**
+     * Ping this server and propagate result through [pingStatus].
+     */
     fun ping(server: ServerInstance) {
         CoroutineScope(Dispatchers.IO).launch {
             pingRoutine(server)
@@ -106,6 +130,9 @@ class EditServerViewModel : ViewModel() {
     companion object {
         private val l = Injector.generateLogFunction(this)
 
+        /**
+         * Gets an instance of [EditServerViewModel] tied to the owner's lifecycle.
+         */
         fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(EditServerViewModel::class.java)
     }
 

@@ -3,6 +3,9 @@ package cz.palda97.lpclient.model.entities.pipeline
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * Entity representing a connection between two [components][Component].
+ */
 @Entity
 data class Connection(
     val sourceBinding: String,

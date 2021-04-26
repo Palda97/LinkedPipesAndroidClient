@@ -9,6 +9,11 @@ import cz.palda97.lpclient.viewmodel.editcomponent.BindingComplete
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputContext
 import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
 
+/**
+ * Repository for bindings and connections.
+ * To set current component, call [setImportantIds]
+ * @see setImportantIds
+ */
 class BindingRepository(private val pipelineDao: PipelineDao) {
 
     private var currentComponentId = ""
@@ -17,10 +22,19 @@ class BindingRepository(private val pipelineDao: PipelineDao) {
     private fun liveInputConnections() = pipelineDao.liveInputConnectionsByComponentId(currentComponentId)
     private fun liveOutputConnections() = pipelineDao.liveOutputConnectionsByComponentId(currentComponentId)
     private fun liveComponents() = pipelineDao.liveComponent()
+
+    /**
+     * LiveData with current template's bindings.
+     */
     fun liveBindings() = pipelineDao.liveBindingWithStatus(currentTemplateId)
     private fun liveOtherBindings() = pipelineDao.liveBindingWithStatus()
     private fun liveTemplates() = pipelineDao.liveTemplate()
 
+    /**
+     * Setup current [Binding]s
+     * @param componentId [Component]'s id.
+     * @param templateId The **root** [Template]'s id.
+     */
     fun setImportantIds(componentId: String, templateId: String) {
         currentComponentId = componentId
         currentTemplateId = templateId
@@ -124,12 +138,21 @@ class BindingRepository(private val pipelineDao: PipelineDao) {
         }
     }
 
+    /**
+     * LiveData with current component's input connections.
+     * (including configuration)
+     * @see BindingComplete
+     */
     val liveInputContext: LiveData<ConfigInputContext>
         get() = synchronized(this) {
             storage.resetMaybe()
             return@synchronized getInputBindingMediator()
         }
 
+    /**
+     * LiveData with current component's output connections.
+     * @see BindingComplete
+     */
     val liveOutputContext: LiveData<ConfigInputContext>
         get() = synchronized(this) {
             storage.resetMaybe()

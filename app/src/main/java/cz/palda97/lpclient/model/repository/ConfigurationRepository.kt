@@ -15,6 +15,13 @@ import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Repository serving [ConfigInput][cz.palda97.lpclient.model.entities.pipeline.ConfigInput],
+ * [DialogJs][cz.palda97.lpclient.model.entities.pipeline.DialogJs] and providing access to
+ * [Configuration].
+ * To set current component for the configuration, set [currentComponent].
+ * @see currentComponent
+ */
 class ConfigurationRepository(private val pipelineDao: PipelineDao) {
 
     private var currentComponentId = ""
@@ -24,6 +31,9 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
     private fun liveDialogJs(componentId: String = currentComponentId) = pipelineDao.liveDialogJsWithStatus(componentId)
     private fun liveConfiguration(configurationId: String = currentConfigurationId) = pipelineDao.liveConfigurationById(configurationId)
 
+    /**
+     * Setup current [Configuration].
+     */
     var currentComponent: Component? = null
         set(value) {
             field = value
@@ -112,11 +122,20 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
     }
 
     private val updateConfigurationMutex = Mutex()
+
+    /**
+     * Update configuration in database.
+     */
     suspend fun updateConfiguration(componentId: String) = updateConfigurationMutex.withLock {
         val configuration = configStorage.configurationMap[componentId] ?: return@withLock
         pipelineDao.insertConfiguration(configuration)
     }
 
+    /**
+     * LiveData with current component's [ConfigInputs][cz.palda97.lpclient.model.entities.pipeline.ConfigInput]
+     * and [DialogJs][cz.palda97.lpclient.model.entities.pipeline.DialogJs].
+     * @see ConfigInputComplete
+     */
     val liveConfigInputContext: LiveData<ConfigInputContext>
         get() = synchronized(this) {
             if (currentComponentId != configStorage.lastComponentId) {
@@ -128,10 +147,16 @@ class ConfigurationRepository(private val pipelineDao: PipelineDao) {
     private val currentConfiguration
         get() = configStorage.configurationMap[currentComponentId]
 
+    /** @see Configuration.getString */
     fun getString(key: String, configType: String) = currentConfiguration?.getString(key, configType)
+
+    /** @see Configuration.setString */
     fun setString(key: String, value: String, configType: String) = currentConfiguration?.setString(key, value, configType)
 
+    /** @see Configuration.getInheritances */
     fun getInheritances(regex: Regex, configType: String) = currentConfiguration?.getInheritances(regex, configType)
+
+    /** @see Configuration.setInheritance */
     fun setInheritance(key: String, value: String, configType: String) = currentConfiguration?.setInheritance(key, value, configType)
 
     companion object {

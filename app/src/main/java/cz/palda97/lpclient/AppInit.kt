@@ -14,6 +14,16 @@ import org.conscrypt.Conscrypt
 import java.security.Security
 
 class AppInit : Application() {
+
+    /**
+     * This runs on the app start.
+     * It checks if every delete request has been sent,
+     * updates executions and pipelines
+     * and registers the notification channel.
+     *
+     * It also calls init function.
+     * @see init
+     */
     override fun onCreate() {
         super.onCreate()
         init(applicationContext)
@@ -24,6 +34,9 @@ class AppInit : Application() {
         notificationChannel()
     }
 
+    /**
+     * Registers the notification channel.
+     */
     private fun notificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -44,9 +57,21 @@ class AppInit : Application() {
     companion object {
         private val l = Injector.generateLogFunction(this)
 
+        /**
+         * Constant for shared preferences.
+         */
         const val NIGHT_MODE = "NIGHT_MODE"
+
+        /**
+         * Default night mode settings.
+         */
         const val DEFAULT_NIGHT_MODE = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
+        /**
+         * Gives Injector context,
+         * registers Conscrypt provider for ssl communication,
+         * sets night mode according to settings.
+         */
         fun init(context: Context) {
             if (Injector.isThereContext)
                 return
@@ -72,22 +97,23 @@ class AppInit : Application() {
             else
                 block()
 
+        /**
+         * @see RepositoryRoutines.cleanDb
+         */
         suspend fun cleanDb(context: Context? = null) = afterInit(context) {
             RepositoryRoutines().cleanDb()
         }
 
-        suspend fun preserveOnlyServers(context: Context? = null) = afterInit(context) {
-            val db = AppDatabase.getInstance(Injector.context)
-            val pipelineViewDao = db.pipelineViewDao()
-            val executionDao = db.executionDao()
-            pipelineViewDao.deleteAll()
-            executionDao.deleteAll()
-        }
-
+        /**
+         * @see RepositoryRoutines.refresh
+         */
         suspend fun refresh(context: Context? = null) = afterInit(context) {
             RepositoryRoutines().refresh()
         }
 
+        /**
+         * Channel id for notification channel.
+         */
         const val CHANNEL_ID = "etl_client_channel"
     }
 }

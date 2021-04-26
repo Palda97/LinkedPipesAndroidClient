@@ -6,7 +6,6 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.IdGenerator
 import cz.palda97.lpclient.model.entities.pipeline.Component
-import cz.palda97.lpclient.model.entities.pipeline.Template
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
@@ -15,6 +14,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the [AddComponentDialog][cz.palda97.lpclient.view.editpipeline.AddComponentDialog].
+ */
 class AddComponentViewModel(application: Application) : AndroidViewModel(application) {
 
     private val possibleRepository: PossibleComponentRepository = Injector.possibleComponentRepository
@@ -24,6 +26,11 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
     private val retrofitScope
         get() = CoroutineScope(Dispatchers.IO)
 
+    /**
+     * Get configuration and templates needed for the creation
+     * of a [Component] based on the given [PossibleComponent].
+     * @return [Job][kotlinx.coroutines.Job] related to this process.
+     */
     fun addComponent(possibleComponent: PossibleComponent) = retrofitScope.launch {
         val id = IdGenerator.componentId(pipelineRepository.currentPipelineId)
         val configuration = when(val res = possibleRepository.downloadDefaultConfiguration(possibleComponent, id)) {
@@ -64,9 +71,11 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
         possibleRepository.persistConfiguration(configuration)
     }
 
+    /** @see PossibleComponentRepository.liveComponents */
     val liveComponents
         get() = possibleRepository.liveComponents
 
+    /** @see PossibleComponentRepository.lastSelectedComponentPosition */
     var lastSelectedComponentPosition: Int?
         get() = possibleRepository.lastSelectedComponentPosition
         set(value) {
@@ -76,6 +85,9 @@ class AddComponentViewModel(application: Application) : AndroidViewModel(applica
     companion object {
         private val l = Injector.generateLogFunction(this)
 
+        /**
+         * Gets an instance of [AddComponentViewModel] tied to the owner's lifecycle.
+         */
         fun getInstance(owner: ViewModelStoreOwner) =
             ViewModelProvider(owner).get(AddComponentViewModel::class.java)
     }

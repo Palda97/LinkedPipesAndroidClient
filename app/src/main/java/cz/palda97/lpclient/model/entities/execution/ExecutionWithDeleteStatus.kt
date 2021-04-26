@@ -4,6 +4,9 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import cz.palda97.lpclient.model.db.MarkForDeletion
 
+/**
+ * Wrapper for [Execution] and it's corresponding [MarkForDeletion].
+ */
 data class ExecutionWithDeleteStatus (
     @Embedded
     val execution: Execution,

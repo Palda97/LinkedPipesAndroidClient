@@ -12,6 +12,10 @@ object RetrofitHelper {
 
     private val l = Injector.generateLogFunction("RetrofitHelper")
 
+    /**
+     * Executes the call and returns response.
+     * @return String with response if successful, http code otherwise.
+     */
     suspend fun getStringFromCallOrCode(call: Call<ResponseBody>): Either<Int, String?> {
         try {
             val executedCall = call.execute()
@@ -32,6 +36,10 @@ object RetrofitHelper {
         }
     }
 
+    /**
+     * Executes the call and returns response.
+     * @return String with response if successful, null if not.
+     */
     suspend fun getStringFromCall(call: Call<ResponseBody>): String? = when(val res = getStringFromCallOrCode(call)) {
         is Either.Left -> null
         is Either.Right -> res.value
@@ -39,6 +47,9 @@ object RetrofitHelper {
 
     private const val TEXT_PLAIN = "text/plain"
 
+    /**
+     * Transform String to Form Data.
+     */
     fun stringToFormData(string: String): RequestBody = RequestBody.create(
         MediaType.parse(TEXT_PLAIN),
         string
@@ -46,6 +57,9 @@ object RetrofitHelper {
 
     private fun getBuilder(baseUrl: String) = Retrofit.Builder().baseUrl(baseUrl)
 
+    /**
+     * Create a retrofit builder from [ServerInstance] and full url (including port).
+     */
     fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
         val auth = server.credentials
         return getBuilder(url).client(

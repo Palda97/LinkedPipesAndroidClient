@@ -16,6 +16,9 @@ import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRe
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
 
+/**
+ * Repository for working with [Executions][Execution].
+ */
 class ExecutionRepository(
     private val executionDao: ExecutionDao,
     private val serverDao: ServerInstanceDao,
@@ -47,9 +50,18 @@ class ExecutionRepository(
         }
     }
 
+    /**
+     * LiveData containing executions that belong to a server that is used as a filter,
+     * or all execution if no server is set as a filter. It is all wrapper in [MailPackage],
+     * so it can even represent [loading][MailPackage.Status.LOADING] while the executions are being downloaded.
+     */
     val liveExecutions: LiveData<MailPackage<List<ServerWithExecutions>>>
         get() = mediator
 
+    /**
+     * Update [liveExecutions] according to server that is used as a filter.
+     * @see ServerRepository.serverToFilter
+     */
     fun onServerToFilterChange() {
         mediator.postValue(executionFilterTransformation(dbMirror.value))
     }
@@ -129,8 +141,16 @@ class ExecutionRepository(
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
     }
 
+    /**
+     * While this is true, [liveExecutions] is not responding for changes in database.
+     */
     var noisyFlag = false
 
+    /**
+     * Download and store executions that belong to selected server(s).
+     * @param either [Either] [ServerInstance] or list of them.
+     * @param silent If executions should be updated [silently][ExecutionDao.silentInsert].
+     */
     suspend fun cacheExecutions(
         either: Either<ServerInstance, List<ServerInstance>?>,
         silent: Boolean
@@ -145,14 +165,23 @@ class ExecutionRepository(
         }
     }
 
+    /**
+     * Add a [mark][cz.palda97.lpclient.model.db.MarkForDeletion] of this execution to the database.
+     */
     suspend fun markForDeletion(execution: Execution) {
         deleteDao.markForDeletion(execution.id)
     }
 
+    /**
+     * Unmark this execution.
+     */
     suspend fun unMarkForDeletion(execution: Execution) {
         deleteDao.unMarkForDeletion(execution.id)
     }
 
+    /**
+     * Find execution by id.
+     */
     suspend fun find(id: String): Execution? = executionDao.findById(id)
 
     private suspend fun deleteRoutine(execution: Execution) {
@@ -181,16 +210,26 @@ class ExecutionRepository(
         return StatusCode.ERROR
     }
 
+    /** @see DeleteRepository */
     val deleteRepo = DeleteRepository<Execution> {
         deleteExecution(it)
     }
 
+    /**
+     * Pair [marks][cz.palda97.lpclient.model.db.MarkForDeletion] with [executions][Execution]
+     * and send delete requests.
+     */
     suspend fun cleanDb() {
         executionDao.selectDeleted().forEach {
             deleteExecution(it)
         }
     }
 
+    /**
+     * Called when active server is added, or an old server is now active.
+     * Tries to download executions. When successful, it updates the database,
+     * otherwise it does nothing.
+     */
     suspend fun update(server: ServerInstance) {
         val mail = downloadExecutions(server)
         if (!mail.isOk)
@@ -209,33 +248,10 @@ class ExecutionRepository(
         return RetrofitHelper.getStringFromCall(call)
     }
 
-    suspend fun monitor(serverId: Long, executionId: String): ExecutionStatus? {
-        //l("monitor thread: ${Thread.currentThread().name}")
-        var finalStatus: ExecutionStatus? = null
-        while (true) {
-            delay(MONITOR_DELAY)
-            val server = serverDao.findById(serverId) ?: break
-            if (!server.active)
-                break
-            val json = getSpecificExecution(executionId, server)
-            if (json == "[ ]") {
-                continue
-            }
-            val status = ExecutionStatusUtilities.fromDirectRequest(json) ?: break
-            executionDao.findById(executionId)?.let {
-                if (status != it.status) {
-                    it.status = status
-                    executionDao.insert(it)
-                }
-            }
-            if (status != ExecutionStatus.QUEUED && status != ExecutionStatus.RUNNING) {
-                finalStatus = status
-                break
-            }
-        }
-        return finalStatus
-    }
-
+    /**
+     * Downloads the specific execution, fetches it's status and update the database.
+     * @return [ExecutionStatus] of the execution, or null on error.
+     */
     suspend fun fetchStatus(serverId: Long, executionId: String): ExecutionStatus? {
         while (true) {
             val server = serverDao.findById(serverId) ?: return null

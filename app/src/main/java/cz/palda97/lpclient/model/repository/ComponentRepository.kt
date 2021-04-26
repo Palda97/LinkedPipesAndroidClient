@@ -14,6 +14,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Repository for everything about components. It also includes [BindingRepository],
+ * [ConfigurationRepository] and [ConnectionDialogRepository]
+ */
 @Suppress("NAME_SHADOWING")
 class ComponentRepository(
     private val serverDao: ServerInstanceDao,
@@ -242,6 +246,12 @@ class ComponentRepository(
         val templateId = component.getRootTemplateId(pipelineDao)
         cacheBinding(templateId)
     }
+
+    /**
+     * If the template's bindings are not stored in database or
+     * are not being currently downloaded, download them and store.
+     * @param templateId **Root** [Template]'s id.
+     */
     suspend fun cacheBinding(templateId: String) {
         val type = ConfigDownloadStatus.TYPE_BINDING
         val statusBinding = pipelineDao.findStatus(templateId, type)
@@ -282,6 +292,10 @@ class ComponentRepository(
         persistStatus(statuses)
     }
 
+    /**
+     * Download and store [Bindings][Binding], [ConfigInputs][ConfigInput] and [DialogJs]
+     * for each component passed as argument.
+     */
     suspend fun cache(components: List<Component>) = coroutineScope {
         val retrofit = when(val res = getComponentRetrofit()) {
             is Either.Left -> return@coroutineScope
@@ -298,6 +312,11 @@ class ComponentRepository(
     }
 
     private val cacheMutex = Mutex()
+
+    /**
+     * Download and store [Bindings][Binding], [ConfigInputs][ConfigInput] and [DialogJs]
+     * for a component passed as argument.
+     */
     suspend fun cache(component: Component) = cacheMutex.withLock {
         coroutineScope {
             val statusConfigInput = pipelineDao.findStatus(component.id, ConfigDownloadStatus.TYPE_CONFIG_INPUT)
@@ -319,11 +338,19 @@ class ComponentRepository(
     var currentComponentId = ""
         private set
 
+    /**
+     * @see ConfigurationRepository
+     */
     val configurationRepository = ConfigurationRepository(pipelineDao)
 
     var currentTemplateId = ""
         private set
 
+    /**
+     * Sets current component for this repository, for the [ConfigurationRepository], for the
+     * [ConnectionDialogRepository] and call [setImportantIds][BindingRepository.setImportantIds]
+     * with current component and root template.
+     */
     fun setImportantIds(component: Component, templates: List<Template>) {
         currentComponent = component
         currentTemplateId = component.getRootTemplateId(templates)
@@ -332,6 +359,9 @@ class ComponentRepository(
         connectionDialogRepository.currentComponent = component
     }
 
+    /**
+     * Current component for this repository.
+     */
     var currentComponent: Component?
         private set(value) {
             value?.let {
@@ -345,33 +375,60 @@ class ComponentRepository(
     private val componentMap = mutableMapOf<String, Component>()
 
     private val updateComponentMutex = Mutex()
+
+    /**
+     * If the current component is present in [componentMap], update it in database.
+     */
     suspend fun updateComponent(componentId: String) = updateComponentMutex.withLock {
         val component = componentMap[componentId] ?: return@withLock
         pipelineDao.insertComponent(component)
     }
 
+    /**
+     * If the current component is present in [componentMap], remove it and purge it from database.
+     * @see PipelineDao.purgeComponent
+     */
     suspend fun deleteCurrentComponent() = updateComponentMutex.withLock {
         val component = componentMap.remove(currentComponentId) ?: return@withLock
         pipelineDao.purgeComponent(component)
     }
 
+    /**
+     * @see BindingRepository
+     */
     val bindingRepository = BindingRepository(pipelineDao)
 
+    /**
+     * Insert or update connection in database.
+     */
     suspend fun persistConnection(connection: Connection) {
         pipelineDao.insertConnection(connection)
     }
 
+    /**
+     * Insert or update vertexes in database.
+     */
     suspend fun persistVertexes(list: List<Vertex>) {
         pipelineDao.insertVertex(list)
     }
 
+    /**
+     * Delete connection from database alongside with it's vertexes.
+     */
     suspend fun deleteConnection(connection: Connection) = pipelineDao.deleteConnectionWithVertexes(connection)
 
+    /**
+     * @see ConnectionDialogRepository
+     */
     val connectionDialogRepository = ConnectionDialogRepository(pipelineDao)
 
     companion object {
         private val l = Injector.generateLogFunction(this)
 
+        /**
+         * Get the root template id of the component
+         * using [Template] list as an argument.
+         */
         tailrec fun Component.getRootTemplateId(templates: List<Template>): String {
             val template = templates.find {
                 it.id == templateId
@@ -379,6 +436,10 @@ class ComponentRepository(
             return Component(0, 0, template).getRootTemplateId(templates)
         }
 
+        /**
+         * Get the root template id of the component
+         * using [PipelineDao] as an argument.
+         */
         tailrec suspend fun Component.getRootTemplateId(pipelineDao: PipelineDao): String {
             val template = pipelineDao.findTemplateById(templateId) ?: return templateId
             return Component(0, 0, template).getRootTemplateId(pipelineDao)

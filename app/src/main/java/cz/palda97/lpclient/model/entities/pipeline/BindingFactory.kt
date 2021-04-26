@@ -4,8 +4,15 @@ import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
+/**
+ * @property json JsonLd containing bindings.
+ */
 class BindingFactory(private val json: String) {
 
+    /**
+     * Parse [json] to list of [bindings][Binding].
+     * @return Bindings or null on error.
+     */
     fun parse(): List<Binding>? {
         val rootArrayList = when (val res = CommonFunctions.getRootArrayList(json)) {
             is Either.Left -> return null

@@ -11,6 +11,9 @@ import androidx.navigation.ui.setupWithNavController
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 
+/**
+ * The main activity containing fragments for displaying executions, pipelineViews and settings with servers.
+ */
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

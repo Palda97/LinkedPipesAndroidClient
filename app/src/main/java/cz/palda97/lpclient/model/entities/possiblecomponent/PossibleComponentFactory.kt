@@ -5,8 +5,15 @@ import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
+/**
+ * Factory for transforming jsonLd to list of [PossibleComponent].
+ */
 class PossibleComponentFactory(private val json: String, private val serverId: Long) {
 
+    /**
+     * Parse jsonLd to [PossibleComponents][PossibleComponent].
+     * @return list of [PossibleComponents][PossibleComponent] or null on error.
+     */
     fun parse(): List<PossibleComponent>? {
         val rootArrayList = when (val res = CommonFunctions.getRootArrayList(json)) {
             is Either.Left -> return null

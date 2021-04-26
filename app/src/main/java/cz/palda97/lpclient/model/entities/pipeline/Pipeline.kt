@@ -2,6 +2,9 @@ package cz.palda97.lpclient.model.entities.pipeline
 
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 
+/**
+ * The whole pipeline.
+ */
 data class Pipeline(
     val pipelineView: PipelineView,
     val profile: Profile?,

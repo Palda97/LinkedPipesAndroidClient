@@ -27,6 +27,9 @@ import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.view.editpipeline.CreatePipelineDialog
 import cz.palda97.lpclient.viewmodel.CommonViewModel
 
+/**
+ * Fragment for displaying pipelineViews.
+ */
 class PipelinesFragment : Fragment() {
 
     private lateinit var binding: FragmentPipelinesBinding

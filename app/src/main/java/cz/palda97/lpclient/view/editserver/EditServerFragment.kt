@@ -22,6 +22,9 @@ import cz.palda97.lpclient.viewmodel.editserver.Ping
 import kotlinx.coroutines.*
 import java.lang.NumberFormatException
 
+/**
+ * Fragment for displaying server instance that is being edited.
+ */
 class EditServerFragment : Fragment() {
 
     companion object {

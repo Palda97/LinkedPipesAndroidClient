@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.jk1.dependency-license-report'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+apply plugin: 'org.jetbrains.dokka-android'
 
 android {
     compileSdkVersion 29
@@ -54,6 +55,13 @@ android {
         test {
             java.srcDirs += "src/sharedTest/java"
         }
+    }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/javadoc"
+        /*outputFormat = 'markdown'
+        outputDirectory = "$buildDir/markdoc"*/
     }
 }
 

@@ -10,6 +10,11 @@ import cz.palda97.lpclient.databinding.ListItemTwoLineSwitchBinding
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.view.AdapterWithList
 
+/**
+ * Adapter for list of servers.
+ * @property editServer Function for editing the server.
+ * @property activeChange Function for changing the active state of the server.
+ */
 class ServerRecyclerAdapter(
     private val editServer: (ServerInstance) -> Unit,
     private val activeChange: (ServerInstance) -> Unit
@@ -21,6 +26,9 @@ class ServerRecyclerAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateServerList(newServerList: List<ServerInstance>) {
         if (serverList == null) {
             serverList = newServerList

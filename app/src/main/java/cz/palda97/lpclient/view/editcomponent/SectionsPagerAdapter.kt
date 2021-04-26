@@ -13,6 +13,9 @@ private val TAB_TITLES = arrayOf(
     R.string.tab_text_3
 )
 
+/**
+ * Adapter for the tab navigation in [EditComponentActivity][cz.palda97.lpclient.view.EditComponentActivity].
+ */
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 

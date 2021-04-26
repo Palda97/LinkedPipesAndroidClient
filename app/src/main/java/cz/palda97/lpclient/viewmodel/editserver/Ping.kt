@@ -8,16 +8,23 @@ import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
 
-//class Ping(private val apiUrl: String) {
+/**
+ * Class for pinging a server.
+ */
 class Ping(private val server: ServerInstance) {
 
+    /**
+     * Server address without protocol or slashes.
+     */
     val pingUrl = address(server.url)
-    val apiUrl = server.frontendUrl
 
     enum class Status {
         OK, NO, UNKNOWN_HOST, SECURITY, IO, API_OK
     }
 
+    /**
+     * Try to download pipelineViews just to know that it's possible.
+     */
     suspend fun tryApiCall(): Status = withContext(Dispatchers.IO) {
         val pipelineRepository = Injector.pipelineViewRepository
         val mail = pipelineRepository.downloadPipelineViews(server)
@@ -27,6 +34,9 @@ class Ping(private val server: ServerInstance) {
             Status.NO
     }
 
+    /**
+     * Classic ping.
+     */
     suspend fun ping(): Status = withContext(Dispatchers.IO) {
         if (pingUrl.isEmpty())
             return@withContext Status.UNKNOWN_HOST

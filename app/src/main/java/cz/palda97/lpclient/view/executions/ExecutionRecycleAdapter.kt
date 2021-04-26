@@ -11,6 +11,11 @@ import cz.palda97.lpclient.databinding.ListItemTwoLineMetaBinding
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 
+/**
+ * Adapter for list of executions.
+ * @property viewExecution Function for viewing this execution.
+ * @property launchExecution Function for launching this execution.
+ */
 class ExecutionRecycleAdapter(
     private val viewExecution: (ExecutionV) -> Unit,
     private val launchExecution: (ExecutionV) -> Unit
@@ -22,6 +27,9 @@ class ExecutionRecycleAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateExecutionList(newExecutionList: List<ExecutionV>) {
         if (executionList == null) {
             executionList = newExecutionList

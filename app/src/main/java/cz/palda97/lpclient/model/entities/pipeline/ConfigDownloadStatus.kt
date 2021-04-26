@@ -3,6 +3,10 @@ package cz.palda97.lpclient.model.entities.pipeline
 import androidx.room.Entity
 import cz.palda97.lpclient.model.repository.ComponentRepository
 
+/**
+ * Entity representing download status of either [ConfigInputs][ConfigInput],
+ * [DialogJs] or [Bindings][Binding].
+ */
 @Entity(primaryKeys = ["componentId", "type"])
 data class ConfigDownloadStatus(
     val componentId: String,

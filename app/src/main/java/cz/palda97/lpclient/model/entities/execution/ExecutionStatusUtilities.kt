@@ -7,6 +7,10 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 
 object ExecutionStatusUtilities {
 
+    /**
+     * @param json JsonLd with one specific execution.
+     * @return [ExecutionStatus] or null if something goes wrong.
+     */
     fun fromDirectRequest(json: String?): ExecutionStatus? {
         return when (val res = CommonFunctions.getRootArrayList(json)) {
             is Either.Left -> null
@@ -32,6 +36,10 @@ object ExecutionStatusUtilities {
     private const val TAG = "ExecutionStatusUtilities"
     private val l = Injector.generateLogFunction(TAG)
 
+    /**
+     * Converts executions status id to [ExecutionStatus].
+     * @return [ExecutionStatus] or null when id is not matched.
+     */
     fun fromString(string: String): ExecutionStatus? = when (string) {
         LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
         LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED

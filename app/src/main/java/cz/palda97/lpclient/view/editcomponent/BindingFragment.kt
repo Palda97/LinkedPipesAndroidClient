@@ -19,6 +19,9 @@ import cz.palda97.lpclient.model.repository.ComponentRepository.StatusCode.Compa
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.viewmodel.editcomponent.*
 
+/**
+ * Fragment for displaying component's bindings and their connections.
+ */
 class BindingFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentBindingBinding
@@ -71,7 +74,7 @@ class BindingFragment : Fragment() {
         }
 
         fun setUpInputConnections() {
-            val adapter = ConnectionAdapter(ConnectionAdapter.Direction.INPUT)
+            val adapter = ConnectionAdapter()
             RecyclerViewCosmetics.makeItAllWork(
                 binding.insertInputConnectionsHere,
                 adapter,
@@ -101,7 +104,7 @@ class BindingFragment : Fragment() {
         }
 
         fun setUpOutputConnections() {
-            val adapter = ConnectionAdapter(ConnectionAdapter.Direction.OUTPUT)
+            val adapter = ConnectionAdapter()
             RecyclerViewCosmetics.makeItAllWork(
                 binding.insertOutputConnectionsHere,
                 adapter,
@@ -133,14 +136,6 @@ class BindingFragment : Fragment() {
         setUpButtons()
         setUpInputConnections()
         setUpOutputConnections()
-    }
-
-    private fun logConnections(list: List<Pair<Connection, ConnectionV.ConnectionItem>>) {
-        l("---------------------------------------------------------------------------")
-        list.forEach {
-            l(it.second)
-        }
-        l("---------------------------------------------------------------------------")
     }
 
     private fun addConnection(binding: Binding) {

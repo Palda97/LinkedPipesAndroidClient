@@ -12,6 +12,10 @@ import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.viewmodel.editcomponent.InheritanceV
 import cz.palda97.lpclient.viewmodel.editcomponent.InheritanceVWrapper
 
+/**
+ * Adapter for list of inheritance fields.
+ * @property setInheritance [Configuration.setInheritance][cz.palda97.lpclient.model.entities.pipeline.Configuration.setInheritance]
+ */
 class InheritanceAdapter(
     private val setInheritance: (fullName: String, value: Boolean, configType: String) -> Unit?
 ) : RecyclerView.Adapter<InheritanceAdapter.InheritanceViewHolder>(),
@@ -24,6 +28,9 @@ class InheritanceAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateInheritanceVWrapper(newInheritanceVWrapper: InheritanceVWrapper) {
         inheritanceVWrapper = newInheritanceVWrapper
         val newInheritanceVList = newInheritanceVWrapper.inheritances

@@ -5,8 +5,15 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
+/**
+ * Factory for transforming dialog.html to list of [ConfigInput].
+ */
 class ConfigInputFactory(private val html: String, private val componentId: String) {
 
+    /**
+     * Parse html to [ConfigInputs][ConfigInput].
+     * @return List of ConfigInputs or null on error.
+     */
     fun parse(): List<ConfigInput>? {
         val doc = Jsoup.parse(html) ?: return null
         doc.getElementsByTag(MD_TABS).remove()

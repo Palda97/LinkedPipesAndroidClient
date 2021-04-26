@@ -12,14 +12,11 @@ import cz.palda97.lpclient.model.entities.pipeline.Connection
 import cz.palda97.lpclient.view.AdapterWithList
 import cz.palda97.lpclient.viewmodel.editcomponent.ConnectionV
 
-class ConnectionAdapter(
-    private val direction: Direction
-) : RecyclerView.Adapter<ConnectionAdapter.ConnectionViewHolder>(),
+/**
+ * Adapter for list of connection.
+ */
+class ConnectionAdapter : RecyclerView.Adapter<ConnectionAdapter.ConnectionViewHolder>(),
     AdapterWithList<Pair<Connection, ConnectionV.ConnectionItem>> {
-
-    enum class Direction {
-        INPUT, OUTPUT
-    }
 
     private var connectionList: List<Pair<Connection, ConnectionV.ConnectionItem>> = emptyList()
 
@@ -27,6 +24,9 @@ class ConnectionAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateConnectionList(newConnectionList: List<Pair<Connection, ConnectionV.ConnectionItem>>) {
         if (connectionList.isEmpty()) {
             connectionList = newConnectionList

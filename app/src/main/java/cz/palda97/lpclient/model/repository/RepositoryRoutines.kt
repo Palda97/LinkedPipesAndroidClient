@@ -5,6 +5,9 @@ import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import kotlinx.coroutines.*
 
+/**
+ * Processes that are needed to happen in more repositories.
+ */
 class RepositoryRoutines {
 
     private val serverRepository: ServerRepository = Injector.serverRepository
@@ -20,6 +23,8 @@ class RepositoryRoutines {
     }
 
     /**
+     * Tell repositories to update their content, but not so aggressively
+     * (E.g. Don't display errors).
      * Called when active server is added, or an old server is now active.
      */
     fun update(serverInstance: ServerInstance) = CoroutineScope(Dispatchers.IO).launch {
@@ -33,6 +38,7 @@ class RepositoryRoutines {
     }
 
     /**
+     * Tell repositories to update their content.
      * Called when the refresh button is clicked and at the application start.
      */
     suspend fun refresh() = withContext(Dispatchers.IO) {
@@ -47,6 +53,8 @@ class RepositoryRoutines {
     }
 
     /**
+     * Pair [marks][cz.palda97.lpclient.model.db.MarkForDeletion] with contents of repositories
+     * and send delete requests.
      * Called on application start.
      */
     suspend fun cleanDb() = withContext(Dispatchers.IO) {
@@ -65,6 +73,10 @@ class RepositoryRoutines {
         }
     }
 
+    /**
+     * Inform repositories about changing a server that is used as a filter.
+     * @see ServerRepository.serverToFilter
+     */
     fun onServerToFilterChange() {
         pipelineViewRepository.onServerToFilterChange()
         executionRepository.onServerToFilterChange()

@@ -22,6 +22,9 @@ import cz.palda97.lpclient.view.SmartArrayAdapter
 import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
+/**
+ * Dialog window for creating a new connection.
+ */
 class CreateConnectionDialog : DialogFragment() {
 
     private lateinit var binding: DialogAddConnectionBinding
@@ -98,6 +101,10 @@ class CreateConnectionDialog : DialogFragment() {
         private val l = Injector.generateLogFunction(this)
 
         private const val FRAGMENT_TAG = "createConnectionDialog"
+
+        /**
+         * Creates an instance of [CreateConnectionDialog] and shows it.
+         */
         fun appear(fragmentManager: FragmentManager) {
             CreateConnectionDialog().show(fragmentManager, FRAGMENT_TAG)
         }

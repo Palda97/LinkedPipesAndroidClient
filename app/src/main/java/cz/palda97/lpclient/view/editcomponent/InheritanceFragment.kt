@@ -15,6 +15,9 @@ import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
+/**
+ * Fragment for displaying component's inheritance fields.
+ */
 class InheritanceFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentConfigurationBinding

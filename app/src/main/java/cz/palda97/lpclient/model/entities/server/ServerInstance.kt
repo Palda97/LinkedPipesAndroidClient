@@ -3,6 +3,10 @@ package cz.palda97.lpclient.model.entities.server
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * Entity representing server instance.
+ * @property frontendUrl Url containing the [frontend] port.
+ */
 @Entity
 data class ServerInstance(
     val name: String = "",

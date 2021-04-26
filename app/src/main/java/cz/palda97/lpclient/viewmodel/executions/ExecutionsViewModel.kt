@@ -10,6 +10,9 @@ import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
 import kotlinx.coroutines.*
 
+/**
+ * ViewModel for the [ExecutionsFragment][cz.palda97.lpclient.view.executions.ExecutionsFragment].
+ */
 class ExecutionsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val executionRepository: ExecutionRepository = Injector.executionRepository
@@ -22,6 +25,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     private var lastSilent: Boolean = false
 
+    /**
+     * LiveData with executions, not intended for deletion, sorted
+     * and transformed into list of [ExecutionV].
+     */
     val liveExecutions: LiveData<MailPackage<List<ExecutionV>>>
         get() = executionRepository.liveExecutions.map {
             val mail = executionTransformation(it)
@@ -63,6 +70,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
     }
 
+    /** @see RepositoryRoutines.refresh */
     fun refreshExecutionsButton() {
         retrofitScope.launch {
             //downloadAllExecutions()
@@ -76,6 +84,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         executionRepository.deleteRepo.addPending(execution, DELETE_DELAY)
     }
 
+    /**
+     * Add delete request of this execution to [DeleteRepository][cz.palda97.lpclient.model.repository.DeleteRepository].
+     */
     fun deleteExecution(executionV: ExecutionV) {
         retrofitScope.launch {
             deleteRoutine(executionV)
@@ -88,12 +99,18 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         executionRepository.deleteRepo.cancelDeletion(execution)
     }
 
+    /**
+     * Cancel the deletion of this execution.
+     */
     fun cancelDeletion(executionV: ExecutionV) {
         retrofitScope.launch {
             cancelRoutine(executionV)
         }
     }
 
+    /**
+     * Update executions [silently][cz.palda97.lpclient.model.db.dao.ExecutionDao.silentInsert].
+     */
     fun silentRefresh() {
         lastSilent = true
         retrofitScope.launch {
@@ -106,6 +123,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         private const val DELETE_DELAY: Long = 5000L
         const val SCROLL = "SCROLL"
 
+        /**
+         * Gets an instance of [ExecutionsViewModel] tied to the owner's lifecycle.
+         */
         fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(ExecutionsViewModel::class.java)
     }
 }

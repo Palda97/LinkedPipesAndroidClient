@@ -11,6 +11,10 @@ import cz.palda97.lpclient.databinding.BindingButtonBinding
 import cz.palda97.lpclient.model.entities.pipeline.Binding
 import cz.palda97.lpclient.view.AdapterWithList
 
+/**
+ * Adapter for list of binding buttons.
+ * @property addConnection Function for creating a connection connected to this binding.
+ */
 class BindingAdapter(
     private val addConnection: (Binding) -> Unit
 ) : RecyclerView.Adapter<BindingAdapter.BindingViewHolder>(),
@@ -22,6 +26,9 @@ class BindingAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateBindingList(newBindingList: List<Binding>) {
         if (bindingList.isEmpty()) {
             bindingList = newBindingList

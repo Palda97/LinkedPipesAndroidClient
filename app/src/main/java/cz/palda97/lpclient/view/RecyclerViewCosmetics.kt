@@ -9,13 +9,23 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.palda97.lpclient.R
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
+/**
+ * Class for tuning the recycler view.
+ */
 object RecyclerViewCosmetics {
 
     const val LEFT = ItemTouchHelper.LEFT
     const val RIGHT = ItemTouchHelper.RIGHT
 
     /**
-     * Adds divider between list items and adds swipe to delete functionality with red color and bin icon
+     * Adds divider between list items and adds swipe to delete functionality with red color and bin icon.
+     * @param recyclerView Recycler view to be tuned.
+     * @param adapterWithList Adapter that will be assigned with the recycler view.
+     * @param deleteFunction Delete function that will be used when swiping to the side.
+     * @param context [Context].
+     * @param dividers If there should be dividers between individual items.
+     * @param swipeDirection Direction items will be allowed to be swiped to. Choose from [LEFT],
+     * [RIGHT] and their combination ([LEFT] + [RIGHT]).
      */
     fun <itemType> makeItAllWork(
         recyclerView: RecyclerView,
@@ -40,6 +50,11 @@ object RecyclerViewCosmetics {
             addDividers(recyclerView, context)
     }
 
+    /**
+     * Attach an adapter to the recycler view.
+     * @param recyclerView Recycler view to be tuned.
+     * @param adapter Adapter that will be assigned with the recycler view.
+     */
     fun attachAdapter(
         recyclerView: RecyclerView,
         adapter: RecyclerView.Adapter<*>
@@ -47,6 +62,15 @@ object RecyclerViewCosmetics {
         recyclerView.adapter = adapter
     }
 
+    /**
+     * Adds swipe to delete functionality with red color and bin icon.
+     * @param recyclerView Recycler view to be tuned.
+     * @param getList Function to get the content of the recycler view.
+     * @param deleteFunction Delete function that will be used when swiping to the side.
+     * @param context [Context].
+     * @param swipeDir Direction items will be allowed to be swiped to. Choose from [LEFT],
+     * [RIGHT] and their combination ([LEFT] + [RIGHT]).
+     */
     fun <itemType> addSwipeToDeleteWithDecorations(
         recyclerView: RecyclerView,
         getList: () -> List<itemType>?,
@@ -112,6 +136,12 @@ object RecyclerViewCosmetics {
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
+    /**
+     * Adds divider between list items.
+     * @param recyclerView Recycler view to be tuned.
+     * @param context [Context].
+     * [RIGHT] and their combination ([LEFT] + [RIGHT]).
+     */
     fun addDividers(recyclerView: RecyclerView, context: Context) {
         recyclerView.addItemDecoration(
             DividerItemDecoration(

@@ -15,6 +15,9 @@ import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
 
+/**
+ * ViewModel for the [PipelinesFragment][cz.palda97.lpclient.view.pipelines.PipelinesFragment].
+ */
 class PipelinesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val pipelineViewRepository: PipelineViewRepository = Injector.pipelineViewRepository
@@ -28,6 +31,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     private val dbScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
 
+    /**
+     * LiveData with pipelineViews, not intended for deletion and sorted.
+     */
     val livePipelineViews: LiveData<MailPackage<List<PipelineView>>>
         get() = pipelineViewRepository.liveServersWithPipelineViews.map {
             pipelineViewTransform(it)
@@ -64,6 +70,7 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         pipelineViewRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
     }
 
+    /** @see RepositoryRoutines.refresh */
     fun refreshButton() {
         retrofitScope.launch {
             //downloadAllPipelineViews()
@@ -76,6 +83,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         pipelineViewRepository.deleteRepo.addPending(pipelineView, DELETE_DELAY)
     }
 
+    /**
+     * Add delete request of this pipelineView to [DeleteRepository][cz.palda97.lpclient.model.repository.DeleteRepository].
+     */
     fun deletePipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
             deletePipelineRoutine(pipelineView)
@@ -87,6 +97,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         pipelineViewRepository.deleteRepo.cancelDeletion(pipelineView)
     }
 
+    /**
+     * Cancel the deletion of this pipelineView.
+     */
     fun cancelDeletion(pipelineView: PipelineView) {
         dbScope.launch {
             cancelRoutine(pipelineView)
@@ -98,9 +111,16 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private val _launchStatus: MutableLiveData<LaunchStatus> = MutableLiveData(LaunchStatus.WAITING)
+
+    /**
+     * LiveData with information about launching a pipeline.
+     */
     val launchStatus: LiveData<LaunchStatus>
         get() = _launchStatus
 
+    /**
+     * Sets the [launchStatus] to [WAITING][LaunchStatus.WAITING].
+     */
     fun resetLaunchStatus() {
         _launchStatus.value = LaunchStatus.WAITING
     }
@@ -151,6 +171,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * Downloads the whole pipeline based on the given pipelineView and lunches it.
+     */
     fun launchPipeline(pipelineView: PipelineView) {
         retrofitScope.launch {
             launchPipelineRoutine(pipelineView)
@@ -163,6 +186,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * Downloads the whole pipeline based on the given executionV and lunches it.
+     */
     fun launchPipeline(executionV: ExecutionV) {
         retrofitScope.launch {
             val pipelineView = executionRepository.find(executionV.id)?.let {
@@ -176,6 +202,11 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * Prepare [PipelineRepository] for editing this pipeline.
+     * @param pipelineView Pipeline to be edited.
+     * @param isItNewOne Is it a newly created pipeline or not.
+     */
     fun editPipeline(pipelineView: PipelineView, isItNewOne: Boolean) {
         if (isItNewOne)
             pipelineRepository.resetLiveNewPipeline()
@@ -184,13 +215,18 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         EditPipelineViewModel.scroll = true
     }
 
+    /** @see PipelineRepository.createPipelineInit */
     fun createPipeline(server: ServerInstance) {
         pipelineRepository.createPipelineInit(server)
     }
 
+    /** @see PipelineRepository.liveNewPipeline */
     val liveNewPipeline
         get() = pipelineRepository.liveNewPipeline
 
+    /**
+     * Class for easy parsing the execution iri via Gson.
+     */
     class Iri(val iri: String)
 
     companion object {
@@ -198,6 +234,9 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
 
         private const val DELETE_DELAY: Long = 5000L
 
+        /**
+         * Gets an instance of [PipelinesViewModel] tied to the owner's lifecycle.
+         */
         fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(PipelinesViewModel::class.java)
     }
 }

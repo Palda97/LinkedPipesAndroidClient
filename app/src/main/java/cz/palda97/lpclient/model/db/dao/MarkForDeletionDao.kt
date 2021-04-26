@@ -12,5 +12,9 @@ abstract class MarkForDeletionDao {
     @Query("delete from markfordeletion where mark = :id")
     abstract suspend fun unMarkForDeletion(id: String)
 
+    /**
+     * Delete mark from database. Currently it does the same thing as unMarkForDeletion.
+     * @see unMarkForDeletion
+     */
     suspend fun delete(id: String) = unMarkForDeletion(id)
 }

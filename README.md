@@ -1,5 +1,14 @@
 # LinkedPipes Android Client
 An android client for the ETL LinkedPipes system.
+## Developer documentation
+Developer documentation including the javadoc documentation can be found [here](https://github.com/Palda97/AndroidEtlClientDeveloperDocumentation).
+## System requirements
+
+- Android 5.0 or greater.
+- At least 40 MB of space.
+- Internet connection.
+- Optionally - camera for loading server information via QR code
+
 ## UI Documentation
 Manual to app's user interface.
 ### Main screens
@@ -82,3 +91,6 @@ I/O | Add New Connection
 	<li>36) Clicking the "cancel" button or outside of the dialog window will cancel the connection creation.</li>
 	<li>37) Clicking the "continue" button will save the connection.</li>
 </ul>
+
+### Video tutorials
+Video tutorials can be found [here](https://palda97.github.io/AndroidEtlClientDeveloperDocumentation/videos.html).
