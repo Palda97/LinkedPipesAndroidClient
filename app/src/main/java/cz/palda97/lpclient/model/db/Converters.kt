@@ -9,6 +9,9 @@ import cz.palda97.lpclient.model.entities.pipeline.Config
 import cz.palda97.lpclient.model.entities.pipeline.ConfigInput
 import java.util.*
 
+/**
+ * Functions that Room can use to work with entities that have non primitive members.
+ */
 class Converters {
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {

@@ -11,6 +11,9 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditComponentGeneralBinding
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
+/**
+ * Fragment for displaying component's general settings (label and description).
+ */
 class GeneralFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentGeneralBinding

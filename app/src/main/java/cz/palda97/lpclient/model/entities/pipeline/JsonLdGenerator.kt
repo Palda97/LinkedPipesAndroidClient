@@ -3,6 +3,9 @@ package cz.palda97.lpclient.model.entities.pipeline
 import com.google.gson.Gson
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
+/**
+ * Generate jsonLd from pipeline.
+ */
 fun Pipeline.jsonLd(): String {
 
     fun parsePipelineView(sb: StringBuilder) {

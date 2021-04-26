@@ -12,8 +12,16 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 import cz.palda97.lpclient.model.travelobjects.LdConstants.PREF_LABEL
 import cz.palda97.lpclient.model.travelobjects.LdConstants.VALUE
 
+/**
+ * Factory for transforming jsonLd to list of [PipelineView].
+ * @property serverWithPipelineViews [MailPackage] with server and parsed pipelineViews.
+ */
 class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPipelineViews>) {
 
+    /**
+     * @param server Server that belongs to the pipelineViews.
+     * @param string JsonLd with pipelineViews.
+     */
     constructor(server: ServerInstance, string: String?) : this(
         fromJson(
             server,
@@ -79,6 +87,12 @@ class PipelineViewFactory(val serverWithPipelineViews: MailPackage<ServerWithPip
             return Either.Right(pipelineView)
         }
 
+        /**
+         * Creates [PipelineView].
+         * @param map Map containing the fields of PipelineView.
+         * @param server [ServerInstance] corresponding to the PipelineView.
+         * @return PipelineView or null on error.
+         */
         fun makePipelineView(
             map: Map<*, *>,
             server: ServerInstance

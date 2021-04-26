@@ -15,6 +15,9 @@ import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.Vertex
 
+/**
+ * Layout fow drawing connections between components.
+ */
 class PipelineLayout @JvmOverloads constructor(
     context: Context,
     attr: AttributeSet? = null,
@@ -85,7 +88,6 @@ class PipelineLayout @JvmOverloads constructor(
                     }
                     path.lineTo(endX, endY)
                     canvas.drawPath(path, paint)
-                    //canvas.drawLine(startX, startY, endX, endY, paint)
                 }
             }
         }

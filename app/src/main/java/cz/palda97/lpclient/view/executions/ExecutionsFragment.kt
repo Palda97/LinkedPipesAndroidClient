@@ -24,6 +24,9 @@ import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 
+/**
+ * Fragment for displaying executions.
+ */
 class ExecutionsFragment : Fragment() {
 
     private lateinit var binding: FragmentExecutionsBinding

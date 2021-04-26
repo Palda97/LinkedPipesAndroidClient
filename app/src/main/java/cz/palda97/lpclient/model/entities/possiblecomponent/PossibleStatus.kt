@@ -4,6 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cz.palda97.lpclient.model.repository.PossibleComponentRepository
 
+/**
+ * Entity representing download status of [PossibleComponent]s.
+ */
 @Entity
 data class PossibleStatus(
     @PrimaryKey(autoGenerate = false) val serverId: Long,

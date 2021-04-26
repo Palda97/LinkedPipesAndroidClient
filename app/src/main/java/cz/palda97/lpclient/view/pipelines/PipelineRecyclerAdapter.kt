@@ -11,6 +11,11 @@ import cz.palda97.lpclient.databinding.ListItemTwoLineBinding
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.view.AdapterWithList
 
+/**
+ * Adapter for list of pipelineViews.
+ * @property editPipeline Function for editing the pipeline.
+ * @property launchPipeline Function for launching the pipeline.
+ */
 class PipelineRecyclerAdapter(
     private val editPipeline: (PipelineView) -> Unit,
     private val launchPipeline: (PipelineView) -> Unit
@@ -22,6 +27,9 @@ class PipelineRecyclerAdapter(
         //setHasStableIds(true)
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updatePipelineList(newPipelineList: List<PipelineView>) {
         if (pipelineList == null) {
             pipelineList = newPipelineList

@@ -5,23 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.DialogUploadPipelineBinding
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 
+/**
+ * Dialog window for editing pipeline's label and confirming the upload.
+ */
 class UploadPipelineDialog : DialogFragment() {
 
     private lateinit var binding: DialogUploadPipelineBinding
     private lateinit var viewModel: EditPipelineViewModel
-
-    //private var componentAdapter: SmartArrayAdapter<PossibleComponent>? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -55,6 +54,10 @@ class UploadPipelineDialog : DialogFragment() {
         private val l = Injector.generateLogFunction(this)
 
         private const val FRAGMENT_TAG = "uploadPipelineDialog"
+
+        /**
+         * Creates an instance of [UploadPipelineDialog] and shows it.
+         */
         fun appear(fragmentManager: FragmentManager) {
             UploadPipelineDialog().show(fragmentManager, FRAGMENT_TAG)
         }

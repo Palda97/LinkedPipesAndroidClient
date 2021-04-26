@@ -17,6 +17,11 @@ import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.view.ConfigDropdownMagic.setItem
 import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 
+/**
+ * Adapter for list of fields of configuration.
+ * @property configGetString [Configuration.getString][cz.palda97.lpclient.model.entities.pipeline.Configuration.getString]
+ * @property configSetString [Configuration.setString][cz.palda97.lpclient.model.entities.pipeline.Configuration.setString]
+ */
 class ConfigInputAdapter(
     private val context: Context,
     private val configGetString: (String, String) -> String?,
@@ -41,6 +46,9 @@ class ConfigInputAdapter(
         return configGetString(translated, configType) ?: ""
     }
 
+    /**
+     * Update the content of this adapter.
+     */
     fun updateConfigInputList(newConfigInputComplete: ConfigInputComplete) {
         configInputComplete = newConfigInputComplete
         val newConfigInputList = newConfigInputComplete.configInputs

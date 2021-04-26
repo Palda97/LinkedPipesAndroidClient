@@ -15,6 +15,9 @@ import cz.palda97.lpclient.databinding.ActivityEditComponentBinding
 import cz.palda97.lpclient.view.editcomponent.SectionsPagerAdapter
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 
+/**
+ * Activity for component editing.
+ */
 class EditComponentActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditComponentBinding
@@ -66,6 +69,10 @@ class EditComponentActivity : AppCompatActivity() {
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        /**
+         * Function for starting this activity.
+         */
         fun start(act: Context) {
             val intent = Intent(act, this::class.java.declaringClass)
             act.startActivity(intent)

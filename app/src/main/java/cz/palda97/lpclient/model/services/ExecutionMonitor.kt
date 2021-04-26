@@ -13,11 +13,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
+/**
+ * Class for monitoring executions of executed pipelines.
+ * @property params Data container containing execution id,
+ * server id, pipeline name and monitor mode.
+ */
 class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
     CoroutineWorker(context, params) {
 
     private lateinit var repo: ExecutionRepository
 
+    /**
+     * Start one monitoring round.
+     */
     override suspend fun doWork(): Result {
         return monitor()
     }
@@ -86,6 +94,9 @@ class ExecutionMonitor(context: Context, private val params: WorkerParameters) :
         const val SERVER_ID = "SERVER_ID"
         const val PIPELINE_NAME = "PIPELINE_NAME"
 
+        /**
+         * Create and enqueue request with the WorkManager.
+         */
         fun enqueue(
             context: Context,
             executionId: String,

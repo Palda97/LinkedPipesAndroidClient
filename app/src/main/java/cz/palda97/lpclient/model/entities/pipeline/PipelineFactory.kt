@@ -10,6 +10,12 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 
+/**
+ * Factory for transforming jsonLd to [Pipeline].
+ * @param server Server corresponding to the Pipeline.
+ * Can be null if using this factory to just parse configuration.
+ * @param string JsonLd containing the Pipeline.
+ */
 class PipelineFactory(private val server: ServerInstance?, private val string: String?) {
 
     data class MutablePipeline(
@@ -49,6 +55,10 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         )
     }
 
+    /**
+     * Parse jsonLd to [Pipeline].
+     * @return [MailPackage] with Pipeline.
+     */
     fun parse(): MailPackage<Pipeline> {
         require(server != null)
         return when (val res = CommonFunctions.getRootArrayList(string)) {
@@ -63,6 +73,10 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
         }
     }
 
+    /**
+     * Parse jsonLd to [Configuration].
+     * @return [MailPackage] with Configuration.
+     */
     fun parseConfigurationOnly(componentId: String? = null): MailPackage<Configuration> {
         val arrayList = when (val res = CommonFunctions.getRootArrayList(string)) {
             is Either.Left -> return MailPackage.brokenPackage(res.value)

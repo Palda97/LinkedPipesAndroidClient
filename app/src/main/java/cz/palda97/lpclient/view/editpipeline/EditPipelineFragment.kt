@@ -29,6 +29,9 @@ import io.github.hyuwah.draggableviewlib.makeDraggable
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
+/**
+ * Fragment for displaying pipeline selected for editing.
+ */
 class EditPipelineFragment : Fragment() {
 
     companion object {

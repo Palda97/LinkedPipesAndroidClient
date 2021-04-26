@@ -42,19 +42,37 @@ object Injector {
         RepositoryRoutines()
     }
 
+    /**
+     * @param companion Companion object
+     * @return Last name of the companion's declaring class
+     */
     fun tag(companion: Any): String =
         companion::class.java.declaringClass?.canonicalName.toString().split(".").last()
 
     //private val RELEASE: Boolean = !BuildConfig.DEBUG
+    /**
+     * If this is set to true, no logs are being printed.
+     */
     const val RELEASE: Boolean = true
     private val logFun: (tag: String, msg: String) -> Int = if (RELEASE) {_, _ -> 0 } else Log::d
 
+    /**
+     * This generates function serving as an alternative to Log.d.
+     * @param tag The first argument for the log function.
+     * @return Log function if RELEASE is set to false. Otherwise it returns dummy function.
+     */
     fun generateLogFunction(tag: String): (Any?) -> Int {
         return {
             logFun(tag, it.toString())
         }
     }
 
+    /**
+     * This generates function serving as an alternative to Log.d.
+     * @param companion Companion object for generating tag, which will be used as the first
+     * argument for log function
+     * @return Log function if RELEASE is set to false. Otherwise it returns dummy function.
+     */
     fun generateLogFunction(companion: Any): (Any?) -> Int {
         val t = tag(companion)
         return generateLogFunction(t)

@@ -7,6 +7,9 @@ import android.os.Bundle
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.view.editpipeline.EditPipelineFragment
 
+/**
+ * Activity for pipeline editing.
+ */
 class EditPipelineActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +26,10 @@ class EditPipelineActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        /**
+         * Function for starting this activity.
+         */
         fun start(act: Context){
             val intent = Intent(act, this::class.java.declaringClass)
             act.startActivity(intent)

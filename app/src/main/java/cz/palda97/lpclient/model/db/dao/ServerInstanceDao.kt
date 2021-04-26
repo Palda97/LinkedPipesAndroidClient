@@ -24,6 +24,10 @@ abstract class ServerInstanceDao {
     @Query("select * from serverinstance where active = 1 order by id asc")
     abstract fun activeServersOnly(): LiveData<List<ServerInstance>>
 
+    /**
+     * Returns server instances that match either name or url and doesn't match
+     * unwanted name and url at the same time.
+     */
     @Query("select * from serverinstance where (url = :matchUrl and url != :exceptUrl) or (name = :matchName and name != :exceptName)")
     abstract suspend fun matchExcept(
         matchUrl: String,

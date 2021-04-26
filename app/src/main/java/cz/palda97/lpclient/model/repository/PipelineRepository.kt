@@ -8,7 +8,6 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.PipelineDao
-import cz.palda97.lpclient.model.db.dao.PipelineViewDao
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.pipeline.Pipeline
 import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
@@ -26,6 +25,9 @@ import kotlinx.coroutines.sync.withLock
 
 private typealias WrappedPipeline = Either<PipelineRepository.CacheStatus, Pipeline>
 
+/**
+ * Repository for working with [Pipeline].
+ */
 class PipelineRepository(
     private val serverDao: ServerInstanceDao,
     //private val pipelineViewDao: PipelineViewDao,
@@ -106,9 +108,18 @@ class PipelineRepository(
             .apply()
     }
 
+    /**
+     * LiveData with the whole [Pipeline].
+     */
     val livePipeline: LiveData<MailPackage<Pipeline>>
         get() = mediatorPipeline
 
+    /**
+     * Replace the pipeline in database. Optionally cache components.
+     * @param pipeline Pipeline to be saved.
+     * @param cacheComponents If [ComponentRepository.cache] should be called.
+     * @return [Job] related to the components caching.
+     */
     suspend fun savePipeline(pipeline: Pipeline, cacheComponents: Boolean): Job? {
         persistStatus(null)
         persistPipeline(pipeline)
@@ -154,6 +165,11 @@ class PipelineRepository(
     var currentPipelineId = ""
     var currentServerId = 0L
 
+    /**
+     * Sets [livePipeline] to [loading][MailPackage.Status.LOADING], then downloads and stores the pipeline.
+     * @param pipelineView [PipelineView] containing the pipeline id and server id.
+     * @return [Job] related to the pipeline caching.
+     */
     fun cachePipelineInit(pipelineView: PipelineView): Job {
         currentPipelineId = pipelineView.id
         currentServerId = pipelineView.serverId
@@ -181,6 +197,9 @@ class PipelineRepository(
         return PipelineView("", pipelineId, serverId)
     }
 
+    /**
+     * Try downloading and storing pipeline again.
+     */
     suspend fun retryCachePipeline() {
         val pipelineView = restoreIds() ?: return saveStatus(CacheStatus.NO_PIPELINE_TO_LOAD)
         cachePipeline(pipelineView)
@@ -225,12 +244,26 @@ class PipelineRepository(
     }
 
     private val _liveNewPipeline = MutableLiveData<Either<CacheStatus, PipelineView>>()
+
+    /**
+     * LiveData with information about new pipeline creation. Contains either [CacheStatus] or
+     * [PipelineView] on success.
+     */
     val liveNewPipeline: LiveData<Either<CacheStatus, PipelineView>>
         get() = _liveNewPipeline
+
+    /**
+     * Sets [liveNewPipeline] to [NO_PIPELINE_TO_LOAD][CacheStatus.NO_PIPELINE_TO_LOAD].
+     */
     fun resetLiveNewPipeline() {
         _liveNewPipeline.value = Either.Left(CacheStatus.NO_PIPELINE_TO_LOAD)
     }
 
+    /**
+     * Sends request to create new pipeline and propagates result through [liveNewPipeline].
+     * @param server Server to create pipeline on.
+     * @return [Job] related to the pipeline creation process.
+     */
     fun createPipelineInit(server: ServerInstance): Job {
         _liveNewPipeline.value = Either.Left(CacheStatus.INTERNAL_ERROR)
         return retrofitScope.launch {
@@ -282,15 +315,31 @@ class PipelineRepository(
     }
 
     private val _liveUploadStatus = MutableLiveData<StatusCode>()
+
+    /**
+     * LiveData with information about about pipeline uploading.
+     */
     val liveUploadStatus: LiveData<StatusCode>
         get() = _liveUploadStatus
+
+    /**
+     * Sets [liveUploadStatus] to [NEUTRAL][StatusCode.NEUTRAL].
+     */
     fun resetUploadStatus() {
         _liveUploadStatus.value = StatusCode.NEUTRAL
     }
+
+    /**
+     * Sets [liveUploadStatus] to [INTERNAL_ERROR][StatusCode.INTERNAL_ERROR].
+     */
     fun cannotSavePipelineForUpload() {
         _liveUploadStatus.value = StatusCode.INTERNAL_ERROR
     }
 
+    /**
+     * Sets [liveUploadStatus] to [UPLOAD_IN_PROGRESS][StatusCode.UPLOAD_IN_PROGRESS],
+     * upload current pipeline to the server and propagate result through liveUploadStatus.
+     */
     suspend fun uploadPipeline() {
         _liveUploadStatus.postValue(StatusCode.UPLOAD_IN_PROGRESS)
         val status = uploadPipelineRequest()
@@ -299,6 +348,9 @@ class PipelineRepository(
 
     var currentPipelineView: PipelineView? = null
 
+    /**
+     * Insert [currentPipelineView] to the database.
+     */
     suspend fun insertCurrentPipelineView() = currentPipelineView?.let {
         Injector.pipelineViewRepository.insertPipelineView(it)
     }

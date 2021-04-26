@@ -24,7 +24,9 @@ import cz.palda97.lpclient.viewmodel.settings.NightModeFactory
 import cz.palda97.lpclient.viewmodel.settings.NightModeInstance
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
-
+/**
+ * Fragment for displaying settings and servers.
+ */
 class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding

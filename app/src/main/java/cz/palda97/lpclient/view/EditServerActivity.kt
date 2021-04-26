@@ -7,6 +7,9 @@ import android.os.Bundle
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.view.editserver.EditServerFragment
 
+/**
+ * Activity for server instance editing.
+ */
 class EditServerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +26,10 @@ class EditServerActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        /**
+         * Function for starting this activity.
+         */
         fun start(act: Context){
             val intent = Intent(act, this::class.java.declaringClass)
             act.startActivity(intent)

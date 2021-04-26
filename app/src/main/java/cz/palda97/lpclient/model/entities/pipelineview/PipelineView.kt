@@ -4,6 +4,10 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
+/**
+ * Entity representing a preview of a pipeline.
+ * It's used for items in the list of all pipelines.
+ */
 @Entity
 data class PipelineView(
     var prefLabel: String,

@@ -2,6 +2,9 @@ package cz.palda97.lpclient.model.entities.pipeline
 
 import androidx.room.Entity
 
+/**
+ * Entity representing a single configuration field of a component.
+ */
 @Entity(primaryKeys = ["id", "componentId"])
 data class ConfigInput(
     val label: String,

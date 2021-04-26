@@ -18,12 +18,19 @@ abstract class ExecutionDao {
     @Query("delete from execution")
     abstract suspend fun deleteAll()
 
+    /**
+     * Deletes all executions and inserts new ones.
+     * @param list Executions to be inserted to database.
+     */
     @Transaction
     open suspend fun renewal(list: List<Execution>) {
         deleteAll()
         insert(list)
     }
 
+    /**
+     * Select all executions with that have matching deletion mark stored in database.
+     */
     @Query("select * from execution join markfordeletion on Execution.id = MarkForDeletion.mark")
     abstract suspend fun selectDeleted(): List<Execution>
 
@@ -33,6 +40,10 @@ abstract class ExecutionDao {
     @Query("delete from execution where serverId = :serverId")
     abstract suspend fun deleteByServer(serverId: Long)
 
+    /**
+     * Insert executions that are not in database and ignore those which are already stored
+     * (don't rewrite executions).
+     */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun silentInsert(list: List<Execution>)
 }

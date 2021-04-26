@@ -17,8 +17,10 @@ import cz.palda97.lpclient.model.network.PipelineRetrofit.Companion.pipelineRetr
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import java.io.IOException
 
+/**
+ * Repository for working with [PipelineViews][PipelineView].
+ */
 class PipelineViewRepository(
     private val pipelineViewDao: PipelineViewDao,
     private val serverInstanceDao: ServerInstanceDao,
@@ -27,6 +29,11 @@ class PipelineViewRepository(
 
     private val dbMirror = serverInstanceDao.activeServerListWithPipelineViews()
 
+    /**
+     * LiveData containing pipelineViews that belong to a server that is used as a filter,
+     * or all pipelineViews if no server is set as a filter. It is all wrapper in [MailPackage],
+     * so it can even represent [loading][MailPackage.Status.LOADING] while the pipelineViews are being downloaded.
+     */
     val liveServersWithPipelineViews: MediatorLiveData<MailPackage<List<ServerWithPipelineViews>>> =
         MediatorLiveData()
 
@@ -44,6 +51,10 @@ class PipelineViewRepository(
         }
     }
 
+    /**
+     * Update [liveServersWithPipelineViews] according to server that is used as a filter.
+     * @see ServerRepository.serverToFilter
+     */
     fun onServerToFilterChange() {
         liveServersWithPipelineViews.postValue(pipelineViewsFilterTransformation(dbMirror.value))
     }
@@ -60,6 +71,9 @@ class PipelineViewRepository(
         return MailPackage(listOf(serverWithPipelineViews))
     }
 
+    /**
+     * Insert [PipelineView] into database.
+     */
     suspend fun insertPipelineView(pipelineView: PipelineView) {
         pipelineViewDao.insert(pipelineView)
     }
@@ -71,6 +85,9 @@ class PipelineViewRepository(
 
     private var noisyFlag = false
 
+    /**
+     * Downloads and stores the [PipelineViews][PipelineView].
+     */
     suspend fun refreshPipelineViews(either: Either<ServerInstance, List<ServerInstance>?>) {
         noisyFlag = true
         liveServersWithPipelineViews.postValue(MailPackage.loadingPackage())
@@ -129,6 +146,11 @@ class PipelineViewRepository(
             return@coroutineScope MailPackage(list)
         }
 
+    /**
+     * Downloads the [PipelineViews][PipelineView].
+     * @param serverInstance Server to download the pipelineViews from.
+     * @return [MailPackage] with [ServerWithPipelineViews].
+     */
     suspend fun downloadPipelineViews(serverInstance: ServerInstance): MailPackage<ServerWithPipelineViews> {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(serverInstance)) {
             is Either.Left -> {
@@ -151,18 +173,32 @@ class PipelineViewRepository(
         SERVER_ID_NOT_FOUND, NO_CONNECT, NULL_RESPONSE, OK, INTERNAL_ERROR
     }
 
+    /**
+     * Pair [marks][cz.palda97.lpclient.model.db.MarkForDeletion] with [pipelineViews][PipelineView]
+     * and send delete requests.
+     */
     suspend fun cleanDb() {
         pipelineViewDao.selectDeleted().forEach {
             deletePipeline(it)
         }
     }
 
+    /**
+     * Creates a [PipelineRetrofit] based on the pipelineView.
+     * @param pipelineView [PipelineView] for the retrofit creation.
+     * @return PipelineRetrofit or [StatusCode] on error.
+     */
     suspend fun getPipelineRetrofit(pipelineView: PipelineView): Either<StatusCode, PipelineRetrofit> {
         val server = serverInstanceDao.findById(pipelineView.serverId)
             ?: return Either.Left(StatusCode.SERVER_ID_NOT_FOUND)
         return getPipelineRetrofit(server)
     }
 
+    /**
+     * Creates a [PipelineRetrofit] based on the server instance.
+     * @param server [ServerInstance] for the retrofit creation.
+     * @return PipelineRetrofit or [StatusCode] on error.
+     */
     suspend fun getPipelineRetrofit(server: ServerInstance): Either<StatusCode, PipelineRetrofit> =
         try {
             //Either.Right(PipelineRetrofit.getInstance(server.url))
@@ -198,46 +234,54 @@ class PipelineViewRepository(
         deleteDao.delete(pipelineView.id)
     }
 
+    /**
+     * Search the database for a [PipelineView] with this id.
+     * @param id Id for the database search.
+     * @return PipelineView or null if not found.
+     */
     suspend fun findPipelineViewById(id: String): PipelineView? =
         pipelineViewDao.findPipelineViewById(id)
 
+    /**
+     * Downloads [Pipeline][cz.palda97.lpclient.model.entities.pipeline.Pipeline] but doesn't parse it.
+     * @return Pipeline as a String or [StatusCode] on error.
+     */
     suspend fun downloadPipelineString(pipelineView: PipelineView): Either<StatusCode, String> {
         val pipelineRetrofit = when (val res = getPipelineRetrofit(pipelineView)) {
             is Either.Left -> return Either.Left(res.value)
             is Either.Right -> res.value
         }
         val call = pipelineRetrofit.getPipeline(pipelineView.idNumber)
-        //val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(StatusCode.NULL_RESPONSE)
-        /*val text = try {
-            val executedCall = call.execute()
-            if (executedCall.code() == 404)
-                return Either.Left(StatusCode.NULL_RESPONSE)
-            val response = executedCall.body()
-            response?.string()
-        } catch (e: IOException) {
-            l("getStringFromCall ${e.toString()}")
-            null
-        }
-            ?: return Either.Left(StatusCode.INTERNAL_ERROR)
-        return Either.Right(text)*/
         return when(val res = RetrofitHelper.getStringFromCallOrCode(call)) {
             is Either.Left -> if (res.value == 404) Either.Left(StatusCode.NULL_RESPONSE) else Either.Left(StatusCode.INTERNAL_ERROR)
             is Either.Right -> if (res.value != null) Either.Right(res.value) else Either.Left(StatusCode.INTERNAL_ERROR)
         }
     }
 
+    /**
+     * Add a [mark][cz.palda97.lpclient.model.db.MarkForDeletion] of this pipelineView to the database.
+     */
     suspend fun markForDeletion(pipelineView: PipelineView) {
         deleteDao.markForDeletion(pipelineView.id)
     }
 
+    /**
+     * Unmark this pipelineView.
+     */
     suspend fun unMarkForDeletion(pipelineView: PipelineView) {
         deleteDao.unMarkForDeletion(pipelineView.id)
     }
 
+    /** @see DeleteRepository */
     val deleteRepo = DeleteRepository<PipelineView> {
         deletePipeline(it)
     }
 
+    /**
+     * Called when active server is added, or an old server is now active.
+     * Tries to download pipelineViews. When successful, it updates the database,
+     * otherwise it does nothing.
+     */
     suspend fun update(server: ServerInstance) {
         val mail = downloadPipelineViews(server)
         if (!mail.isOk)

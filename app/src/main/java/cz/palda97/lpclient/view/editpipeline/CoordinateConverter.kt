@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import kotlin.math.roundToInt
 
+/**
+ * Converter between display coordination and component's coordination.
+ */
 object CoordinateConverter {
 
     private const val XSCALE: Float = 1.toFloat()
@@ -14,11 +17,17 @@ object CoordinateConverter {
     private const val YOFFSET = 500
     const val DEFAULT_DENSITY: Float = 2.toFloat()
 
+    /**
+     * Convert component's coordination into coordination to display.
+     */
     fun toDisplay(x: Int, y: Int, density: Float?): Pair<Float, Float> {
         val density = density ?: DEFAULT_DENSITY
         return x * XSCALE * density to y * YSCALE * density
     }
 
+    /**
+     * Convert display coordination into component's coordination.
+     */
     fun fromDisplay(x: Float, y: Float, density: Float?): Pair<Int, Int> {
         val density = density ?: DEFAULT_DENSITY
         return (x / (XSCALE * density)).roundToInt() to (y / (YSCALE * density)).roundToInt()
@@ -30,6 +39,11 @@ object CoordinateConverter {
         return (x + XOFFSET * density).roundToInt() to (y + YOFFSET * density).roundToInt()
     }
 
+    /**
+     * Sets the ViewGroup's size so it can display all the components.
+     * @receiver Layout that need's to be resized.
+     * @param components List of components that need to fit in this layout.
+     */
     fun ViewGroup.resize(components: List<Component>) {
         val maxX = components.maxBy {
             it.x
@@ -45,6 +59,10 @@ object CoordinateConverter {
         layoutParams = params
     }
 
+    /**
+     * Gets the top left corner of group of components.
+     * @return Coordination to scroll to or null if the component list is empty.
+     */
     fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
         val density = density ?: DEFAULT_DENSITY
         val minX = components.minBy {

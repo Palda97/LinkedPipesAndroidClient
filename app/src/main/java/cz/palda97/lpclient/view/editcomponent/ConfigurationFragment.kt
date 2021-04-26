@@ -16,6 +16,9 @@ import cz.palda97.lpclient.viewmodel.editcomponent.ConfigInputComplete
 import cz.palda97.lpclient.viewmodel.editcomponent.EditComponentViewModel
 import cz.palda97.lpclient.viewmodel.editcomponent.OnlyStatus
 
+/**
+ * Fragment for displaying component's configuration fields.
+ */
 class ConfigurationFragment : Fragment() {
 
     private lateinit var binding: FragmentEditComponentConfigurationBinding

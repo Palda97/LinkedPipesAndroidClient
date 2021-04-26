@@ -2,10 +2,13 @@ package cz.palda97.lpclient.viewmodel.editserver
 
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 
+/**
+ * Class for checking if this server's name and url are valid.
+ */
 class ServerInstanceAttributeCheck(serverInstance: ServerInstance) {
 
     /**
-     * Check for name validity.
+     * Check for name and url validity.
      * Returns SaveStatus.WORKING when ok.
      */
     val status: EditServerViewModel.SaveStatus = with(serverInstance) {

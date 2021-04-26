@@ -18,6 +18,10 @@ abstract class PipelineViewDao {
     @Query("delete from pipelineview")
     abstract suspend fun deleteAll()
 
+    /**
+     * Deletes all pipelineViews and inserts new ones.
+     * @param list PipelineViews to be inserted to database.
+     */
     @Transaction
     open suspend fun deleteAndInsertPipelineViews(list: List<PipelineView>) {
         deleteAll()
@@ -27,6 +31,9 @@ abstract class PipelineViewDao {
     @Query("select * from pipelineview where id = :id")
     abstract suspend fun findPipelineViewById(id: String): PipelineView?
 
+    /**
+     * Select all pipelineViews with that have matching deletion mark stored in database.
+     */
     @Query("select * from pipelineview join markfordeletion on PipelineView.id = MarkForDeletion.mark")
     abstract suspend fun selectDeleted(): List<PipelineView>
 

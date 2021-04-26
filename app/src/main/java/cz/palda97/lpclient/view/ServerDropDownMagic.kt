@@ -11,8 +11,21 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
+/**
+ * Class for tuning the dropdown with server that is used as a filter.
+ */
 object ServerDropDownMagic {
 
+    /**
+     * Make a dropdown contain active server instances and react to a server being selected.
+     * @param context [Context]
+     * @param settingsViewModel [SettingsViewModel]
+     * @param lifecycleOwner Lifecycle owner that contains this dropdown.
+     * @param setServerToFilter Function for setting a [server instance as a filter][cz.palda97.lpclient.model.repository.ServerRepository.serverToFilter].
+     * @param serverToFilter Server instance that is currently used as a filter.
+     * @param includeNoServerOption If the dropdown should contain option for not filtering.
+     * @receiver Dropdown that will be configurated.
+     */
     fun MaterialAutoCompleteTextView.setUpWithServers(
         context: Context,
         settingsViewModel: SettingsViewModel,

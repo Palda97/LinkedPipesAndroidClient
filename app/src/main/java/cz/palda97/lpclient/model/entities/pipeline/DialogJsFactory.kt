@@ -4,8 +4,15 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import cz.palda97.lpclient.Injector
 
+/**
+ * Factory for transforming dialog.js to [DialogJs].
+ */
 class DialogJsFactory(private val js: String, private val componentId: String) {
 
+    /**
+     * Parse javascript to [DialogJs].
+     * @return DialogJs or null on error.
+     */
     fun parse(): DialogJs? {
         if (js.isEmpty()) {
             return DialogJs("", mapOf(), componentId)

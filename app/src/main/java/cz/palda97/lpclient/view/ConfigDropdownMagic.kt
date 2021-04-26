@@ -5,7 +5,19 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 
+/**
+ * Class for making dropdown's adapter remember the items inside, not only String representation
+ * and working with it.
+ */
 object ConfigDropdownMagic {
+
+    /**
+     * Setup the dropdown's adapter with items.
+     * @param options List of items paired with their text representation.
+     * @param shouldFilter If the dropdown should filter suggestions while typing in.
+     * @param onItemClick Function that will be called when an item is clicked.
+     * @return [SmartArrayAdapter] belonging to this dropdown.
+     */
     fun <T> MaterialAutoCompleteTextView.fillWithOptions(
         context: Context,
         options: List<Pair<T, String>>? = null,
@@ -28,12 +40,19 @@ object ConfigDropdownMagic {
         return adapter
     }
 
+    /**
+     * Gets a [SmartArrayAdapter] of this dropdown or null if this dropdown is not setup with it.
+     */
     val MaterialAutoCompleteTextView.smartAdapter: SmartArrayAdapter<*>?
         get() {
             val adapter = adapter ?: return null
             return adapter as? SmartArrayAdapter<*>
         }
 
+    /**
+     * Gets the last selected item.
+     * @return Item that was selected last or null if no item has been selected.
+     */
     inline fun <reified T: Any> MaterialAutoCompleteTextView.getLastSelected(): T? {
         val smartArrayAdapter = smartAdapter ?: return null
         val id = smartArrayAdapter.lastSelectedItemId as? T

@@ -3,6 +3,9 @@ package cz.palda97.lpclient.viewmodel.executions
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 
+/**
+ * Gets id for the right icon.
+ */
 val ExecutionStatus.resource: Int
     get() = when(this) {
         ExecutionStatus.FINISHED -> R.drawable.ic_baseline_done_24

@@ -15,6 +15,9 @@ import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
+/**
+ * Dialog window for creating a new pipeline.
+ */
 class CreatePipelineDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -55,6 +58,10 @@ class CreatePipelineDialog : DialogFragment() {
         private val l = Injector.generateLogFunction(this)
 
         private const val FRAGMENT_TAG = "createPipelineDialog"
+
+        /**
+         * Creates an instance of [CreatePipelineDialog] and shows it.
+         */
         fun appear(fragmentManager: FragmentManager) {
             CreatePipelineDialog().show(fragmentManager, FRAGMENT_TAG)
         }

@@ -21,6 +21,9 @@ import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.view.SmartArrayAdapter
 import cz.palda97.lpclient.viewmodel.editpipeline.AddComponentViewModel
 
+/**
+ * Dialog window for adding a component to current pipeline.
+ */
 class AddComponentDialog : DialogFragment() {
 
     private lateinit var binding: DialogAddComponentBinding
@@ -79,6 +82,10 @@ class AddComponentDialog : DialogFragment() {
         private val l = Injector.generateLogFunction(this)
 
         private const val FRAGMENT_TAG = "addComponentDialog"
+
+        /**
+         * Creates an instance of [AddComponentDialog] and shows it.
+         */
         fun appear(fragmentManager: FragmentManager) {
             AddComponentDialog().show(fragmentManager, FRAGMENT_TAG)
         }

@@ -2,6 +2,9 @@ package cz.palda97.lpclient.viewmodel.executions
 
 import cz.palda97.lpclient.model.entities.execution.Execution
 
+/**
+ * [Execution] prepared to be displayed in UI.
+ */
 data class ExecutionV(
     val id: String,
     val serverName: String,

@@ -8,7 +8,16 @@ import cz.palda97.lpclient.model.travelobjects.CommonFunctions
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.lang.NumberFormatException
 
+/**
+ * Factory for transforming jsonLd to [Execution] list.
+ * @property serverWithExecutions MailPackage with server and parsed executions
+ */
 class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecutions>) {
+
+    /**
+     * @param server Server that belongs to the executions.
+     * @param string JsonLd with executions.
+     */
     constructor(server: ServerInstance, string: String?) : this(
         fromJson(
             server,

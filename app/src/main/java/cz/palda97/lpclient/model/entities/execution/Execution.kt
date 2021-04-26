@@ -5,6 +5,9 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.util.*
 
+/**
+ * Entity representing pipeline's execution.
+ */
 @Entity
 data class Execution(
     @PrimaryKey(autoGenerate = false) val id: String,
@@ -26,6 +29,9 @@ data class Execution(
 
     var pipelineName: String = ""
 
+    /**
+     * @see idNumberFun
+     */
     val idNumber: String
         get() = idNumberFun(id)
 
@@ -45,6 +51,11 @@ data class Execution(
     }
 
     companion object {
+
+        /**
+         * @param fullId Id of the execution.
+         * @return The part of id behind the last slash.
+         */
         fun idNumberFun(fullId: String) = fullId.split("/").last()
     }
 }
