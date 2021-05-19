@@ -2,6 +2,7 @@ package cz.palda97.lpclient.view
 
 import android.content.Context
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import androidx.lifecycle.LifecycleOwner
@@ -9,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 
 /**
@@ -27,6 +29,37 @@ object ServerDropDownMagic {
      * @receiver Dropdown that will be configurated.
      */
     fun MaterialAutoCompleteTextView.setUpWithServers(
+        context: Context,
+        settingsViewModel: SettingsViewModel,
+        lifecycleOwner: LifecycleOwner,
+        setServerToFilter: (ServerInstance?) -> Unit,
+        serverToFilter: ServerInstance?,
+        includeNoServerOption: Boolean = true
+    ) {
+        settingsViewModel.activeLiveServers.observe(lifecycleOwner, Observer {
+            val servers = it?.mailContent ?: return@Observer
+            val options: MutableList<Pair<ServerInstance?, String>> = servers.map {
+                it to it.name
+            }.toMutableList()
+            if (includeNoServerOption)
+                options.add(null to context.getString(R.string.all_instances))
+            inputType = InputType.TYPE_NULL
+            fillWithOptions(
+                context,
+                options
+            ) {_, server ->
+                setServerToFilter(server)
+                if (server == null)
+                    setText("")
+                clearFocus()
+            }
+        })
+        serverToFilter?.let {
+            setText(it.name)
+        }
+    }
+
+    /*fun MaterialAutoCompleteTextView.setUpWithServers(
         context: Context,
         settingsViewModel: SettingsViewModel,
         lifecycleOwner: LifecycleOwner,
@@ -69,5 +102,5 @@ object ServerDropDownMagic {
         setOnItemClickListener { _, _, _, _ ->
             clearFocus()
         }
-    }
+    }*/
 }
