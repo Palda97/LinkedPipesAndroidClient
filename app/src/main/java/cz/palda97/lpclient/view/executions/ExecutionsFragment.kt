@@ -53,6 +53,14 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun setUpComponents() {
+
+        fun setUpNoServerWarning() {
+            settingsViewModel.liveServers.observe(viewLifecycleOwner, Observer {
+                val servers = it?.mailContent ?: return@Observer
+                binding.noServer = servers.isEmpty()
+            })
+        }
+
         fun setUpRefreshFab() {
             refreshFab = binding.fabRefresh.apply {
                 hideOrShowSub(viewModel.liveExecutions, viewLifecycleOwner)
@@ -137,6 +145,7 @@ class ExecutionsFragment : Fragment() {
             })
         }
 
+        setUpNoServerWarning()
         setUpRefreshFab()
         setUpDropDown()
         setUpExecutionRecycler()

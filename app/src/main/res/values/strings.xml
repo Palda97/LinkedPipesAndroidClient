@@ -103,4 +103,5 @@
     <string name="licenses">licenses</string>
     <string name="create_pipeline">Create pipeline</string>
     <string name="create">Create</string>
+    <string name="no_servers_registered">There are no servers registered in the app. Register them in settings.</string>
 </resources>
