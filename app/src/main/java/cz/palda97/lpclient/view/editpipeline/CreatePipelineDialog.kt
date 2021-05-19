@@ -42,7 +42,7 @@ class CreatePipelineDialog : DialogFragment() {
             .setNeutralButton(R.string.cancel) { _, _ ->
                 //
             }
-            .setPositiveButton(R.string.continue_string) { _, _ ->
+            .setPositiveButton(R.string.create) { _, _ ->
                 val server = commonViewModel.serverToFilter
                 if (server == null) {
                     Toast.makeText(requireContext(), R.string.no_server_selected, Toast.LENGTH_SHORT).show()

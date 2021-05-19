@@ -101,4 +101,6 @@
     <string name="error_while_getting_executions_from">Error while getting executions from</string>
     <string name="error_while_getting_pipelines_from">Error while getting pipelines from</string>
     <string name="licenses">licenses</string>
+    <string name="create_pipeline">Create pipeline</string>
+    <string name="create">Create</string>
 </resources>
