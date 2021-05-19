@@ -118,3 +118,6 @@ schemas/
 
 # Markdown backup files
 *.md.backup
+
+# Release
+release/
