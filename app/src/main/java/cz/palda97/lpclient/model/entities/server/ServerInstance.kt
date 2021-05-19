@@ -46,4 +46,19 @@ data class ServerInstance(
     override fun hashCode(): Int {
         return id.hashCode()
     }
+
+    companion object {
+
+        /**
+         * Check if there is a web protocol present in the string.
+         * @receiver The source string.
+         * @return The source string optionally with https protocol prefixed.
+         */
+        val String.urlWithFixedProtocol: String
+            get() =
+                if (contains("://"))
+                    this
+                else
+                    "https://$this"
+    }
 }

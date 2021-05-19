@@ -3,11 +3,20 @@ package cz.palda97.lpclient.model.server
 import cz.palda97.lpclient.*
 import cz.palda97.lpclient.model.entities.server.ServerFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance.Companion.urlWithFixedProtocol
 import org.junit.Test
 import org.junit.Assert.*
 
 class ServerTest
     : MockkTest() {
+
+    @Test
+    fun urlWithFixedProtocol() {
+        assertEquals("https://www.example.com", "www.example.com".urlWithFixedProtocol)
+        assertEquals("https://www.example.com/dir", "www.example.com/dir".urlWithFixedProtocol)
+        assertEquals("https://www.example.com/dir0/dir1", "www.example.com/dir0/dir1".urlWithFixedProtocol)
+        assertEquals("http://www.example.com", "http://www.example.com".urlWithFixedProtocol)
+    }
 
     @Test
     fun json() {

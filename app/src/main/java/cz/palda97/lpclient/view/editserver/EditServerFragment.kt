@@ -16,6 +16,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
 import cz.palda97.lpclient.model.entities.server.ServerFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance.Companion.urlWithFixedProtocol
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
@@ -128,8 +129,7 @@ class EditServerFragment : Fragment() {
 
         fun setUpPingButton() {
             binding.ping.setOnClickListener {
-                val server = saveTmpInstance()
-                viewModel.ping(server)
+                ping()
             }
             viewModel.pingStatus.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
@@ -192,7 +192,19 @@ class EditServerFragment : Fragment() {
         setUpDoneButton()
     }
 
+    private fun fixMissingProtocol() {
+        val fixedUrl: String = binding.url.editText!!.text.toString().urlWithFixedProtocol
+        binding.url.editText!!.setText(fixedUrl)
+    }
+
+    private fun ping() {
+        fixMissingProtocol()
+        val server = saveTmpInstance()
+        viewModel.ping(server)
+    }
+
     private fun saveServer() {
+        fixMissingProtocol()
         saveTmpInstance()
         viewModel.saveServer()
     }
@@ -205,11 +217,7 @@ class EditServerFragment : Fragment() {
         val auth: Boolean = binding.auth ?: false
         val username: String = binding.username.editText!!.text.toString()
         val password: String = binding.password.editText!!.text.toString()
-        val frontend: Int? = try {
-            binding.frontend.editText!!.text.toString().toInt()
-        } catch (e: NumberFormatException) {
-            null
-        }
+        val frontend = binding.frontend.editText!!.text.toString().toIntOrNull()
         val tmpInstance =
             ServerInstance(
                 name,
