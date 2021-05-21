@@ -70,7 +70,11 @@ class ExecutionRepository(
         NO_CONNECT, SERVER_ID_INVALID, NOT_FOUND_ON_SERVER, OK, ERROR
     }
 
-    private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
+    /**
+     * Creates execution retrofit.
+     * @return Either [ExecutionRetrofit] or [NO_CONNECT][StatusCode.NO_CONNECT] on error.
+     */
+    suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
         try {
             //Either.Right(ExecutionRetrofit.getInstance(server.url))
             Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).executionRetrofit)

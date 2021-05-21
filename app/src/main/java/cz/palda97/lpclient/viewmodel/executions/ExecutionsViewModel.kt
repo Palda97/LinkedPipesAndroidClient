@@ -5,9 +5,7 @@ import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
-import cz.palda97.lpclient.model.repository.ExecutionRepository
-import cz.palda97.lpclient.model.repository.RepositoryRoutines
-import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.model.repository.*
 import kotlinx.coroutines.*
 
 /**
@@ -17,6 +15,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     private val executionRepository: ExecutionRepository = Injector.executionRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
+    private val detailRepository: ExecutionDetailRepository = Injector.executionDetailRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -119,10 +118,16 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Prepare execution details.
+     * Prepare execution details. Preparations completion can be observed via [Job] instance.
+     * @return [Job] instance for observing purposes.
      */
-    fun viewExecution(executionV: ExecutionV) {
-        TODO()
+    fun viewExecution(executionV: ExecutionV) = dbScope.launch {
+        val execution = executionRepository.find(executionV.id)
+        if (execution == null) {
+            cancel(CancellationException("execution == null"))
+            return@launch
+        }
+        detailRepository.cacheComponentsInit(execution)
     }
 
     companion object {

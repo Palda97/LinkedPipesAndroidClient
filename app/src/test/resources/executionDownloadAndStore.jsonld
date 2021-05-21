@@ -1,0 +1,171 @@
+[
+    {
+        "@graph": [
+            {
+                "@id": "http://localhost:8080/resources/executions/1621515125585-2-fd82ec46-01e1-48ee-be5b-27aba3157eff",
+                "@type": [
+                    "http://etl.linkedpipes.com/ontology/Execution"
+                ],
+                "http://etl.linkedpipes.com/ontology/pipeline": [
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/status": [
+                    {
+                        "@id": "http://etl.linkedpipes.com/resources/status/failed"
+                    }
+                ],
+                "http://linkedpipes.com/ontology/component": [
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506"
+                    },
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04"
+                    }
+                ],
+                "http://linkedpipes.com/ontology/deleteWorkingData": [
+                    {
+                        "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+                        "@value": "false"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04",
+                "@type": [
+                    "http://linkedpipes.com/ontology/Component"
+                ],
+                "http://etl.linkedpipes.com/ontology/dataUnit": [
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04/port/Configuration"
+                    },
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04/port/FilesInput"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/status": [
+                    {
+                        "@id": "http://etl.linkedpipes.com/resources/status/failed"
+                    }
+                ],
+                "http://linkedpipes.com/ontology/order": [
+                    {
+                        "@type": "http://www.w3.org/2001/XMLSchema#int",
+                        "@value": "2"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04/port/Configuration",
+                "@type": [
+                    "http://etl.linkedpipes.com/ontology/DataUnit"
+                ],
+                "http://etl.linkedpipes.com/ontology/binding": [
+                    {
+                        "@value": "Configuration"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/dataPath": [
+                    {
+                        "@value": "working/dataunit-002-4"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/debug": [
+                    {
+                        "@value": "002"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/4356-8f04/port/FilesInput",
+                "@type": [
+                    "http://etl.linkedpipes.com/ontology/DataUnit"
+                ],
+                "http://etl.linkedpipes.com/ontology/binding": [
+                    {
+                        "@value": "FilesInput"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/dataPath": [
+                    {
+                        "@value": "working/dataunit-003-5"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/debug": [
+                    {
+                        "@value": "003"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506",
+                "@type": [
+                    "http://linkedpipes.com/ontology/Component"
+                ],
+                "http://etl.linkedpipes.com/ontology/dataUnit": [
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506/port/Configuration"
+                    },
+                    {
+                        "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506/port/FilesOutput"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/status": [
+                    {
+                        "@id": "http://etl.linkedpipes.com/resources/status/finished"
+                    }
+                ],
+                "http://linkedpipes.com/ontology/order": [
+                    {
+                        "@type": "http://www.w3.org/2001/XMLSchema#int",
+                        "@value": "1"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506/port/Configuration",
+                "@type": [
+                    "http://etl.linkedpipes.com/ontology/DataUnit"
+                ],
+                "http://etl.linkedpipes.com/ontology/binding": [
+                    {
+                        "@value": "Configuration"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/dataPath": [
+                    {
+                        "@value": "working/dataunit-000-2"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/debug": [
+                    {
+                        "@value": "000"
+                    }
+                ]
+            },
+            {
+                "@id": "http://localhost:8080/resources/pipelines/1621514985033/component/a454-a506/port/FilesOutput",
+                "@type": [
+                    "http://etl.linkedpipes.com/ontology/DataUnit"
+                ],
+                "http://etl.linkedpipes.com/ontology/binding": [
+                    {
+                        "@value": "FilesOutput"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/dataPath": [
+                    {
+                        "@value": "working/dataunit-001-3"
+                    }
+                ],
+                "http://etl.linkedpipes.com/ontology/debug": [
+                    {
+                        "@value": "001"
+                    }
+                ]
+            }
+        ],
+        "@id": "http://localhost:8080/resources/executions/1621515125585-2-fd82ec46-01e1-48ee-be5b-27aba3157eff"
+    }
+]

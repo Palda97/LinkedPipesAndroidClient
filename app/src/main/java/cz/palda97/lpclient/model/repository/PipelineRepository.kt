@@ -57,7 +57,12 @@ class PipelineRepository(
         }
     }
 
-    private suspend fun downloadPipeline(pipelineView: PipelineView): WrappedPipeline {
+    /**
+     * Downloads and parses the pipeline.
+     * @param pipelineView Pipeline id and server id of the pipeline to download.
+     * @return [Pipeline] or [CacheStatus] on error.
+     */
+    suspend fun downloadPipeline(pipelineView: PipelineView): WrappedPipeline {
         val server = serverDao.findById(pipelineView.serverId)
             ?: return Either.Left(CacheStatus.SERVER_NOT_FOUND)
         val pipelineString =

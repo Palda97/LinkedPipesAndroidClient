@@ -161,8 +161,19 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun viewExecution(execution: ExecutionV) {
-        viewModel.viewExecution(execution)
-        ExecutionDetailActivity.start(requireContext())
+        viewModel.viewExecution(execution).invokeOnCompletion {
+            if (it != null) {
+                Snackbar.make(
+                    binding.root,
+                    R.string.internal_error,
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAnchorView(refreshFab)
+                    .show()
+                return@invokeOnCompletion
+            }
+            ExecutionDetailActivity.start(requireContext())
+        }
     }
 
     private fun launchExecution(execution: ExecutionV) {
