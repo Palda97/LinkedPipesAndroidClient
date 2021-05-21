@@ -118,6 +118,13 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    /**
+     * Prepare execution details.
+     */
+    fun viewExecution(executionV: ExecutionV) {
+        TODO()
+    }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
         private const val DELETE_DELAY: Long = 5000L

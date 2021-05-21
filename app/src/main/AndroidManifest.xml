@@ -6,21 +6,24 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".AppInit"
         android:allowBackup="true"
-        android:usesCleartextTraffic="true"
         android:icon="@mipmap/etl_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/etl_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".AppInit">
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".view.ExecutionDetailActivity"
+            android:parentActivityName=".view.MainActivity" />
         <activity
             android:name=".view.EditServerActivity"
             android:label="@string/server_instance"
             android:parentActivityName=".view.MainActivity" />
         <activity
             android:name=".view.EditPipelineActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.EditComponentActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -34,9 +37,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name="com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

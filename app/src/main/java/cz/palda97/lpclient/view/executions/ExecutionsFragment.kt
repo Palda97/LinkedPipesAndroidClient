@@ -15,6 +15,7 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
+import cz.palda97.lpclient.view.ExecutionDetailActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
@@ -160,7 +161,8 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun viewExecution(execution: ExecutionV) {
-        l("view ${execution.id}")
+        viewModel.viewExecution(execution)
+        ExecutionDetailActivity.start(requireContext())
     }
 
     private fun launchExecution(execution: ExecutionV) {
