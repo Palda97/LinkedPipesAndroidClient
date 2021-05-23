@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.view.executiondetails.ExecutionDetailsFragment
+import cz.palda97.lpclient.viewmodel.executiondetails.ExecutionDetailsViewModel
 
 /**
  * Activity for displaying execution details.
  */
 class ExecutionDetailActivity : AppCompatActivity() {
+
+    //private lateinit var viewModel: ExecutionDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +26,8 @@ class ExecutionDetailActivity : AppCompatActivity() {
                 )
                 .commitNow()
         }
+        val viewModel = ExecutionDetailsViewModel.getInstance(this)
+        title = viewModel.pipelineName
     }
 
     companion object {

@@ -43,11 +43,14 @@ class ExecutionDetailRepository(
         private set
     var currentPipelineId: String = ""
         private set*/
+    var currentPipelineName: String = ""
+        private set
 
     private fun initIds(execution: Execution) {
         currentExecutionId = execution.id
         /*currentServerId = execution.serverId
         currentPipelineId = execution.pipelineId*/
+        currentPipelineName = execution.pipelineName
     }
 
     val liveDetail
