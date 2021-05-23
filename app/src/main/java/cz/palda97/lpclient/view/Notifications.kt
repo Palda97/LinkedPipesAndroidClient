@@ -41,6 +41,7 @@ object Notifications {
             ExecutionStatus.DANGLING -> R.string.execution_notification_dangling
             ExecutionStatus.CANCELLING -> R.string.execution_notification_cancelling
             ExecutionStatus.QUEUED -> R.string.execution_notification_queued
+            ExecutionStatus.MAPPED -> R.string.execution_notification_mapped
             null -> R.string.execution_notification_null_status
         }
     )

@@ -48,6 +48,7 @@ object ExecutionStatusUtilities {
         LdConstants.EXECUTION_STATUS_DANGLING -> ExecutionStatus.DANGLING
         LdConstants.EXECUTION_STATUS_CANCELLING -> ExecutionStatus.CANCELLING
         LdConstants.EXECUTION_STATUS_QUEUED -> ExecutionStatus.QUEUED
+        LdConstants.EXECUTION_STATUS_MAPPED -> ExecutionStatus.MAPPED
         else -> {
             l("fromString is returning null because of: $string")
             null

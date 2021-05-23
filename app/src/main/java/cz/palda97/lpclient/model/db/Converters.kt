@@ -34,6 +34,7 @@ class Converters {
                 ExecutionStatus.DANGLING -> 4
                 ExecutionStatus.CANCELLING -> 5
                 ExecutionStatus.QUEUED -> 6
+                ExecutionStatus.MAPPED -> 7
             }
         }
     }
@@ -49,6 +50,7 @@ class Converters {
                 4 -> ExecutionStatus.DANGLING
                 5 -> ExecutionStatus.CANCELLING
                 6 -> ExecutionStatus.QUEUED
+                7 -> ExecutionStatus.MAPPED
                 else -> null
             }
         }

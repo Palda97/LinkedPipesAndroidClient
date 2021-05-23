@@ -118,4 +118,5 @@
     <string name="components_mapped">Components mapped</string>
     <string name="currently_executed">Currently executed</string>
     <string name="components">Components</string>
+    <string name="execution_notification_mapped">Execution mapped</string>
 </resources>
