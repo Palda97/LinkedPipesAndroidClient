@@ -95,7 +95,7 @@ class ExecutionRepository(
         }
         val call = retrofit.executionList()
         val text = RetrofitHelper.getStringFromCall(call)
-        return ExecutionFactory(server, text).serverWithExecutions
+        return ExecutionFactory(text).parseListFromJson(server)
     }
 
     private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> =

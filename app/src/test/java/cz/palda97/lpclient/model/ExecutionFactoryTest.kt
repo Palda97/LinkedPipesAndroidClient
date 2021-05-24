@@ -15,9 +15,8 @@ class ExecutionFactoryTest
     @Test
     fun entityTest() {
         val serverWithExecutions = ExecutionFactory(
-            SERVER,
             ENTITY_EXECUTION
-        ).serverWithExecutions.mailContent
+        ).parseListFromJson(SERVER).mailContent
         assertNotNull(serverWithExecutions)
         val executions = serverWithExecutions!!.executionList
         assertEquals(1, executions.size)
@@ -51,9 +50,8 @@ class ExecutionFactoryTest
     @Test
     fun parseExecutions() {
         val executions = ExecutionFactory(
-            SERVER,
             EXECUTIONS
-        ).serverWithExecutions
+        ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
         assertEquals(2, executions.mailContent!!.executionList.size)
     }
@@ -61,9 +59,8 @@ class ExecutionFactoryTest
     @Test
     fun parseTomb() {
         val executions = ExecutionFactory(
-            SERVER,
             TOMBSTONE
-        ).serverWithExecutions
+        ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
         assertEquals(0, executions.mailContent!!.executionList.size)
     }
@@ -71,9 +68,8 @@ class ExecutionFactoryTest
     @Test
     fun parseTombAndExecution() {
         val executions = ExecutionFactory(
-            SERVER,
             TOMBSTONE_AND_ONE_EXECUTION
-        ).serverWithExecutions
+        ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
         assertEquals(1, executions.mailContent!!.executionList.size)
     }

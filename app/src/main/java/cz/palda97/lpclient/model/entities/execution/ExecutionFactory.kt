@@ -9,21 +9,17 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.lang.NumberFormatException
 
 /**
- * Factory for transforming jsonLd to [Execution] list.
- * @property serverWithExecutions MailPackage with server and parsed executions
+ * Factory for transforming jsonLd to either [Execution] or execution list.
+ * @param json JsonLd with executions.
  */
-class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecutions>) {
+class ExecutionFactory(private val json: String?) {
 
     /**
+     * Parses execution from the execution list jsonLd.
      * @param server Server that belongs to the executions.
-     * @param string JsonLd with executions.
+     * @return MailPackage with server and parsed executions.
      */
-    constructor(server: ServerInstance, string: String?) : this(
-        fromJson(
-            server,
-            string
-        )
-    )
+    fun parseListFromJson(server: ServerInstance): MailPackage<ServerWithExecutions> = fromJson(server, json)
 
     companion object {
         private val l = Injector.generateLogFunction(this)
