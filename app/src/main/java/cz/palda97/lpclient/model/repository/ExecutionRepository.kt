@@ -74,7 +74,12 @@ class ExecutionRepository(
      * Creates execution retrofit.
      * @return Either [ExecutionRetrofit] or [NO_CONNECT][StatusCode.NO_CONNECT] on error.
      */
-    suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
+    suspend fun getExecutionRetrofit(execution: Execution): Either<StatusCode, ExecutionRetrofit> {
+        val server = serverDao.findById(execution.serverId) ?: return Either.Left(StatusCode.NO_CONNECT)
+        return getExecutionRetrofit(server)
+    }
+
+    private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
         try {
             //Either.Right(ExecutionRetrofit.getInstance(server.url))
             Either.Right(RetrofitHelper.getBuilder(server, server.frontendUrl).executionRetrofit)

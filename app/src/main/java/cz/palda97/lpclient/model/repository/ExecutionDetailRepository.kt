@@ -4,20 +4,15 @@ import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.db.dao.ExecutionDetailDao
-import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.execution.*
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class ExecutionDetailRepository(
-    private val executionDao: ExecutionDetailDao,
-    private val serverDao: ServerInstanceDao
+    private val executionDao: ExecutionDetailDao
 ) {
 
     enum class ExecutionDetailRepositoryStatus {
@@ -96,10 +91,8 @@ class ExecutionDetailRepository(
     }
 
     private suspend fun getExecutionRetrofit(execution: Execution): Either<ExecutionDetailRepositoryStatus, ExecutionRetrofit> {
-        val error = Either.Left<ExecutionDetailRepositoryStatus, ExecutionRetrofit>(ExecutionDetailRepositoryStatus.DOWNLOADING_ERROR)
-        val server = serverDao.findById(execution.serverId) ?: return error
-        return when(val res = Injector.executionRepository.getExecutionRetrofit(server)) {
-            is Either.Left -> error
+        return when(val res = Injector.executionRepository.getExecutionRetrofit(execution)) {
+            is Either.Left -> Either.Left(ExecutionDetailRepositoryStatus.DOWNLOADING_ERROR)
             is Either.Right -> Either.Right(res.value)
         }
     }
