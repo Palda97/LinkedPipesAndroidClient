@@ -1,5 +1,7 @@
 package cz.palda97.lpclient.model.entities.execution
 
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
@@ -20,6 +22,25 @@ class ExecutionFactory(private val json: String?) {
      * @return MailPackage with server and parsed executions.
      */
     fun parseListFromJson(server: ServerInstance): MailPackage<ServerWithExecutions> = fromJson(server, json)
+
+    /**
+     * Parses an execution from the execution overview jsonLd.
+     * @return [Execution] or null if error.
+     */
+    fun parseFromOverview(serverId: Long, pipelineName: String, pipelineId: String): Execution? {
+        val overview = try {
+            Gson().fromJson(json, ExecutionOverview::class.java)
+        } catch (e: JsonSyntaxException) {
+            null
+        } ?: return null
+        return overview.execution(serverId, pipelineName, pipelineId)
+    }
+
+    /**
+     * Parses an execution from the execution overview jsonLd.
+     * @return [Execution] or null if error.
+     */
+    fun parseFromOverview(execution: Execution) = parseFromOverview(execution.serverId, execution.pipelineName, execution.pipelineId)
 
     companion object {
         private val l = Injector.generateLogFunction(this)

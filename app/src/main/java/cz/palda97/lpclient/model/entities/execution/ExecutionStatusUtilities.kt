@@ -40,7 +40,7 @@ object ExecutionStatusUtilities {
      * Converts executions status id to [ExecutionStatus].
      * @return [ExecutionStatus] or null when id is not matched.
      */
-    fun fromString(string: String): ExecutionStatus? = when (string) {
+    fun fromString(string: String?): ExecutionStatus? = when (string) {
         LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
         LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED
         LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING

@@ -11,14 +11,13 @@ object DateParser {
     private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
     private val simpleDateFormat = SimpleDateFormat(DATE_FORMAT)
 
-    /**
-     * Converts String to Date.
-     * @return Date or null on parse error.
-     */
-    fun toDate(string: String?): Date? =
+    private const val DATE_FORMAT_NO_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+    private val noTimezoneFormat = SimpleDateFormat(DATE_FORMAT_NO_TIMEZONE)
+
+    private fun dateFromString(string: String?, format: SimpleDateFormat): Date? =
         try {
             if (string != null)
-                simpleDateFormat.parse(string)
+                format.parse(string)
             else
                 null
         } catch (e: ParseException) {
@@ -26,7 +25,25 @@ object DateParser {
         }
 
     /**
+     * Converts String to Date.
+     * @param string String representing dateTime, including timezone.
+     * @return Date or null on parse error.
+     * @see <a href="http://www.w3.org/2001/XMLSchema#dateTime">http://www.w3.org/2001/XMLSchema#dateTime</a>
+     */
+    fun toDate(string: String?) = dateFromString(string, simpleDateFormat)
+
+    /**
      * Converts Date to String.
+     * @return String representing dateTime, including timezone.
+     * @see <a href="http://www.w3.org/2001/XMLSchema#dateTime">http://www.w3.org/2001/XMLSchema#dateTime</a>
      */
     fun fromDate(date: Date): String = simpleDateFormat.format(date)
+
+    /**
+     * Converts String to Date.
+     * @param string String representing dateTime, without timezone.
+     * @return Date or null on parse error.
+     * @see <a href="http://www.w3.org/2001/XMLSchema#dateTime">http://www.w3.org/2001/XMLSchema#dateTime</a>
+     */
+    fun toDateWithoutTimezone(string: String?) = dateFromString(string, noTimezoneFormat)
 }

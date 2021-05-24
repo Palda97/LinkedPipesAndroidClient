@@ -282,6 +282,36 @@ class ExecutionRepository(
         }
     }
 
+    enum class OverviewStatus {
+        NO_CONNECT, PARSING_ERROR, DOWNLOADING_ERROR
+    }
+
+    private suspend fun downloadExecutionOverview(execution: Execution): Either<OverviewStatus, Execution> {
+        val retrofit = when (val res = getExecutionRetrofit(execution)) {
+            is Either.Left -> return Either.Left(OverviewStatus.NO_CONNECT)
+            is Either.Right -> res.value
+        }
+        val call = retrofit.overview(execution.idNumber)
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(OverviewStatus.DOWNLOADING_ERROR)
+        val factory =  ExecutionFactory(text)
+        val newExecution = factory.parseFromOverview(execution) ?: return Either.Left(OverviewStatus.PARSING_ERROR)
+        return Either.Right(newExecution)
+    }
+
+    /**
+     * Tries to update the execution information. Does nothing on error.
+     */
+    suspend fun cacheExecutionSilently(execution: Execution) {
+        val newExecution = when(val res = downloadExecutionOverview(execution)) {
+            is Either.Left -> {
+                l("cacheExecutionSilently: ${res.value.name}")
+                return
+            }
+            is Either.Right -> res.value
+        }
+        executionDao.insert(newExecution)
+    }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
         private const val MONITOR_DELAY = 1000L

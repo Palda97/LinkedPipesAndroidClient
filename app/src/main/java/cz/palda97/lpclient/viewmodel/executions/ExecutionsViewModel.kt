@@ -123,6 +123,9 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
      */
     suspend fun viewExecution(executionV: ExecutionV): Boolean = withContext(Dispatchers.IO) {
         val execution = executionRepository.find(executionV.id) ?: return@withContext false
+        retrofitScope.launch {
+            executionRepository.cacheExecutionSilently(execution)
+        }
         detailRepository.cacheComponentsInit(execution)
         return@withContext true
     }

@@ -1,16 +1,34 @@
-package cz.palda97.lpclient.model
+package cz.palda97.lpclient.model.execution
 
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionFactory
 import cz.palda97.lpclient.model.entities.execution.ExecutionStatus
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.*
+import cz.palda97.lpclient.model.DateParser
 import org.junit.Test
 
 import org.junit.Assert.*
 
 class ExecutionFactoryTest
     : MockkTest() {
+
+    @Test
+    fun parseOverview() {
+        val originalExecution = let {
+            val json = stringFromFile("executionOverviewListCounterpart.jsonld")
+            val factory = ExecutionFactory(json)
+            val list = factory.parseListFromJson(SERVER)
+            list.mailContent!!.executionList.first().execution
+        }
+
+        val json = stringFromFile("executionOverview.jsonld")
+        val factory = ExecutionFactory(json)
+        val execution0 = factory.parseFromOverview(originalExecution.serverId, originalExecution.pipelineName, originalExecution.pipelineId)!!
+        val execution1 = factory.parseFromOverview(originalExecution)!!
+        assertTrue(execution0 match execution1)
+        assertTrue(execution0 match originalExecution)
+    }
 
     @Test
     fun entityTest() {
@@ -75,6 +93,20 @@ class ExecutionFactoryTest
     }
 
     companion object {
+
+        private infix fun Execution.match(other: Execution): Boolean = id == other.id &&
+                    componentExecuted == other.componentExecuted &&
+                    componentFinished == other.componentFinished &&
+                    componentMapped == other.componentMapped &&
+                    componentToExecute == other.componentToExecute &&
+                    componentToMap == other.componentToMap &&
+                    end == other.end &&
+                    size == other.size &&
+                    start == other.start &&
+                    status == other.status &&
+                    serverId == other.serverId &&
+                    pipelineId == other.pipelineId &&
+                    pipelineName == other.pipelineName
 
         private val SERVER =
             ServerInstance(

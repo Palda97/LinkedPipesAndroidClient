@@ -29,6 +29,13 @@ interface ExecutionRetrofit {
     @GET("resources/executions/{id}")
     fun execution(@Path("id") id: String): Call<ResponseBody>
 
+    /**
+     * Get an overview of a specific execution.
+     * @param id **idNumber** of the [Execution][cz.palda97.lpclient.model.entities.execution.Execution].
+     */
+    @GET("resources/executions/{id}/overview")
+    fun overview(@Path("id") id: String): Call<ResponseBody>
+
     companion object {
         val Retrofit.Builder.executionRetrofit: ExecutionRetrofit
             get() = build().create(ExecutionRetrofit::class.java)
