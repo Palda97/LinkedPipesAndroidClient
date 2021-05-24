@@ -7,11 +7,13 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.SmartMutex
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
@@ -160,9 +162,12 @@ class ExecutionsFragment : Fragment() {
         }
     }
 
+    private val smartMutex = SmartMutex()
     private fun viewExecution(execution: ExecutionV) {
-        viewModel.viewExecution(execution).invokeOnCompletion {
-            if (it != null) {
+        smartMutex.syncScope(lifecycleScope) {
+            l("viewExecution: after check: ${execution.pipelineName}")
+            val isError = !viewModel.viewExecution(execution)
+            if (isError) {
                 Snackbar.make(
                     binding.root,
                     R.string.internal_error,
@@ -170,10 +175,16 @@ class ExecutionsFragment : Fragment() {
                 )
                     .setAnchorView(refreshFab)
                     .show()
-                return@invokeOnCompletion
+                return@syncScope
             }
             ExecutionDetailActivity.start(requireContext())
+            done()
         }
+    }
+
+    override fun onResume() {
+        smartMutex.reset()
+        super.onResume()
     }
 
     private fun launchExecution(execution: ExecutionV) {

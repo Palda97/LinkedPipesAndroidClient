@@ -118,16 +118,13 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Prepare execution details. Preparations completion can be observed via [Job] instance.
-     * @return [Job] instance for observing purposes.
+     * Prepare execution details.
+     * @return False if execution could not be found in database. Otherwise true.
      */
-    fun viewExecution(executionV: ExecutionV) = dbScope.launch {
-        val execution = executionRepository.find(executionV.id)
-        if (execution == null) {
-            cancel(CancellationException("execution == null"))
-            return@launch
-        }
+    suspend fun viewExecution(executionV: ExecutionV): Boolean = withContext(Dispatchers.IO) {
+        val execution = executionRepository.find(executionV.id) ?: return@withContext false
         detailRepository.cacheComponentsInit(execution)
+        return@withContext true
     }
 
     companion object {
