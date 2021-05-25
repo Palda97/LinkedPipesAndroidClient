@@ -159,13 +159,10 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
         l(text)
         _launchStatus.postValue(LaunchStatus.OK)
-        val iri = Gson().fromJson(text, Iri::class.java)?.let { iri ->
-            l("mam iri")
+        Gson().fromJson(text, Iri::class.java)?.let { iri ->
             serverRepository.activeLiveServers.value?.mailContent?.find {
-                l("mam server")
                 it.id == pipelineView.serverId
             }?.let {
-                //executionRepository.monitor(it.id, iri.iri)
                 ExecutionMonitor.enqueue(getApplication(), iri.iri, it.id, pipelineView.prefLabel)
             }
         }
