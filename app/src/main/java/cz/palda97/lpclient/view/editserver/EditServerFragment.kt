@@ -248,9 +248,7 @@ class EditServerFragment : Fragment() {
         binding.authSwitch.isChecked = serverInstance.auth
         binding.username.editText!!.setText(serverInstance.username)
         binding.password.editText!!.setText(serverInstance.password)
-        serverInstance.frontend?.let {
-            binding.frontend.editText!!.setText(it.toString())
-        }
+        binding.frontend.editText!!.setText(serverInstance.frontend?.toString())
     }
 
     override fun onResume() {
