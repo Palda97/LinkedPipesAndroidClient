@@ -64,7 +64,18 @@ data class Execution(
 }
 
 enum class ExecutionStatus {
-    FINISHED, FAILED, RUNNING, CANCELLED, DANGLING, CANCELLING, QUEUED, MAPPED
+    FINISHED, FAILED, RUNNING, CANCELLED, DANGLING, CANCELLING, QUEUED, MAPPED;
+
+    companion object {
+
+        val ExecutionStatus?.isDone: Boolean
+            get() = when (this) {
+                null -> false
+                QUEUED -> false
+                RUNNING -> false
+                else -> true
+            }
+    }
 }
 
 /**

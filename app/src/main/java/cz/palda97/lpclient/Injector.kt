@@ -45,6 +45,10 @@ object Injector {
         val db = AppDatabase.getInstance(context)
         ExecutionDetailRepository(db.executionDetailDao())
     }
+    val executionNoveltyRepository: ExecutionNoveltyRepository by lazy {
+        val db = AppDatabase.getInstance(context)
+        ExecutionNoveltyRepository(db.serverDao(), db.executionNoveltyDao())
+    }
 
     /**
      * @param companion Companion object

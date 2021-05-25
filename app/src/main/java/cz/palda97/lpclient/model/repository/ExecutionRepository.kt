@@ -88,7 +88,11 @@ class ExecutionRepository(
             Either.Left(StatusCode.NO_CONNECT)
         }
 
-    private suspend fun downloadExecutions(server: ServerInstance): MailPackage<ServerWithExecutions> {
+    /**
+     * Downloads execution list from the server.
+     * @return [MailPackage] containing server with it's executions.
+     */
+    suspend fun downloadExecutions(server: ServerInstance): MailPackage<ServerWithExecutions> {
         val retrofit = when (val res = getExecutionRetrofit(server)) {
             is Either.Left -> return MailPackage.brokenPackage(res.value.name)
             is Either.Right -> res.value
