@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.view.editpipeline
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,7 +31,7 @@ class UploadPipelineDialog : DialogFragment() {
         val builder = MaterialAlertDialogBuilder(requireContext())
             .setView(binding.root)
             .setNeutralButton(R.string.cancel) { _, _ ->
-                //
+                onQuit()
             }
             .setPositiveButton(R.string.continue_string) { _, _ ->
                 viewModel.uploadPipeline()
@@ -48,6 +49,16 @@ class UploadPipelineDialog : DialogFragment() {
         binding.pipelineView = viewModel.currentPipelineView
 
         return binding.root
+    }
+
+    private fun onQuit() {
+        val editPipelineFragment = parentFragment as? EditPipelineFragment ?: return Unit.also { l("onQuit: edit pipeline fragment == null") }
+        editPipelineFragment.resetUploadPipelineMutex()
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        onQuit()
+        super.onCancel(dialog)
     }
 
     companion object {

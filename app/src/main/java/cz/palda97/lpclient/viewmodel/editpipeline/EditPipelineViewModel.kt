@@ -10,9 +10,7 @@ import cz.palda97.lpclient.model.entities.pipeline.Template
 import cz.palda97.lpclient.model.repository.ComponentRepository
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.PossibleComponentRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /**
  * ViewModel for the [EditPipelineActivity][cz.palda97.lpclient.view.EditPipelineActivity].
@@ -97,14 +95,17 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
      * @return [Job][kotlinx.coroutines.Job] related to saving the pipeline
      * or null if the argument is null.
      */
-    fun uploadPipelineButton(pipeline: Pipeline?) = if (pipeline == null) {
-        pipelineRepository.cannotSavePipelineForUpload()
-        null
+    suspend fun uploadPipelineButton(pipeline: Pipeline?): Boolean = if (pipeline == null) {
+        withContext(Dispatchers.Main) {
+            pipelineRepository.cannotSavePipelineForUpload()
+        }
+        false
     } else {
-        retrofitScope.launch {
+        withContext(Dispatchers.IO) {
             pipelineRepository.savePipeline(pipeline, false)
             currentPipelineView = pipeline.pipelineView
         }
+        true
     }
 
     /** @see PipelineRepository.liveUploadStatus */
