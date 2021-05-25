@@ -13,6 +13,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.repository.EditServerRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.model.services.ExecutionMonitorPeriodic
 import cz.palda97.lpclient.view.Notifications.NOTIFICATIONS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     var notifications: Boolean
         get() = sharedPreferences.getBoolean(NOTIFICATIONS, false)
-        set(value) = sharedPreferences.edit().putBoolean(NOTIFICATIONS, value).apply()
+        set(value) {
+            sharedPreferences.edit().putBoolean(NOTIFICATIONS, value).apply()
+            when(value) {
+                true -> ExecutionMonitorPeriodic.enqueue(getApplication())
+                false -> ExecutionMonitorPeriodic.cancel(getApplication())
+            }
+        }
 
     private fun forceSaveServer(serverInstance: ServerInstance) {
         dbScope.launch {
