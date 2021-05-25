@@ -11,6 +11,51 @@ class ServerTest
     : MockkTest() {
 
     @Test
+    fun fromURL() {
+
+        run {
+            val msg = "basic test"
+            val server = ServerFactory.fromString("https://demo.etl.linkedpipes.com/#/executions")!!
+            assertEquals(msg, "https://demo.etl.linkedpipes.com/", server.url)
+            assertEquals(msg, null, server.frontend)
+        }
+
+        run {
+            val msg = "different server address and different suffix"
+            val server = ServerFactory.fromString("https://demo.etl.linkedpipes.com/server/#/somethingDifferent")!!
+            assertEquals(msg, "https://demo.etl.linkedpipes.com/server/", server.url)
+            assertEquals(msg, null, server.frontend)
+        }
+
+        run {
+            val msg = "port"
+            val server = ServerFactory.fromString("http://192.168.1.50:8080/#/executions")!!
+            assertEquals(msg, "http://192.168.1.50/", server.url)
+            assertEquals(msg, 8080, server.frontend)
+        }
+
+        run {
+            val msg = "port, server address, different suffix"
+            val server = ServerFactory.fromString("http://192.168.1.50:8080/server/#/pipelines/edit/canvas?pipeline=http:%2F%2Flocalhost:8080%2Fresources%2Fpipelines%2F1621514985033")!!
+            assertEquals(msg, "http://192.168.1.50/server/", server.url)
+            assertEquals(msg, 8080, server.frontend)
+        }
+
+        run {
+            val msg = "hardcoded default port"
+            val server = ServerFactory.fromString("https://demo.etl.linkedpipes.com:443/#/executions")!!
+            assertEquals(msg, "https://demo.etl.linkedpipes.com/", server.url)
+            assertEquals(msg, null, server.frontend)
+        }
+
+        run {
+            val msg = "bad url"
+            val server = ServerFactory.fromString("bad url")
+            assertNull(msg, server)
+        }
+    }
+
+    @Test
     fun urlWithFixedProtocol() {
         assertEquals("https://www.example.com", "www.example.com".urlWithFixedProtocol)
         assertEquals("https://www.example.com/dir", "www.example.com/dir".urlWithFixedProtocol)
@@ -29,7 +74,7 @@ class ServerTest
         val server = ServerInstance("Home Wifi", "http://192.168.1.50").apply {
             frontend = 8080
         }
-        val res = ServerFactory.fromJson(json)
+        val res = ServerFactory.fromString(json)
         assertNotNull(res)
         res!!
         assertTrue(
@@ -41,7 +86,7 @@ class ServerTest
 
     @Test
     fun jsonNull() {
-        val res = ServerFactory.fromJson("bad json")
+        val res = ServerFactory.fromString("bad json")
         assertNull(res)
     }
 
@@ -83,5 +128,7 @@ class ServerTest
     companion object {
 
         //
+        /*private infix fun ServerInstance.addressMatch(other: ServerInstance): Boolean =
+            url == other.url && frontend == other.frontend*/
     }
 }
