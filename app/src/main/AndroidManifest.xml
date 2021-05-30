@@ -40,6 +40,8 @@
         <activity
             android:name="com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <receiver android:name=".model.services.NotificationBroadcastReceiver" />
     </application>
 
 </manifest>

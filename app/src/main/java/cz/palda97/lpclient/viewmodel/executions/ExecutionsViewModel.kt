@@ -6,6 +6,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
 import cz.palda97.lpclient.model.repository.*
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -65,15 +66,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-    private suspend fun downloadAllExecutions(silent: Boolean = false) {
-        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
-    }
-
     /** @see RepositoryRoutines.refresh */
     fun refreshExecutionsButton() {
         retrofitScope.launch {
-            //downloadAllExecutions()
-            RepositoryRoutines().refresh()
+            CommonViewModel.refreshAndNotify()
         }
     }
 
@@ -104,16 +100,6 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     fun cancelDeletion(executionV: ExecutionV) {
         retrofitScope.launch {
             cancelRoutine(executionV)
-        }
-    }
-
-    /**
-     * Update executions [silently][cz.palda97.lpclient.model.db.dao.ExecutionDao.silentInsert].
-     */
-    fun silentRefresh() {
-        lastSilent = true
-        retrofitScope.launch {
-            downloadAllExecutions(true)
         }
     }
 

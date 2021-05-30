@@ -26,7 +26,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
         Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class,
         PossibleComponent::class, PossibleStatus::class,
         SameAs::class, Tag::class],
-    version = 18,
+    version = 19,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

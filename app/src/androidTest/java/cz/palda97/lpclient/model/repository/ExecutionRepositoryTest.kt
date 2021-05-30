@@ -52,10 +52,13 @@ class ExecutionRepositoryTest
     @Before
     fun mock() {
         routines = mockk()
-        every { routines.update(any()) } returns mockk()
+        coEvery { routines.update(any()) } returns mockk()
         mockkObject(Injector)
         every { Injector.repositoryRoutines } returns routines
         every { Injector.serverRepository } returns serverRepo
+        coEvery { Injector.executionNoveltyRepository.cacheNovelties(any()) } answers {
+            firstArg()
+        }
 
         mockExecutionDao = mockk(relaxed = true)
         mockServerDao = mockk(relaxed = true)

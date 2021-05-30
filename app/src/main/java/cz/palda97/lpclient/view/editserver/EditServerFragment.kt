@@ -21,7 +21,6 @@ import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
 import kotlinx.coroutines.*
-import java.lang.NumberFormatException
 
 /**
  * Fragment for displaying server instance that is being edited.

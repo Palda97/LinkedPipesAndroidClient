@@ -37,7 +37,7 @@ class ConfigurationRepositoryTest
         val a = repo.liveConfigInputContext.await()
         assertEquals(OnlyStatus(ComponentRepository.StatusCode.DOWNLOAD_IN_PROGRESS), a)
         runBlocking { pipelineDao.insertStatus(CONFIG_STATUS_OK_LIST) }
-        val b = repo.liveConfigInputContext.await(2) as ConfigInputComplete
+        val b = repo.liveConfigInputContext.await(3) as ConfigInputComplete
         assertEquals(ComponentRepository.StatusCode.OK, b.status)
         assertEquals(DIALOG, b.dialogJs)
         assertListContentMatch(CONFIG_INPUT_LIST.filter { it.componentId == COMPONENT_ID }, b.configInputs)

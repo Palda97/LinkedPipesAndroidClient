@@ -13,7 +13,8 @@ data class ServerInstance(
     val url: String = "",
     var active: Boolean = true,
     val description: String = "",
-    val auth: Boolean = false
+    val auth: Boolean = false,
+    var changedSince: Long? = null
 ) {
     var frontend: Int? = null
     val frontendUrl: String

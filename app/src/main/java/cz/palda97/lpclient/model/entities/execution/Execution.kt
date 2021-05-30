@@ -5,6 +5,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import cz.palda97.lpclient.model.DateParser
+import cz.palda97.lpclient.model.entities.execution.ExecutionStatus.Companion.isDone
 import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.util.*
 
@@ -60,6 +61,13 @@ data class Execution(
          * @return The part of id behind the last slash.
          */
         fun idNumberFun(fullId: String) = fullId.split("/").last()
+
+        /**
+         * Filter executions that ended.
+         * @see isDone
+         */
+        val List<Execution>.areDone
+            get() = filter { it.status.isDone }
     }
 }
 
@@ -68,6 +76,11 @@ enum class ExecutionStatus {
 
     companion object {
 
+        /**
+         * Has execution ended?
+         * Returns false when QUEUED, RUNNING or null.
+         * Returns true otherwise.
+         */
         val ExecutionStatus?.isDone: Boolean
             get() = when (this) {
                 null -> false

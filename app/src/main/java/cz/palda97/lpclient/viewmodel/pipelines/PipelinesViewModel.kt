@@ -2,7 +2,6 @@ package cz.palda97.lpclient.viewmodel.pipelines
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.google.gson.Gson
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
@@ -10,7 +9,7 @@ import cz.palda97.lpclient.model.entities.pipelineview.ServerWithPipelineViews
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import cz.palda97.lpclient.model.repository.*
-import cz.palda97.lpclient.model.services.ExecutionMonitor
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.editpipeline.EditPipelineViewModel
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
 import kotlinx.coroutines.*
@@ -65,16 +64,10 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
             return MailPackage.loadingPackage<List<PipelineView>>()
         }
 
-    private suspend fun downloadAllPipelineViews() {
-        //pipelineViewRepository.downAndCachePipelineViews(serverRepository.activeLiveServers.value?.mailContent)
-        pipelineViewRepository.refreshPipelineViews(Either.Right(serverRepository.activeLiveServers.value?.mailContent))
-    }
-
     /** @see RepositoryRoutines.refresh */
     fun refreshButton() {
         retrofitScope.launch {
-            //downloadAllPipelineViews()
-            RepositoryRoutines().refresh()
+            CommonViewModel.refreshAndNotify()
         }
     }
 
@@ -159,13 +152,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
         }
         l(text)
         _launchStatus.postValue(LaunchStatus.OK)
-        Gson().fromJson(text, Iri::class.java)?.let { iri ->
-            serverRepository.activeLiveServers.value?.mailContent?.find {
-                it.id == pipelineView.serverId
-            }?.let {
-                ExecutionMonitor.enqueue(getApplication(), iri.iri, it.id, pipelineView.prefLabel)
-            }
-        }
     }
 
     /**
@@ -220,11 +206,6 @@ class PipelinesViewModel(application: Application) : AndroidViewModel(applicatio
     /** @see PipelineRepository.liveNewPipeline */
     val liveNewPipeline
         get() = pipelineRepository.liveNewPipeline
-
-    /**
-     * Class for easy parsing the execution iri via Gson.
-     */
-    class Iri(val iri: String)
 
     companion object {
         private val l = Injector.generateLogFunction(this)

@@ -37,6 +37,7 @@ object LdConstants {
     const val TYPE_PORT_INPUT = "http://linkedpipes.com/ontology/Input"
     const val TYPE_PORT_OUTPUT = "http://linkedpipes.com/ontology/Output"
     const val TYPE_TEMPLATE_JAR = "http://linkedpipes.com/ontology/JarTemplate"
+    const val TYPE_METADATA = "http://etl.linkedpipes.com/ontology/Metadata"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"
@@ -66,4 +67,6 @@ object LdConstants {
 
     const val INHERITANCE_NONE = "http://plugins.linkedpipes.com/resource/configuration/None"
     const val INHERITANCE_INHERIT = "http://plugins.linkedpipes.com/resource/configuration/Inherit"
+
+    const val SERVER_TIME = "http://etl.linkedpipes.com/ontology/serverTime"
 }

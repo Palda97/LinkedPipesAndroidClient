@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.db.AppDatabase
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import kotlinx.coroutines.*
 import org.conscrypt.Conscrypt
 import java.security.Security
@@ -31,13 +32,21 @@ class AppInit : Application() {
             cleanDb()
             refresh()
         }
-        notificationChannel()
+        notificationChannels()
     }
 
     /**
-     * Registers the notification channel.
+     * Registers notification channels.
      */
-    private fun notificationChannel() {
+    private fun notificationChannels() {
+        notificationChannelDefault()
+        notificationChannelForeground()
+    }
+
+    /**
+     * Registers a default notification channel for execution notifications.
+     */
+    private fun notificationChannelDefault() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -50,6 +59,20 @@ class AppInit : Application() {
             // Register the channel with the system
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    /**
+     * Registers a notification channel for the persistent foreground notification.
+     */
+    private fun notificationChannelForeground() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_name_foreground)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID_FOREGROUND, name, importance)
+            val notificationManager: NotificationManager =
+                applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -108,12 +131,13 @@ class AppInit : Application() {
          * @see RepositoryRoutines.refresh
          */
         suspend fun refresh(context: Context? = null) = afterInit(context) {
-            RepositoryRoutines().refresh()
+            CommonViewModel.refreshAndNotify()
         }
 
         /**
          * Channel id for notification channel.
          */
         const val CHANNEL_ID = "etl_client_channel"
+        const val CHANNEL_ID_FOREGROUND = "etl_client_channel_foreground"
     }
 }

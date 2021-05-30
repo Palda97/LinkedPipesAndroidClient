@@ -19,6 +19,7 @@ class RepositoryRoutinesTest
     @RelaxedMockK private lateinit var mPipelineRepo: PipelineViewRepository
     @RelaxedMockK private lateinit var mExecutionRepo: ExecutionRepository
     @RelaxedMockK private lateinit var mComponentRepo: PossibleComponentRepository
+    @RelaxedMockK private lateinit var mNoveltyRepository: ExecutionNoveltyRepository
     private lateinit var routines: RepositoryRoutines
 
     @Before
@@ -30,6 +31,7 @@ class RepositoryRoutinesTest
             every { pipelineViewRepository } returns mPipelineRepo
             every { executionRepository } returns mExecutionRepo
             every { possibleComponentRepository } returns mComponentRepo
+            every { executionNoveltyRepository } returns mNoveltyRepository
         }
         routines = RepositoryRoutines()
     }
@@ -37,8 +39,7 @@ class RepositoryRoutinesTest
     @Test
     fun update() {
         val server = mockk<ServerInstance>()
-        val job = routines.update(server)
-        runBlocking { job.join() }
+        runBlocking { routines.update(server) }
         coVerify(exactly = 1) {
             mPipelineRepo.update(server)
             mExecutionRepo.update(server)
@@ -67,6 +68,7 @@ class RepositoryRoutinesTest
         coVerify(exactly = 1) {
             mPipelineRepo.cleanDb()
             mExecutionRepo.cleanDb()
+            mNoveltyRepository.cleanDb()
         }
     }
 

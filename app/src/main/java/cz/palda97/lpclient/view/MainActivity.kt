@@ -1,20 +1,20 @@
 package cz.palda97.lpclient.view
 
 import android.os.Bundle
-import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.viewmodel.MainActivityViewModel
 
 /**
  * The main activity containing fragments for displaying executions, pipelineViews and settings with servers.
  */
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var viewModel: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
         //setupActionBarWithNavController(navController, appBarConfiguration)
 
         setupNavigation(navView, navController)
+
+        viewModel = MainActivityViewModel.getInstance(this)
     }
 
     private fun setupNavigation(navView: BottomNavigationView, navController: NavController) {
