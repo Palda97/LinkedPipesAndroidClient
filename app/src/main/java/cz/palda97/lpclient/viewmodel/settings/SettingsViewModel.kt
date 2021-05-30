@@ -22,7 +22,6 @@ import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel.TimeEnum.Compani
 import cz.palda97.lpclient.viewmodel.MainActivityViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -224,10 +223,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         private const val STOP_REMINDING = "STOP_REMINDING"
 
-        suspend fun saveServerAndUpdate(server: ServerInstance) = coroutineScope {
+        suspend fun saveServerAndUpdate(server: ServerInstance) {
             Injector.serverRepository.insertServer(server)
             if (server.active)
-                launch { CommonViewModel.updateAndNotify(server) }
+                CoroutineScope(Dispatchers.IO).launch { CommonViewModel.updateAndNotify(server) }
         }
     }
 }
