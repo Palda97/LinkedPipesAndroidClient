@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="automaticRefreshRate"
+            type="String" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            style="@style/do_not_auto_focus_child_components"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="22dp"
+                android:text="@string/background_execution_monitoring"
+                android:textAppearance="@style/ta_medium20_primary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/monitoring_frequency_more"
+                android:textAppearance="@style/ta_regular14_secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/monitoring_frequency_less"
+                android:textAppearance="@style/ta_regular14_secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@{@string/no_effect_on_automatic_refresh_rate(automaticRefreshRate)}"
+                android:textAppearance="@style/ta_regular14_secondary" />
+
+        </LinearLayout>
+    </ScrollView>
+</layout>

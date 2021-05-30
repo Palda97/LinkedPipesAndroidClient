@@ -34,6 +34,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
          */
         fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(MainActivityViewModel::class.java)
 
-        private const val AUTOMATIC_REFRESH_RATE = 5000L
+        const val AUTOMATIC_REFRESH_RATE = 5000L
     }
 }

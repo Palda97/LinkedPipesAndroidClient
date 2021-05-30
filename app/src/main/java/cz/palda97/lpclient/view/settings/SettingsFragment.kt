@@ -184,12 +184,23 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        fun setUpNotificationInfoDialog() {
+            viewModel.liveNotificationInfoDialog.observe(viewLifecycleOwner, Observer {
+                val shouldShow = it ?: return@Observer
+                if (shouldShow) {
+                    viewModel.resetNotificationInfoDialog()
+                    NotificationInfoDialog.appear(childFragmentManager)
+                }
+            })
+        }
+
         setUpNightMode()
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()
         setUpLicenseButton()
         setUpTimeFields()
+        setUpNotificationInfoDialog()
     }
 
     private fun activeChange(server: ServerInstance) {

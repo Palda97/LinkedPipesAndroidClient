@@ -19,6 +19,7 @@ import cz.palda97.lpclient.view.Notifications.NOTIFICATIONS
 import cz.palda97.lpclient.view.Notifications.NOTIFICATIONS_CANCEL
 import cz.palda97.lpclient.viewmodel.CommonViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel.TimeEnum.Companion.toStatus
+import cz.palda97.lpclient.viewmodel.MainActivityViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -57,6 +58,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         l("init")
     }
 
+    var stopReminding: Boolean
+        get() = sharedPreferences.getBoolean(STOP_REMINDING, false)
+        set(value) {
+            sharedPreferences.edit().putBoolean(STOP_REMINDING, value).apply()
+        }
+
     private fun getNotificationSwitchText(context: Context): String {
         fun getString(resId: Int) = context.getString(resId)
         return "${getString(R.string.notifications)} (${getString(R.string.frequency_lower_case)}: $timeValue ${getString(timeUnit.resId)})"
@@ -68,8 +75,21 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val liveInterval: LiveData<String>
         get() = _liveInterval
 
+    private val _liveNotificationInfoDialog = MutableLiveData<Boolean>()
+    val liveNotificationInfoDialog: LiveData<Boolean>
+        get() = _liveNotificationInfoDialog
+    fun resetNotificationInfoDialog() {
+        _liveNotificationInfoDialog.value = false
+    }
+
+    val automaticRefreshRate: String =
+        "${MainActivityViewModel.AUTOMATIC_REFRESH_RATE / 1000} ${application.applicationContext.getString(R.string.seconds)}"
+
     fun enqueueMonitor() {
         _liveTimeButtonEnable.value = false
+        if (!stopReminding) {
+            _liveNotificationInfoDialog.value = true
+        }
         ExecutionMonitorPeriodic.enqueue(getApplication(), timeValue, timeUnit.unit)
         _liveInterval.value = getNotificationSwitchText(getApplication())
     }
@@ -201,6 +221,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         private const val TIME_VALUE = "TIME_VALUE"
         private const val TIME_UNIT = "TIME_UNIT"
+
+        private const val STOP_REMINDING = "STOP_REMINDING"
 
         suspend fun saveServerAndUpdate(server: ServerInstance) = coroutineScope {
             Injector.serverRepository.insertServer(server)
