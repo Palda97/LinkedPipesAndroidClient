@@ -18,6 +18,9 @@
             android:name=".view.ExecutionDetailActivity"
             android:parentActivityName=".view.MainActivity" />
         <activity
+            android:name=".view.RecentExecutionActivity"
+            android:label="Recently completed executions" />
+        <activity
             android:name=".view.EditServerActivity"
             android:label="@string/server_instance"
             android:parentActivityName=".view.MainActivity" />

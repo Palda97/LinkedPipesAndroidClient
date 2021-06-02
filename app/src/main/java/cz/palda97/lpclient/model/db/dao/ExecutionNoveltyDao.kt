@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.model.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import cz.palda97.lpclient.model.entities.execution.ExecutionNovelty
 import cz.palda97.lpclient.model.entities.execution.NoveltyWithExecution
@@ -31,4 +32,17 @@ abstract class ExecutionNoveltyDao {
 
     @Delete
     abstract suspend fun delete(list: List<ExecutionNovelty>)
+
+    @Query("select * from executionnovelty where hasBeenShown = 0")
+    abstract fun liveRecent(): LiveData<List<ExecutionNovelty>>
+
+    @Query("update executionnovelty set hasBeenShown = 1 where id in (:ids)")
+    abstract suspend fun resetRecentLimited(ids: List<String>)
+
+    suspend fun resetRecent(ids: List<String>) {
+        val parts = ids.chunked(500)
+        parts.forEach {
+            resetRecentLimited(it)
+        }
+    }
 }

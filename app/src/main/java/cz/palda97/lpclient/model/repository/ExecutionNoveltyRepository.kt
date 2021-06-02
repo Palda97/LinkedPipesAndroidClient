@@ -1,5 +1,7 @@
 package cz.palda97.lpclient.model.repository
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.db.dao.ExecutionDao
 import cz.palda97.lpclient.model.db.dao.ExecutionNoveltyDao
@@ -84,6 +86,50 @@ class ExecutionNoveltyRepository(
             if (it.execution == null) it.novelty else null
         }
         noveltyDao.delete(toDelete)
+    }
+
+    private val _liveRecent = MediatorLiveData<List<Execution>>().apply {
+        var mExecutionList: List<Execution>? = null
+        var mNovelties: List<ExecutionNovelty>? = null
+        fun update() {
+            val executionList = mExecutionList ?: return
+            val novelties = mNovelties ?: return
+            val executions = executionList.filter {
+                it.id in novelties.map { it.id }
+            }
+            value = executions
+        }
+        addSource(serverDao.activeServerListWithExecutions()) {
+            val list = it ?: return@addSource
+            mExecutionList = list.flatMap {wrapper ->
+                wrapper.executionList.map {
+                    it.apply { execution.serverName = wrapper.server.name }
+                }
+            }.mapNotNull {
+                if (it.mark == null)
+                    it.execution
+                else null
+            }
+            update()
+        }
+        addSource(noveltyDao.liveRecent()) {
+            mNovelties = it ?: return@addSource
+            update()
+        }
+    }
+
+    /**
+     * LiveData containing list of recent executions including server names.
+     */
+    val liveRecent: LiveData<List<Execution>>
+        get() = _liveRecent
+
+    /**
+     * Set the [hasBeenShown][ExecutionNovelty.hasBeenShown] to true.
+     * @param ids Ids of execution novelties to be altered.
+     */
+    suspend fun resetRecent(ids: List<String>) {
+        noveltyDao.resetRecent(ids)
     }
 
     companion object {

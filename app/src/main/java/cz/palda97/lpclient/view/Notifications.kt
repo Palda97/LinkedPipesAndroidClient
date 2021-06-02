@@ -66,7 +66,7 @@ object Notifications {
     fun executionNotification(context: Context, text: String, status: ExecutionStatus?) {
         if (!allowNotifications(context))
             return
-        val intent = Intent(context, MainActivity::class.java).apply {
+        val intent = Intent(context, RecentExecutionActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
