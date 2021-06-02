@@ -8,7 +8,8 @@ import java.util.*
  */
 object ExecutionDateParser {
     private const val VIEW_DATE_FORMAT = "dd.MM.yyyy"
-    private val viewDateFormat = SimpleDateFormat(VIEW_DATE_FORMAT)
+    private val viewDateFormat
+        get() = SimpleDateFormat(VIEW_DATE_FORMAT)
 
     /**
      * Prepares Date for UI.

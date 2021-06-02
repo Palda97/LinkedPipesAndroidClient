@@ -8,13 +8,18 @@ import java.util.*
  */
 object ExecutionDetailDateParser {
     private const val VIEW_DATE_FORMAT = "HH:mm:ss dd.MM.yyyy"
-    private val viewDateFormat = SimpleDateFormat(VIEW_DATE_FORMAT)
+    private val viewDateFormat
+        get() = SimpleDateFormat(VIEW_DATE_FORMAT)
 
     /**
      * Prepares Date for UI.
      */
     fun toViewFormat(date: Date?): String? = date?.let { viewDateFormat.format(it) }
 
+    /**
+     * Calculate the difference between start and end date.
+     * @return Duration in format HH:mm:ss.
+     */
     fun duration(start: Date?, end: Date?): String? {
         if (start == null || end == null) {
             return null
