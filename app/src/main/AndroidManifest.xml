@@ -19,6 +19,9 @@
             android:parentActivityName=".view.MainActivity" />
         <activity
             android:name=".view.RecentExecutionActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
             android:label="Recently completed executions" />
         <activity
             android:name=".view.EditServerActivity"
