@@ -62,7 +62,16 @@ class RecentExecutionFragment : Fragment() {
 
         fun setUpClearButton(adapter: ExecutionRecycleAdapter) {
             binding.fabClear.setOnClickListener {
-                adapter.getList()?.let { viewModel.resetRecent(it) }
+                val job = adapter.getList()?.let {
+                    binding.fabClear.hide()
+                    viewModel.resetRecent(it)
+                }
+                val act = requireActivity()
+                job?.invokeOnCompletion {
+                    if (it != null)
+                        return@invokeOnCompletion
+                    act.finish()
+                }
             }
         }
 
