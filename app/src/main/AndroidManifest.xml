@@ -22,7 +22,7 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:excludeFromRecents="true"
-            android:label="Recently completed executions" />
+            android:label="@string/recently_completed_executions" />
         <activity
             android:name=".view.EditServerActivity"
             android:label="@string/server_instance"
