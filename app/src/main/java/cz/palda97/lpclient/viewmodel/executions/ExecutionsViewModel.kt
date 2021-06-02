@@ -45,9 +45,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                         serverWithExecutions.executionList.filter {
                             !(it.mark != null || executionRepository.deleteRepo.toBeDeleted(it.execution))
                         }.map {
-                            ExecutionV(it.execution.apply {
-                                serverName = serverWithExecutions.server.name
-                            })
+                            ExecutionV(it.execution, serverWithExecutions.server.name)
                         }.sortedByDescending {
                             it.id
                         }
