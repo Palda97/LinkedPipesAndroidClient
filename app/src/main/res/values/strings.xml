@@ -133,4 +133,7 @@
     <string name="monitoring_frequency_less">When setting execution monitoring frequency less than 15 minutes, monitoring will run until the application is removed from recent, or the monitoring is canceled by user. While this type of monitoring is active, a persistent notification is displayed.</string>
     <string name="no_effect_on_automatic_refresh_rate">This setting has no effect on automatic refresh rate at which application refreshes executions while the application is open. The automatic refresh rate is still %s.</string>
     <string name="recently_completed_executions">Recently completed executions</string>
+    <string name="do_not_kill_info">If your phone manufacturer happens to be listed on <a href="https://dontkillmyapp.com/">this website</a>, it will probably try to mess with the execution monitoring. For the best functionality, open app settings, allow autostart and disable battery saver for this application.</string>
+    <string name="android_manufacturers_killing_apps">Android manufacturers killing apps</string>
+    <string name="open_settings">Open settings</string>
 </resources>

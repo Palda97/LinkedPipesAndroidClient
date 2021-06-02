@@ -57,10 +57,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         l("init")
     }
 
-    var stopReminding: Boolean
-        get() = sharedPreferences.getBoolean(STOP_REMINDING, false)
+    var stopRemindingMonitorBackground: Boolean
+        get() = sharedPreferences.getBoolean(STOP_REMINDING_MONITOR_BACKGROUND, false)
         set(value) {
-            sharedPreferences.edit().putBoolean(STOP_REMINDING, value).apply()
+            sharedPreferences.edit().putBoolean(STOP_REMINDING_MONITOR_BACKGROUND, value).apply()
+        }
+
+    var stopRemindingDoNotKill: Boolean
+        get() = sharedPreferences.getBoolean(STOP_REMINDING_DO_NOT_KILL, false)
+        set(value) {
+            sharedPreferences.edit().putBoolean(STOP_REMINDING_DO_NOT_KILL, value).apply()
         }
 
     private fun getNotificationSwitchText(context: Context): String {
@@ -81,12 +87,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _liveNotificationInfoDialog.value = false
     }
 
+    private val _liveDoNotKillDialog = MutableLiveData<Boolean>()
+    val liveDoNotKillDialog: LiveData<Boolean>
+        get() = _liveDoNotKillDialog
+    fun resetDoNotKillDialog() {
+        _liveDoNotKillDialog.value = false
+    }
+
     val automaticRefreshRate: String =
         "${MainActivityViewModel.AUTOMATIC_REFRESH_RATE / 1000} ${application.applicationContext.getString(R.string.seconds)}"
 
     fun enqueueMonitor() {
         _liveTimeButtonEnable.value = false
-        if (!stopReminding) {
+        if (!stopRemindingDoNotKill) {
+            _liveDoNotKillDialog.value = true
+        }
+        if (!stopRemindingMonitorBackground) {
             _liveNotificationInfoDialog.value = true
         }
         ExecutionMonitorPeriodic.enqueue(getApplication(), timeValue, timeUnit.unit)
@@ -221,7 +237,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         private const val TIME_VALUE = "TIME_VALUE"
         private const val TIME_UNIT = "TIME_UNIT"
 
-        private const val STOP_REMINDING = "STOP_REMINDING"
+        private const val STOP_REMINDING_MONITOR_BACKGROUND = "STOP_REMINDING_MONITOR_BACKGROUND"
+        private const val STOP_REMINDING_DO_NOT_KILL = "STOP_REMINDING_DO_NOT_KILL"
 
         suspend fun saveServerAndUpdate(server: ServerInstance) {
             Injector.serverRepository.insertServer(server)

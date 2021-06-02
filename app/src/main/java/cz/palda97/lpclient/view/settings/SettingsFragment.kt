@@ -194,6 +194,16 @@ class SettingsFragment : Fragment() {
             })
         }
 
+        fun setUpDoNotKillDialog() {
+            viewModel.liveDoNotKillDialog.observe(viewLifecycleOwner, Observer {
+                val shouldShow = it ?: return@Observer
+                if (shouldShow) {
+                    viewModel.resetDoNotKillDialog()
+                    DoNotKillDialog.appear(childFragmentManager)
+                }
+            })
+        }
+
         setUpNightMode()
         setUpNotificationSwitch()
         setUpServerRecycler()
@@ -201,6 +211,7 @@ class SettingsFragment : Fragment() {
         setUpLicenseButton()
         setUpTimeFields()
         setUpNotificationInfoDialog()
+        setUpDoNotKillDialog()
     }
 
     private fun activeChange(server: ServerInstance) {

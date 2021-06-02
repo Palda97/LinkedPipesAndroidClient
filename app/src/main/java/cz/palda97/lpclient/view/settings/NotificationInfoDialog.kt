@@ -26,7 +26,7 @@ class NotificationInfoDialog : DialogFragment() {
         val builder = MaterialAlertDialogBuilder(requireContext())
             .setView(binding.root)
             .setNeutralButton(R.string.stop_reminding) { _, _ ->
-                viewModel.stopReminding = true
+                viewModel.stopRemindingMonitorBackground = true
             }
             .setPositiveButton(R.string.ok) { _, _ ->
                 //
