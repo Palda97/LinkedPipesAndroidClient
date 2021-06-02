@@ -16,6 +16,7 @@ class RecentExecutionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recent_execution)
         if (savedInstanceState == null) {
+            Notifications.clearNotifications()
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.container,

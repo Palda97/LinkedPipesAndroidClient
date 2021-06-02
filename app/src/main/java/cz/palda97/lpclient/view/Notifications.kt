@@ -103,6 +103,13 @@ object Notifications {
         }
     }
 
+    //fun clearNotifications(context: Context) {
+    fun clearNotifications() {
+        val context = Injector.context
+        val manager = NotificationManagerCompat.from(context)
+        manager.cancelAll()
+    }
+
     private const val NOTIFICATION_ID_MIN = 10
 
     // NEVER GIVE NOTIFICATION ID = 0 !!!
