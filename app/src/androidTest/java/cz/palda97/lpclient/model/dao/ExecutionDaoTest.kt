@@ -70,6 +70,18 @@ class ExecutionDaoTest
     }
 
     @Test
+    fun deleteByIdList() {
+        runBlocking {
+            executionDao.insert(executionFullList)
+            executionDao.delete(listOf(executionFullList[1].id, executionFullList[2].id))
+            assertEquals(executionFullList[0], executionDao.findById(executionFullList[0].id))
+            assertEquals(null, executionDao.findById(executionFullList[1].id))
+            assertEquals(null, executionDao.findById(executionFullList[2].id))
+            assertEquals(executionFullList[3], executionDao.findById(executionFullList[3].id))
+        }
+    }
+
+    @Test
     fun testWithServers() {
 
         runBlocking { executionDao.insert(executionFullList - executionFullList[3]) }

@@ -34,4 +34,12 @@ data class ExecutionV(
         ExecutionDateParser.toViewFormat(execution.start),
         execution.status.resource
     )
+
+    constructor(execution: Execution, serverName: String) : this(
+        execution.id,
+        serverName,
+        execution.pipelineName,
+        ExecutionDateParser.toViewFormat(execution.start),
+        execution.status.resource
+    )
 }

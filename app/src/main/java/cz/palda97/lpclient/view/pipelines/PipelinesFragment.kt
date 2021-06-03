@@ -63,6 +63,14 @@ class PipelinesFragment : Fragment() {
         }
 
     private fun setUpComponents() {
+
+        fun setUpNoServerWarning() {
+            settingsViewModel.liveServers.observe(viewLifecycleOwner, Observer {
+                val servers = it?.mailContent ?: return@Observer
+                binding.noServer = servers.isEmpty()
+            })
+        }
+
         fun setUpFAB() {
             fab = binding.fab
             fab.setOnClickListener {
@@ -172,6 +180,7 @@ class PipelinesFragment : Fragment() {
             })
         }
 
+        setUpNoServerWarning()
         setUpFAB()
         setUpRefreshFAB()
         setUpDropDown()

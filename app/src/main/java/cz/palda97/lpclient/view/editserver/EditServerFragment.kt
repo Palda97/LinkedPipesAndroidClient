@@ -16,11 +16,11 @@ import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentEditServerBinding
 import cz.palda97.lpclient.model.entities.server.ServerFactory
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.server.ServerInstance.Companion.urlWithFixedProtocol
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.viewmodel.editserver.EditServerViewModel
 import cz.palda97.lpclient.viewmodel.editserver.Ping
 import kotlinx.coroutines.*
-import java.lang.NumberFormatException
 
 /**
  * Fragment for displaying server instance that is being edited.
@@ -76,7 +76,7 @@ class EditServerFragment : Fragment() {
     }
 
     private fun parseFromQrCode(json: String?) {
-        val server = ServerFactory.fromJson(json)
+        val server = ServerFactory.fromString(json)
         if (server == null) {
             Snackbar.make(binding.root, getString(R.string.server_not_parsed), Snackbar.LENGTH_LONG)
                 .setAnchorView(binding.editServerBottomButtons)
@@ -128,8 +128,7 @@ class EditServerFragment : Fragment() {
 
         fun setUpPingButton() {
             binding.ping.setOnClickListener {
-                val server = saveTmpInstance()
-                viewModel.ping(server)
+                ping()
             }
             viewModel.pingStatus.observe(viewLifecycleOwner, Observer {
                 val mail = it ?: return@Observer
@@ -192,7 +191,19 @@ class EditServerFragment : Fragment() {
         setUpDoneButton()
     }
 
+    private fun fixMissingProtocol() {
+        val fixedUrl: String = binding.url.editText!!.text.toString().urlWithFixedProtocol
+        binding.url.editText!!.setText(fixedUrl)
+    }
+
+    private fun ping() {
+        fixMissingProtocol()
+        val server = saveTmpInstance()
+        viewModel.ping(server)
+    }
+
     private fun saveServer() {
+        fixMissingProtocol()
         saveTmpInstance()
         viewModel.saveServer()
     }
@@ -205,11 +216,7 @@ class EditServerFragment : Fragment() {
         val auth: Boolean = binding.auth ?: false
         val username: String = binding.username.editText!!.text.toString()
         val password: String = binding.password.editText!!.text.toString()
-        val frontend: Int? = try {
-            binding.frontend.editText!!.text.toString().toInt()
-        } catch (e: NumberFormatException) {
-            null
-        }
+        val frontend = binding.frontend.editText!!.text.toString().toIntOrNull()
         val tmpInstance =
             ServerInstance(
                 name,
@@ -240,9 +247,7 @@ class EditServerFragment : Fragment() {
         binding.authSwitch.isChecked = serverInstance.auth
         binding.username.editText!!.setText(serverInstance.username)
         binding.password.editText!!.setText(serverInstance.password)
-        serverInstance.frontend?.let {
-            binding.frontend.editText!!.setText(it.toString())
-        }
+        binding.frontend.editText!!.setText(serverInstance.frontend?.toString())
     }
 
     override fun onResume() {

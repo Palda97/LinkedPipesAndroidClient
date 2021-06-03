@@ -1,5 +1,7 @@
 package cz.palda97.lpclient.model.entities.execution
 
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineViewFactory
@@ -9,21 +11,36 @@ import cz.palda97.lpclient.model.travelobjects.LdConstants
 import java.lang.NumberFormatException
 
 /**
- * Factory for transforming jsonLd to [Execution] list.
- * @property serverWithExecutions MailPackage with server and parsed executions
+ * Factory for transforming jsonLd to either [Execution] or execution list.
+ * @param json JsonLd with executions.
  */
-class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecutions>) {
+class ExecutionFactory(private val json: String?) {
 
     /**
+     * Parses execution from the execution list jsonLd.
      * @param server Server that belongs to the executions.
-     * @param string JsonLd with executions.
+     * @return MailPackage with server and parsed executions and tombstones.
      */
-    constructor(server: ServerInstance, string: String?) : this(
-        fromJson(
-            server,
-            string
-        )
-    )
+    fun parseListFromJson(server: ServerInstance): MailPackage<Pair<ServerWithExecutions, List<String>>> = fromJson(server, json)
+
+    /**
+     * Parses an execution from the execution overview jsonLd.
+     * @return [Execution] or null if error.
+     */
+    fun parseFromOverview(serverId: Long, pipelineName: String, pipelineId: String): Execution? {
+        val overview = try {
+            Gson().fromJson(json, ExecutionOverview::class.java)
+        } catch (e: JsonSyntaxException) {
+            null
+        } ?: return null
+        return overview.execution(serverId, pipelineName, pipelineId)
+    }
+
+    /**
+     * Parses an execution from the execution overview jsonLd.
+     * @return [Execution] or null if error.
+     */
+    fun parseFromOverview(execution: Execution) = parseFromOverview(execution.serverId, execution.pipelineName, execution.pipelineId)
 
     companion object {
         private val l = Injector.generateLogFunction(this)
@@ -31,53 +48,43 @@ class ExecutionFactory(val serverWithExecutions: MailPackage<ServerWithExecution
         private fun fromJson(
             server: ServerInstance,
             string: String?
-        ): MailPackage<ServerWithExecutions> {
-            return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(
-                    res.value
-                )
-                is Either.Right -> {
-                    val list = mutableListOf<Execution>()
-                    res.value.forEachIndexed { index, it ->
-                        if (index != 0) {
-                            val resExe =
-                                parseExecution(
-                                    it,
-                                    server
-                                )
-                            if (resExe is Either.Right) {
-                                list.add(resExe.value)
-                            }
-                            else {
-                                if (resExe is Either.Left && resExe.value != LdConstants.TYPE_TOMBSTONE) {
-                                    if (resExe.value == "execution is null") {
-                                        l("hh")
-                                    }
-                                    return MailPackage.brokenPackage(
-                                        //"some execution is null"
-                                        resExe.value
-                                    )
-                                }
-                            }
+        ): MailPackage<Pair<ServerWithExecutions, List<String>>> {
+            val rootArrayList = when(val res = CommonFunctions.getRootArrayList(string)) {
+                is Either.Left -> return MailPackage.brokenPackage(res.value)
+                is Either.Right -> res.value
+            }
+            val executions = mutableListOf<Execution>()
+            val tombstones = mutableListOf<String>()
+            rootArrayList.forEach {
+                val objectRoot = CommonFunctions.prepareSemiRootElement(it) ?: return MailPackage.brokenPackage("no graph")
+                if (objectRoot.size == 1) {
+                    val map = objectRoot.first() as? Map<*, *> ?: return MailPackage.brokenPackage("no map inside graph")
+                    when(CommonFunctions.giveMeThatType(map)) {
+                        LdConstants.TYPE_METADATA -> {
+                            val time = CommonFunctions.giveMeThatString(map, LdConstants.SERVER_TIME, LdConstants.VALUE)?.toLongOrNull() ?: return MailPackage.brokenPackage("metadata with no time")
+                            server.changedSince = time
                         }
+                        LdConstants.TYPE_TOMBSTONE -> {
+                            val tombstone = CommonFunctions.giveMeThatId(map) ?: return MailPackage.brokenPackage("tombstone with no id")
+                            tombstones.add(tombstone)
+                        }
+                        else -> return MailPackage.brokenPackage("unknown type")
                     }
-                    MailPackage(
-                        ServerWithExecutions(
-                            server,
-                            list
-                        )
-                    )
+                } else {
+                    val execution = when(val res = parseExecution(objectRoot, server)) {
+                        is Either.Left -> return MailPackage.brokenPackage(res.value)
+                        is Either.Right -> res.value
+                    }
+                    executions.add(execution)
                 }
             }
+            return MailPackage(ServerWithExecutions(server, executions) to tombstones)
         }
 
         private fun parseExecution(
-            jsonObject: Any?,
+            executionRoot: ArrayList<*>,
             server: ServerInstance
         ): Either<String, Execution> {
-            val executionRoot = CommonFunctions.prepareSemiRootElement(jsonObject)
-                ?: return Either.Left("execution is weird")
-
             val executionRootMap =
                 executionRoot[0] as? Map<*, *> ?: return Either.Left(
                     "executionRoot is not Map"

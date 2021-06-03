@@ -37,6 +37,7 @@ object LdConstants {
     const val TYPE_PORT_INPUT = "http://linkedpipes.com/ontology/Input"
     const val TYPE_PORT_OUTPUT = "http://linkedpipes.com/ontology/Output"
     const val TYPE_TEMPLATE_JAR = "http://linkedpipes.com/ontology/JarTemplate"
+    const val TYPE_METADATA = "http://etl.linkedpipes.com/ontology/Metadata"
 
     const val COMPONENT_EXECUTED = "http://etl.linkedpipes.com/ontology/execution/componentExecuted"
     const val COMPONENT_FINISHED = "http://etl.linkedpipes.com/ontology/execution/componentFinished"
@@ -56,6 +57,7 @@ object LdConstants {
     const val EXECUTION_STATUS_DANGLING = "http://etl.linkedpipes.com/resources/status/dangling"
     const val EXECUTION_STATUS_CANCELLING = "http://etl.linkedpipes.com/resources/status/cancelling"
     const val EXECUTION_STATUS_QUEUED = "http://etl.linkedpipes.com/resources/status/queued"
+    const val EXECUTION_STATUS_MAPPED = "http://etl.linkedpipes.com/resources/status/mapped"
 
     const val SCHEMA_INT = "http://www.w3.org/2001/XMLSchema#int"
     const val SCHEMA_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
@@ -65,4 +67,6 @@ object LdConstants {
 
     const val INHERITANCE_NONE = "http://plugins.linkedpipes.com/resource/configuration/None"
     const val INHERITANCE_INHERIT = "http://plugins.linkedpipes.com/resource/configuration/Inherit"
+
+    const val SERVER_TIME = "http://etl.linkedpipes.com/ontology/serverTime"
 }

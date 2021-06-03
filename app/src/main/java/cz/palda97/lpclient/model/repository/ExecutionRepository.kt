@@ -15,6 +15,8 @@ import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.ExecutionRetrofit.Companion.executionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Repository for working with [Executions][Execution].
@@ -70,6 +72,15 @@ class ExecutionRepository(
         NO_CONNECT, SERVER_ID_INVALID, NOT_FOUND_ON_SERVER, OK, ERROR
     }
 
+    /**
+     * Creates execution retrofit.
+     * @return Either [ExecutionRetrofit] or [NO_CONNECT][StatusCode.NO_CONNECT] on error.
+     */
+    suspend fun getExecutionRetrofit(execution: Execution): Either<StatusCode, ExecutionRetrofit> {
+        val server = serverDao.findById(execution.serverId) ?: return Either.Left(StatusCode.NO_CONNECT)
+        return getExecutionRetrofit(server)
+    }
+
     private suspend fun getExecutionRetrofit(server: ServerInstance): Either<StatusCode, ExecutionRetrofit> =
         try {
             //Either.Right(ExecutionRetrofit.getInstance(server.url))
@@ -79,14 +90,19 @@ class ExecutionRepository(
             Either.Left(StatusCode.NO_CONNECT)
         }
 
-    private suspend fun downloadExecutions(server: ServerInstance): MailPackage<ServerWithExecutions> {
+    /**
+     * Downloads execution list from the server.
+     * @return [MailPackage] containing server with it's executions.
+     */
+    suspend fun downloadExecutions(server: ServerInstance, changedSince: Boolean = false): MailPackage<Pair<ServerWithExecutions, List<String>>> {
         val retrofit = when (val res = getExecutionRetrofit(server)) {
             is Either.Left -> return MailPackage.brokenPackage(res.value.name)
             is Either.Right -> res.value
         }
-        val call = retrofit.executionList()
+        val time = server.changedSince
+        val call = if (changedSince && time != null) retrofit.executionList(time.toString()) else retrofit.executionList()
         val text = RetrofitHelper.getStringFromCall(call)
-        return ExecutionFactory(server, text).serverWithExecutions
+        return ExecutionFactory(text).parseListFromJson(server)
     }
 
     private suspend fun downloadExecutions(serverList: List<ServerInstance>?): MailPackage<List<ServerWithExecutions>> =
@@ -104,16 +120,17 @@ class ExecutionRepository(
                 if (!mail.isOk)
                     //return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>("error while parsing executions from ${server.name}")
                     return@coroutineScope MailPackage.brokenPackage<List<ServerWithExecutions>>(server.name)
-                mail.mailContent!!
+                mail.mailContent!!.first
             }
             return@coroutineScope MailPackage(list)
         }
 
-    private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean) {
+    private suspend fun updateDbAndRefresh(list: List<Execution>, silent: Boolean, turnOffLoadingPackage: Boolean) {
         return when (silent) {
             true -> executionDao.silentInsert(list)
             false -> {
-                noisyFlag = false
+                if (!turnOffLoadingPackage)
+                    noisyFlag = false
                 if (list.isEmpty())
                     mediator.postValue(MailPackage(emptyList()))
                 executionDao.renewal(list)
@@ -121,47 +138,64 @@ class ExecutionRepository(
         }
     }
 
-    private suspend fun cacheExecutions(server: ServerInstance, silent: Boolean) {
+    private suspend fun cacheExecutions(server: ServerInstance, silent: Boolean, turnOffLoadingPackage: Boolean): List<Execution> {
         val mail = downloadExecutions(server)
         if (mail.isOk) {
-            val list = mail.mailContent!!.executionList.map { it.execution }
-            updateDbAndRefresh(list, silent)
+            val list = mail.mailContent!!.first.executionList.map { it.execution }
+            val updatedServer = mail.mailContent.first.server
+            serverDao.insertServer(updatedServer)
+            updateDbAndRefresh(list, silent, turnOffLoadingPackage)
+            return list
         }
         if (mail.isError)
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
+        return emptyList()
     }
 
-    private suspend fun cacheExecutions(serverList: List<ServerInstance>?, silent: Boolean) {
+    private suspend fun cacheExecutions(serverList: List<ServerInstance>?, silent: Boolean, turnOffLoadingPackage: Boolean): List<Execution> {
         val mail = downloadExecutions(serverList)
         if (mail.isOk) {
             val list = mail.mailContent!!.flatMap { it.executionList }.map { it.execution }
-            updateDbAndRefresh(list, silent)
+            val updatedServers = mail.mailContent.map { it.server }
+            serverDao.insertServer(updatedServers)
+            updateDbAndRefresh(list, silent, turnOffLoadingPackage)
+            return list
         }
         if (mail.isError)
             mediator.postValue(MailPackage.brokenPackage(mail.msg))
+        return emptyList()
     }
 
     /**
      * While this is true, [liveExecutions] is not responding for changes in database.
      */
-    var noisyFlag = false
+    private var noisyFlag = false
 
     /**
      * Download and store executions that belong to selected server(s).
      * @param either [Either] [ServerInstance] or list of them.
      * @param silent If executions should be updated [silently][ExecutionDao.silentInsert].
      */
+    private val cacheExecutionsMutex = Mutex()
     suspend fun cacheExecutions(
         either: Either<ServerInstance, List<ServerInstance>?>,
-        silent: Boolean
-    ) {
-        if (!silent) {
-            noisyFlag = true
-            mediator.postValue(MailPackage.loadingPackage())
+        silent: Boolean,
+        turnOffLoadingPackage: Boolean = false
+    ): List<Execution> {
+        fun showLoadingWhenNeeded() {
+            if (!silent && !turnOffLoadingPackage) {
+                noisyFlag = true
+                mediator.postValue(MailPackage.loadingPackage())
+            }
         }
-        return when (either) {
-            is Either.Left -> cacheExecutions(either.value, silent)
-            is Either.Right -> cacheExecutions(either.value, silent)
+        showLoadingWhenNeeded()
+        return cacheExecutionsMutex.withLock<List<Execution>> {
+            showLoadingWhenNeeded()
+            val executions =  when (either) {
+                is Either.Left -> cacheExecutions(either.value, silent, turnOffLoadingPackage)
+                is Either.Right -> cacheExecutions(either.value, silent, turnOffLoadingPackage)
+            }
+            return Injector.executionNoveltyRepository.cacheNovelties(executions)
         }
     }
 
@@ -230,13 +264,16 @@ class ExecutionRepository(
      * Tries to download executions. When successful, it updates the database,
      * otherwise it does nothing.
      */
-    suspend fun update(server: ServerInstance) {
+    suspend fun update(server: ServerInstance): List<Execution> {
         val mail = downloadExecutions(server)
         if (!mail.isOk)
-            return
-        val pack = mail.mailContent!!
+            return emptyList()
+        val pack = mail.mailContent!!.first
         executionDao.deleteByServer(pack.server.id)
-        executionDao.insert(pack.executionList.map { it.execution })
+        val executions = pack.executionList.map { it.execution }
+        serverDao.insertServer(pack.server)
+        executionDao.insert(executions)
+        return Injector.executionNoveltyRepository.cacheNovelties(executions)
     }
 
     private suspend fun getSpecificExecution(executionId: String, server: ServerInstance): String? {
@@ -271,6 +308,36 @@ class ExecutionRepository(
             }
             return status
         }
+    }
+
+    enum class OverviewStatus {
+        NO_CONNECT, PARSING_ERROR, DOWNLOADING_ERROR
+    }
+
+    private suspend fun downloadExecutionOverview(execution: Execution): Either<OverviewStatus, Execution> {
+        val retrofit = when (val res = getExecutionRetrofit(execution)) {
+            is Either.Left -> return Either.Left(OverviewStatus.NO_CONNECT)
+            is Either.Right -> res.value
+        }
+        val call = retrofit.overview(execution.idNumber)
+        val text = RetrofitHelper.getStringFromCall(call) ?: return Either.Left(OverviewStatus.DOWNLOADING_ERROR)
+        val factory =  ExecutionFactory(text)
+        val newExecution = factory.parseFromOverview(execution) ?: return Either.Left(OverviewStatus.PARSING_ERROR)
+        return Either.Right(newExecution)
+    }
+
+    /**
+     * Tries to update the execution information. Does nothing on error.
+     */
+    suspend fun cacheExecutionSilently(execution: Execution) {
+        val newExecution = when(val res = downloadExecutionOverview(execution)) {
+            is Either.Left -> {
+                l("cacheExecutionSilently: ${res.value.name}")
+                return
+            }
+            is Either.Right -> res.value
+        }
+        executionDao.insert(newExecution)
     }
 
     companion object {

@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.SmartMutex
 import cz.palda97.lpclient.databinding.DynamicButtonBinding
 import cz.palda97.lpclient.databinding.DynamicImageviewBinding
 import cz.palda97.lpclient.databinding.FragmentEditPipelineBinding
@@ -142,13 +143,16 @@ class EditPipelineFragment : Fragment() {
             PipelineRepository.StatusCode.UPLOAD_IN_PROGRESS -> getString(R.string.internal_error)
         }
 
+    private val uploadPipelineMutex = SmartMutex()
+    fun resetUploadPipelineMutex() = uploadPipelineMutex.reset()
     private fun uploadPipeline() {
-        val job = viewModel.uploadPipelineButton(currentPipeline) ?: return
-        job.invokeOnCompletion {
-            if (it != null) {
-                return@invokeOnCompletion
+        uploadPipelineMutex.syncScope(lifecycleScope) {
+            val error = !viewModel.uploadPipelineButton(currentPipeline)
+            if (error) {
+                return@syncScope
             }
-            UploadPipelineDialog.appear(parentFragmentManager)
+            done()
+            UploadPipelineDialog.appear(childFragmentManager)
         }
     }
 

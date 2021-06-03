@@ -15,6 +15,9 @@ abstract class ServerInstanceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertServer(server: ServerInstance): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertServer(list: List<ServerInstance>)
+
     @Delete
     abstract suspend fun deleteServer(server: ServerInstance)
 

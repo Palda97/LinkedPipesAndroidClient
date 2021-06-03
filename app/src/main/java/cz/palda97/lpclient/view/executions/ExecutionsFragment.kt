@@ -7,14 +7,17 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearSmoothScroller
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.SmartMutex
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
+import cz.palda97.lpclient.view.ExecutionDetailActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
 import cz.palda97.lpclient.viewmodel.executions.ExecutionV
@@ -53,6 +56,14 @@ class ExecutionsFragment : Fragment() {
     }
 
     private fun setUpComponents() {
+
+        fun setUpNoServerWarning() {
+            settingsViewModel.liveServers.observe(viewLifecycleOwner, Observer {
+                val servers = it?.mailContent ?: return@Observer
+                binding.noServer = servers.isEmpty()
+            })
+        }
+
         fun setUpRefreshFab() {
             refreshFab = binding.fabRefresh.apply {
                 hideOrShowSub(viewModel.liveExecutions, viewLifecycleOwner)
@@ -87,7 +98,10 @@ class ExecutionsFragment : Fragment() {
                 val mail = it ?: return@Observer
                 if (mail.isOk) {
                     mail.mailContent!!
+                    val onTop = !binding.insertExecutionsHere.canScrollVertically(-1)
                     executionRecycleAdapter.updateExecutionList(mail.mailContent)
+                    if (onTop)
+                        binding.insertExecutionsHere.scrollToPosition(0)
                     binding.noInstances = mail.mailContent.isEmpty()
                     if (mail.msg == ExecutionsViewModel.SCROLL) {
                         val smoothScroller = object : LinearSmoothScroller(requireContext()) {
@@ -124,11 +138,8 @@ class ExecutionsFragment : Fragment() {
                     PipelinesViewModel.LaunchStatus.CAN_NOT_CONNECT -> getString(R.string.can_not_connect_to_server)
                     PipelinesViewModel.LaunchStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
                     PipelinesViewModel.LaunchStatus.SERVER_ERROR -> getString(R.string.server_side_error)
-                    PipelinesViewModel.LaunchStatus.WAITING -> ""
-                    PipelinesViewModel.LaunchStatus.OK -> {
-                        refreshExecutions(true)
-                        getString(R.string.successfully_launched)
-                    }
+                    PipelinesViewModel.LaunchStatus.WAITING -> getString(R.string.internal_error)
+                    PipelinesViewModel.LaunchStatus.OK -> getString(R.string.successfully_launched)
                     PipelinesViewModel.LaunchStatus.PROTOCOL_PROBLEM -> getString(R.string.problem_with_protocol)
                 }
                 Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
@@ -137,21 +148,40 @@ class ExecutionsFragment : Fragment() {
             })
         }
 
+        setUpNoServerWarning()
         setUpRefreshFab()
         setUpDropDown()
         setUpExecutionRecycler()
         setUpLaunchStatus()
     }
 
-    private fun refreshExecutions(silent: Boolean = false) {
-        return when(silent) {
-            true -> viewModel.silentRefresh()
-            false -> viewModel.refreshExecutionsButton()
+    private fun refreshExecutions() {
+        viewModel.refreshExecutionsButton()
+    }
+
+    private val smartMutex = SmartMutex()
+    private fun viewExecution(execution: ExecutionV) {
+        smartMutex.syncScope(lifecycleScope) {
+            l("viewExecution: after check: ${execution.pipelineName}")
+            val isError = !viewModel.viewExecution(execution)
+            if (isError) {
+                Snackbar.make(
+                    binding.root,
+                    R.string.internal_error,
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAnchorView(refreshFab)
+                    .show()
+                return@syncScope
+            }
+            ExecutionDetailActivity.start(requireContext())
+            done()
         }
     }
 
-    private fun viewExecution(execution: ExecutionV) {
-        l("view ${execution.id}")
+    override fun onResume() {
+        smartMutex.reset()
+        super.onResume()
     }
 
     private fun launchExecution(execution: ExecutionV) {

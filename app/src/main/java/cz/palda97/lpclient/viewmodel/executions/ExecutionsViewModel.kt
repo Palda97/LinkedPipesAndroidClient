@@ -5,9 +5,8 @@ import androidx.lifecycle.*
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.entities.execution.ServerWithExecutions
-import cz.palda97.lpclient.model.repository.ExecutionRepository
-import cz.palda97.lpclient.model.repository.RepositoryRoutines
-import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.model.repository.*
+import cz.palda97.lpclient.viewmodel.CommonViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -17,6 +16,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
 
     private val executionRepository: ExecutionRepository = Injector.executionRepository
     private val serverRepository: ServerRepository = Injector.serverRepository
+    private val detailRepository: ExecutionDetailRepository = Injector.executionDetailRepository
 
     private val retrofitScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.IO)
@@ -45,9 +45,7 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
                         serverWithExecutions.executionList.filter {
                             !(it.mark != null || executionRepository.deleteRepo.toBeDeleted(it.execution))
                         }.map {
-                            ExecutionV(it.execution.apply {
-                                serverName = serverWithExecutions.server.name
-                            })
+                            ExecutionV(it.execution, serverWithExecutions.server.name)
                         }.sortedByDescending {
                             it.id
                         }
@@ -66,15 +64,10 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-    private suspend fun downloadAllExecutions(silent: Boolean = false) {
-        executionRepository.cacheExecutions(Either.Right(serverRepository.activeLiveServers.value?.mailContent), silent)
-    }
-
     /** @see RepositoryRoutines.refresh */
     fun refreshExecutionsButton() {
         retrofitScope.launch {
-            //downloadAllExecutions()
-            RepositoryRoutines().refresh()
+            CommonViewModel.refreshAndNotify()
         }
     }
 
@@ -109,13 +102,16 @@ class ExecutionsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Update executions [silently][cz.palda97.lpclient.model.db.dao.ExecutionDao.silentInsert].
+     * Prepare execution details.
+     * @return False if execution could not be found in database. Otherwise true.
      */
-    fun silentRefresh() {
-        lastSilent = true
+    suspend fun viewExecution(executionV: ExecutionV): Boolean = withContext(Dispatchers.IO) {
+        val execution = executionRepository.find(executionV.id) ?: return@withContext false
         retrofitScope.launch {
-            downloadAllExecutions(true)
+            executionRepository.cacheExecutionSilently(execution)
         }
+        detailRepository.cacheComponentsInit(execution)
+        return@withContext true
     }
 
     companion object {

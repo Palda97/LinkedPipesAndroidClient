@@ -5,6 +5,7 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ class EditServerViewModel : ViewModel() {
         _saveSuccessful.postValue(
             when (match) {
                 ServerRepository.MatchCases.NO_MATCH -> {
-                    serverRepository.insertServer(serverInstance.apply {
+                    SettingsViewModel.saveServerAndUpdate(serverInstance.apply {
                         id = editServerRepository.serverToEdit.id
                     })
                     SaveStatus.OK

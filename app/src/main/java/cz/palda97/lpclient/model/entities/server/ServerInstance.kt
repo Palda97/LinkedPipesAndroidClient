@@ -13,7 +13,8 @@ data class ServerInstance(
     val url: String = "",
     var active: Boolean = true,
     val description: String = "",
-    val auth: Boolean = false
+    val auth: Boolean = false,
+    var changedSince: Long? = null
 ) {
     var frontend: Int? = null
     val frontendUrl: String
@@ -45,5 +46,20 @@ data class ServerInstance(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    companion object {
+
+        /**
+         * Check if there is a web protocol present in the string.
+         * @receiver The source string.
+         * @return The source string optionally with https protocol prefixed.
+         */
+        val String.urlWithFixedProtocol: String
+            get() =
+                if (contains("://"))
+                    this
+                else
+                    "https://$this"
     }
 }

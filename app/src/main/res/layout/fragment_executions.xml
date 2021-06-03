@@ -13,6 +13,10 @@
         <variable
             name="noInstances"
             type="Boolean" />
+
+        <variable
+            name="noServer"
+            type="Boolean" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -69,8 +73,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
+                    android:padding="16dp"
+                    android:textAppearance="@style/ta_regular16_primary"
                     android:text="@string/no_executions"
-                    android:visibility="@{noInstances ? View.VISIBLE : View.GONE}" />
+                    android:visibility="@{noInstances &amp;&amp; noServer == false ? View.VISIBLE : View.GONE}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:padding="16dp"
+                    android:textAppearance="@style/ta_regular16_primary"
+                    android:text="@string/no_servers_registered"
+                    android:visibility="@{noServer ? View.VISIBLE : View.GONE}" />
             </RelativeLayout>
 
             <LinearLayout
@@ -101,9 +116,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:padding="16dp"
                     android:text="@{mail.msg}"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+                    android:textAppearance="@style/ta_regular16_primary" />
 
             </LinearLayout>
         </LinearLayout>

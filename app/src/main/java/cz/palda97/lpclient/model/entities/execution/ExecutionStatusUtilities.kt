@@ -40,7 +40,7 @@ object ExecutionStatusUtilities {
      * Converts executions status id to [ExecutionStatus].
      * @return [ExecutionStatus] or null when id is not matched.
      */
-    fun fromString(string: String): ExecutionStatus? = when (string) {
+    fun fromString(string: String?): ExecutionStatus? = when (string) {
         LdConstants.EXECUTION_STATUS_FINISHED -> ExecutionStatus.FINISHED
         LdConstants.EXECUTION_STATUS_FAILED -> ExecutionStatus.FAILED
         LdConstants.EXECUTION_STATUS_RUNNING -> ExecutionStatus.RUNNING
@@ -48,6 +48,7 @@ object ExecutionStatusUtilities {
         LdConstants.EXECUTION_STATUS_DANGLING -> ExecutionStatus.DANGLING
         LdConstants.EXECUTION_STATUS_CANCELLING -> ExecutionStatus.CANCELLING
         LdConstants.EXECUTION_STATUS_QUEUED -> ExecutionStatus.QUEUED
+        LdConstants.EXECUTION_STATUS_MAPPED -> ExecutionStatus.MAPPED
         else -> {
             l("fromString is returning null because of: $string")
             null
