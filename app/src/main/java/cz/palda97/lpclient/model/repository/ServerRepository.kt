@@ -19,12 +19,11 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
     /**
      * Insert [server][ServerInstance] to database and if it's active, call [RepositoryRoutines.update].
      */
-    suspend fun insertServer(serverInstance: ServerInstance) {
+    suspend fun insertServer(serverInstance: ServerInstance): ServerInstance {
         val id = serverInstanceDao.insertServer(serverInstance)
         serverInstance.id = id
         l("insertServer: id: ${serverInstance.id.toString()}")
-        if (serverInstance.active)
-            Injector.repositoryRoutines.update(serverInstance)
+        return serverInstance
     }
 
     /**

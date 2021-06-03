@@ -18,6 +18,12 @@
             android:name=".view.ExecutionDetailActivity"
             android:parentActivityName=".view.MainActivity" />
         <activity
+            android:name=".view.RecentExecutionActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:label="@string/recently_completed_executions" />
+        <activity
             android:name=".view.EditServerActivity"
             android:label="@string/server_instance"
             android:parentActivityName=".view.MainActivity" />
@@ -40,6 +46,8 @@
         <activity
             android:name="com.varvet.barcodereadersample.barcode.BarcodeCaptureActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <receiver android:name=".model.services.NotificationBroadcastReceiver" />
     </application>
 
 </manifest>

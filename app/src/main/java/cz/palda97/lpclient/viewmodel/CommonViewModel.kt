@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.model.entities.execution.Execution.Companion.areDone
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.model.repository.ServerRepository
+import cz.palda97.lpclient.view.Notifications
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * ViewModel with methods that are needed at more places.
@@ -50,5 +54,17 @@ class CommonViewModel(application: Application) : AndroidViewModel(application) 
          * Gets an instance of [CommonViewModel] tied to the owner's lifecycle.
          */
         fun getInstance(owner: ViewModelStoreOwner) = ViewModelProvider(owner).get(CommonViewModel::class.java)
+
+        private val refreshMutex = Mutex()
+
+        suspend fun refreshAndNotify(): Unit = refreshMutex.withLock {
+            val executions = Injector.repositoryRoutines.refresh().areDone
+            Notifications.executionNotification(executions)
+        }
+
+        suspend fun updateAndNotify(serverInstance: ServerInstance): Unit = refreshMutex.withLock {
+            val executions = Injector.repositoryRoutines.update(serverInstance).areDone
+            Notifications.executionNotification(executions)
+        }
     }
 }

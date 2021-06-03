@@ -36,7 +36,7 @@ class ServerRepositoryTest
     @Before
     fun mock() {
         routines = mockk()
-        every { routines.update(any()) } returns mockk()
+        coEvery { routines.update(any()) } returns mockk()
         mockkObject(Injector)
         every { Injector.repositoryRoutines } returns routines
 
@@ -61,7 +61,7 @@ class ServerRepositoryTest
         serverRepo.activeLiveServers.assertSize(defaultActiveSize)
         val active = runBlocking { serverRepo.activeServers() }
         assertEquals(defaultActiveSize, active.size)
-        verify(exactly = defaultActiveSize) { routines.update(any()) }
+        //coVerify(exactly = defaultActiveSize) { routines.update(any()) }
     }
 
     private fun List<ServerInstance>.insert() = runBlocking {

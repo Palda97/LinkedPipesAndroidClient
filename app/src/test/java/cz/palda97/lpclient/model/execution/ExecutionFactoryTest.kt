@@ -19,7 +19,7 @@ class ExecutionFactoryTest
             val json = stringFromFile("executionOverviewListCounterpart.jsonld")
             val factory = ExecutionFactory(json)
             val list = factory.parseListFromJson(SERVER)
-            list.mailContent!!.executionList.first().execution
+            list.mailContent!!.first.executionList.first().execution
         }
 
         val json = stringFromFile("executionOverview.jsonld")
@@ -34,7 +34,7 @@ class ExecutionFactoryTest
     fun entityTest() {
         val serverWithExecutions = ExecutionFactory(
             ENTITY_EXECUTION
-        ).parseListFromJson(SERVER).mailContent
+        ).parseListFromJson(SERVER).mailContent?.first
         assertNotNull(serverWithExecutions)
         val executions = serverWithExecutions!!.executionList
         assertEquals(1, executions.size)
@@ -71,7 +71,7 @@ class ExecutionFactoryTest
             EXECUTIONS
         ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
-        assertEquals(2, executions.mailContent!!.executionList.size)
+        assertEquals(2, executions.mailContent!!.first.executionList.size)
     }
 
     @Test
@@ -80,7 +80,7 @@ class ExecutionFactoryTest
             TOMBSTONE
         ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
-        assertEquals(0, executions.mailContent!!.executionList.size)
+        assertEquals(0, executions.mailContent!!.first.executionList.size)
     }
 
     @Test
@@ -89,7 +89,7 @@ class ExecutionFactoryTest
             TOMBSTONE_AND_ONE_EXECUTION
         ).parseListFromJson(SERVER)
         assertTrue(executions.isOk)
-        assertEquals(1, executions.mailContent!!.executionList.size)
+        assertEquals(1, executions.mailContent!!.first.executionList.size)
     }
 
     companion object {

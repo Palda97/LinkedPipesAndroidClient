@@ -9,6 +9,7 @@ import cz.palda97.lpclient.model.db.dao.*
 import cz.palda97.lpclient.model.entities.execution.Execution
 import cz.palda97.lpclient.model.entities.execution.ExecutionDetailComponent
 import cz.palda97.lpclient.model.entities.execution.ExecutionDetailStatus
+import cz.palda97.lpclient.model.entities.execution.ExecutionNovelty
 import cz.palda97.lpclient.model.entities.pipeline.*
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.entities.possiblecomponent.PossibleComponent
@@ -21,10 +22,11 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 @Database(
     entities = [ServerInstance::class, PipelineView::class, Execution::class, MarkForDeletion::class,
         ExecutionDetailStatus::class, ExecutionDetailComponent::class,
+        ExecutionNovelty::class,
         Binding::class, Component::class, ConfigInput::class, Configuration::class, Connection::class, DialogJs::class, Profile::class, Template::class, Vertex::class, ConfigDownloadStatus::class,
         PossibleComponent::class, PossibleStatus::class,
         SameAs::class, Tag::class],
-    version = 17,
+    version = 19,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -36,6 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun markForDeletionDao(): MarkForDeletionDao
     abstract fun pipelineDao(): PipelineDao
     abstract fun executionDetailDao(): ExecutionDetailDao
+    abstract fun executionNoveltyDao(): ExecutionNoveltyDao
 
     companion object {
 

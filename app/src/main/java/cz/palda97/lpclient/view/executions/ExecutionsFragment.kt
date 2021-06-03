@@ -98,7 +98,10 @@ class ExecutionsFragment : Fragment() {
                 val mail = it ?: return@Observer
                 if (mail.isOk) {
                     mail.mailContent!!
+                    val onTop = !binding.insertExecutionsHere.canScrollVertically(-1)
                     executionRecycleAdapter.updateExecutionList(mail.mailContent)
+                    if (onTop)
+                        binding.insertExecutionsHere.scrollToPosition(0)
                     binding.noInstances = mail.mailContent.isEmpty()
                     if (mail.msg == ExecutionsViewModel.SCROLL) {
                         val smoothScroller = object : LinearSmoothScroller(requireContext()) {
@@ -135,11 +138,8 @@ class ExecutionsFragment : Fragment() {
                     PipelinesViewModel.LaunchStatus.CAN_NOT_CONNECT -> getString(R.string.can_not_connect_to_server)
                     PipelinesViewModel.LaunchStatus.INTERNAL_ERROR -> getString(R.string.internal_error)
                     PipelinesViewModel.LaunchStatus.SERVER_ERROR -> getString(R.string.server_side_error)
-                    PipelinesViewModel.LaunchStatus.WAITING -> ""
-                    PipelinesViewModel.LaunchStatus.OK -> {
-                        refreshExecutions(true)
-                        getString(R.string.successfully_launched)
-                    }
+                    PipelinesViewModel.LaunchStatus.WAITING -> getString(R.string.internal_error)
+                    PipelinesViewModel.LaunchStatus.OK -> getString(R.string.successfully_launched)
                     PipelinesViewModel.LaunchStatus.PROTOCOL_PROBLEM -> getString(R.string.problem_with_protocol)
                 }
                 Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
@@ -155,11 +155,8 @@ class ExecutionsFragment : Fragment() {
         setUpLaunchStatus()
     }
 
-    private fun refreshExecutions(silent: Boolean = false) {
-        return when(silent) {
-            true -> viewModel.silentRefresh()
-            false -> viewModel.refreshExecutionsButton()
-        }
+    private fun refreshExecutions() {
+        viewModel.refreshExecutionsButton()
     }
 
     private val smartMutex = SmartMutex()

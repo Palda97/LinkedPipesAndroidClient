@@ -9,10 +9,12 @@ import java.util.*
  */
 object DateParser {
     private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-    private val simpleDateFormat = SimpleDateFormat(DATE_FORMAT)
+    private val simpleDateFormat
+        get() = SimpleDateFormat(DATE_FORMAT)
 
     private const val DATE_FORMAT_NO_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-    private val noTimezoneFormat = SimpleDateFormat(DATE_FORMAT_NO_TIMEZONE)
+    private val noTimezoneFormat
+        get() = SimpleDateFormat(DATE_FORMAT_NO_TIMEZONE)
 
     private fun dateFromString(string: String?, format: SimpleDateFormat): Date? =
         try {

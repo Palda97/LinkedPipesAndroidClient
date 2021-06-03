@@ -19,9 +19,9 @@ class ExecutionFactory(private val json: String?) {
     /**
      * Parses execution from the execution list jsonLd.
      * @param server Server that belongs to the executions.
-     * @return MailPackage with server and parsed executions.
+     * @return MailPackage with server and parsed executions and tombstones.
      */
-    fun parseListFromJson(server: ServerInstance): MailPackage<ServerWithExecutions> = fromJson(server, json)
+    fun parseListFromJson(server: ServerInstance): MailPackage<Pair<ServerWithExecutions, List<String>>> = fromJson(server, json)
 
     /**
      * Parses an execution from the execution overview jsonLd.
@@ -48,53 +48,43 @@ class ExecutionFactory(private val json: String?) {
         private fun fromJson(
             server: ServerInstance,
             string: String?
-        ): MailPackage<ServerWithExecutions> {
-            return when (val res = CommonFunctions.getRootArrayList(string)) {
-                is Either.Left -> MailPackage.brokenPackage(
-                    res.value
-                )
-                is Either.Right -> {
-                    val list = mutableListOf<Execution>()
-                    res.value.forEachIndexed { index, it ->
-                        if (index != 0) {
-                            val resExe =
-                                parseExecution(
-                                    it,
-                                    server
-                                )
-                            if (resExe is Either.Right) {
-                                list.add(resExe.value)
-                            }
-                            else {
-                                if (resExe is Either.Left && resExe.value != LdConstants.TYPE_TOMBSTONE) {
-                                    if (resExe.value == "execution is null") {
-                                        l("hh")
-                                    }
-                                    return MailPackage.brokenPackage(
-                                        //"some execution is null"
-                                        resExe.value
-                                    )
-                                }
-                            }
+        ): MailPackage<Pair<ServerWithExecutions, List<String>>> {
+            val rootArrayList = when(val res = CommonFunctions.getRootArrayList(string)) {
+                is Either.Left -> return MailPackage.brokenPackage(res.value)
+                is Either.Right -> res.value
+            }
+            val executions = mutableListOf<Execution>()
+            val tombstones = mutableListOf<String>()
+            rootArrayList.forEach {
+                val objectRoot = CommonFunctions.prepareSemiRootElement(it) ?: return MailPackage.brokenPackage("no graph")
+                if (objectRoot.size == 1) {
+                    val map = objectRoot.first() as? Map<*, *> ?: return MailPackage.brokenPackage("no map inside graph")
+                    when(CommonFunctions.giveMeThatType(map)) {
+                        LdConstants.TYPE_METADATA -> {
+                            val time = CommonFunctions.giveMeThatString(map, LdConstants.SERVER_TIME, LdConstants.VALUE)?.toLongOrNull() ?: return MailPackage.brokenPackage("metadata with no time")
+                            server.changedSince = time
                         }
+                        LdConstants.TYPE_TOMBSTONE -> {
+                            val tombstone = CommonFunctions.giveMeThatId(map) ?: return MailPackage.brokenPackage("tombstone with no id")
+                            tombstones.add(tombstone)
+                        }
+                        else -> return MailPackage.brokenPackage("unknown type")
                     }
-                    MailPackage(
-                        ServerWithExecutions(
-                            server,
-                            list
-                        )
-                    )
+                } else {
+                    val execution = when(val res = parseExecution(objectRoot, server)) {
+                        is Either.Left -> return MailPackage.brokenPackage(res.value)
+                        is Either.Right -> res.value
+                    }
+                    executions.add(execution)
                 }
             }
+            return MailPackage(ServerWithExecutions(server, executions) to tombstones)
         }
 
         private fun parseExecution(
-            jsonObject: Any?,
+            executionRoot: ArrayList<*>,
             server: ServerInstance
         ): Either<String, Execution> {
-            val executionRoot = CommonFunctions.prepareSemiRootElement(jsonObject)
-                ?: return Either.Left("execution is weird")
-
             val executionRootMap =
                 executionRoot[0] as? Map<*, *> ?: return Either.Left(
                     "executionRoot is not Map"

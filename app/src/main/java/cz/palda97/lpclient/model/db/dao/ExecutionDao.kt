@@ -15,6 +15,9 @@ abstract class ExecutionDao {
     @Delete
     abstract suspend fun delete(execution: Execution)
 
+    @Query("delete from execution where id in (:list)")
+    abstract suspend fun delete(list: List<String>)
+
     @Query("delete from execution")
     abstract suspend fun deleteAll()
 

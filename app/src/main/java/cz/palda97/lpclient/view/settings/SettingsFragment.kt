@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Filter
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,6 +18,8 @@ import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
 import cz.palda97.lpclient.databinding.FragmentSettingsBinding
 import cz.palda97.lpclient.model.entities.server.ServerInstance
+import cz.palda97.lpclient.view.ConfigDropdownMagic.fillWithOptions
+import cz.palda97.lpclient.view.ConfigDropdownMagic.setItem
 import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.MainActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
@@ -43,7 +46,6 @@ class SettingsFragment : Fragment() {
         val root = binding.root
         viewModel = SettingsViewModel.getInstance(this)
         setUpComponents()
-        //tmpButtons()
         return root
     }
 
@@ -95,9 +97,24 @@ class SettingsFragment : Fragment() {
         }
 
         fun setUpNotificationSwitch() {
-            binding.notificationSwitch.isChecked = viewModel.notifications
+            viewModel.liveNotificationCancel.observe(viewLifecycleOwner, Observer {
+                val cancel = it ?: return@Observer
+                if (!cancel)
+                    return@Observer
+                binding.notificationSwitch.isChecked = false
+                viewModel.resetNotificationCancel()
+            })
+            viewModel.liveInterval.observe(viewLifecycleOwner, Observer {
+                val text = it ?: return@Observer
+                binding.notificationText = text
+            })
+            val check = viewModel.notifications
+            binding.notificationSwitch.isChecked = check
+            binding.timeVisibility = check
             binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
+                l("setUpNotificationSwitch: $isChecked")
                 viewModel.notifications = isChecked
+                binding.timeVisibility = isChecked
             }
         }
 
@@ -138,11 +155,63 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        fun setUpTimeFields() {
+            binding.timeValue.setText(viewModel.timeValue.toString())
+            binding.timeValue.doOnTextChanged { text, _, _, _ ->
+                val timeValue = text?.toString()?.toLongOrNull() ?: return@doOnTextChanged
+                if (timeValue <= 0)
+                    return@doOnTextChanged
+                viewModel.timeValue = timeValue
+            }
+            val timeUnits = SettingsViewModel.TimeEnum.values().map {
+                it to getString(it.resId)
+            }
+            binding.timeUnitDropDown.fillWithOptions(
+                requireContext(),
+                timeUnits,
+                false
+            ) {_, it ->
+                val enum = it ?: return@fillWithOptions
+                viewModel.timeUnit = enum
+            }
+            binding.timeUnitDropDown.setItem(viewModel.timeUnit)
+            viewModel.liveTimeButtonEnable.observe(viewLifecycleOwner, Observer {
+                val enable = it ?: return@Observer
+                binding.timeButtonEnabled = enable
+            })
+            binding.saveTimeButton.setOnClickListener {
+                viewModel.enqueueMonitor()
+            }
+        }
+
+        fun setUpNotificationInfoDialog() {
+            viewModel.liveNotificationInfoDialog.observe(viewLifecycleOwner, Observer {
+                val shouldShow = it ?: return@Observer
+                if (shouldShow) {
+                    viewModel.resetNotificationInfoDialog()
+                    NotificationInfoDialog.appear(childFragmentManager)
+                }
+            })
+        }
+
+        fun setUpDoNotKillDialog() {
+            viewModel.liveDoNotKillDialog.observe(viewLifecycleOwner, Observer {
+                val shouldShow = it ?: return@Observer
+                if (shouldShow) {
+                    viewModel.resetDoNotKillDialog()
+                    DoNotKillDialog.appear(childFragmentManager)
+                }
+            })
+        }
+
         setUpNightMode()
         setUpNotificationSwitch()
         setUpServerRecycler()
         setUpFAB()
         setUpLicenseButton()
+        setUpTimeFields()
+        setUpNotificationInfoDialog()
+        setUpDoNotKillDialog()
     }
 
     private fun activeChange(server: ServerInstance) {

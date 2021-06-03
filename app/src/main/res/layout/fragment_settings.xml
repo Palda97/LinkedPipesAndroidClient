@@ -13,7 +13,18 @@
         <variable
             name="noInstances"
             type="Boolean" />
-        <!-- -->
+
+        <variable
+            name="timeVisibility"
+            type="Boolean" />
+
+        <variable
+            name="timeButtonEnabled"
+            type="Boolean" />
+
+        <variable
+            name="notificationText"
+            type="String" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -27,6 +38,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 style="@style/do_not_auto_focus_child_components"
                 android:orientation="vertical">
 
@@ -51,39 +63,69 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/switch_horizontal_margin"
                     android:layout_marginEnd="@dimen/dropdown_horizontal_margin"
-                    android:layout_marginBottom="@dimen/dropdown_vertical_margin"
+                    android:layout_marginBottom="8dp"
                     android:checked="false"
-                    android:text="@string/notifications" />
+                    android:text="@{notificationText}" />
 
-                <!--
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    style="@style/do_not_auto_focus_child_components"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="@{timeVisibility ? View.VISIBLE : View.GONE}"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/tmp_button_delete_all_instances"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:layout_marginHorizontal="8dp"
-                        android:text="tmp button - delete all instances" />
+                        android:enabled="@{timeVisibility}"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/dropdown_horizontal_margin"
+                        android:hint="@string/frequency">
 
-                    <Button
-                        android:id="@+id/tmp_button_add_some_instances"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/time_value"
+                            android:inputType="number"
+                            android:textAlignment="textEnd"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:layout_marginHorizontal="8dp"
-                        android:text="tmp button - add some instances" />
+                        android:layout_height="wrap_content"
+                        android:enabled="@{timeVisibility}"
+                        android:layout_marginHorizontal="@dimen/dropdown_horizontal_margin"
+                        android:hint="@string/time_unit">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/time_unit_drop_down"
+                            android:layout_width="match_parent"
+                            android:inputType="none"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
-                -->
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:id="@+id/save_time_button"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="Save time"
+                    android:visibility="@{timeVisibility ? View.VISIBLE : View.GONE}"
+                    android:enabled="@{timeButtonEnabled}"/>
 
                 <View
                     android:id="@+id/divider"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="22dp"
                     android:background="?android:attr/listDivider" />
 
                 <TextView
