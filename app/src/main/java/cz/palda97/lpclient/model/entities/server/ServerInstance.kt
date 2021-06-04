@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class ServerInstance(
-    val name: String = "",
+    var name: String = "",
     val url: String = "",
     var active: Boolean = true,
     val description: String = "",

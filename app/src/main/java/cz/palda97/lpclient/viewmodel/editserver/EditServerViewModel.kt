@@ -9,6 +9,8 @@ import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.MalformedURLException
+import java.net.URL
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -46,6 +48,14 @@ class EditServerViewModel : ViewModel() {
         _saveSuccessful.postValue(
             when (match) {
                 ServerRepository.MatchCases.NO_MATCH -> {
+                    if (serverInstance.name.isEmpty()) {
+                        val domain = try {
+                            val url = URL(serverInstance.url)
+                            url.host ?: serverInstance.url
+                        }
+                        catch (_: MalformedURLException) { serverInstance.url }
+                        serverInstance.name = serverRepository.nextAvailableName(domain)
+                    }
                     SettingsViewModel.saveServerAndUpdate(serverInstance.apply {
                         id = editServerRepository.serverToEdit.id
                     })

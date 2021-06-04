@@ -13,7 +13,7 @@ class ServerInstanceAttributeCheck(serverInstance: ServerInstance) {
      */
     val status: EditServerViewModel.SaveStatus = with(serverInstance) {
         when {
-            name.isEmpty() -> EditServerViewModel.SaveStatus.EMPTY_NAME
+            //name.isEmpty() -> EditServerViewModel.SaveStatus.EMPTY_NAME
             url.isEmpty() -> EditServerViewModel.SaveStatus.EMPTY_URL
             else -> EditServerViewModel.SaveStatus.WORKING
         }

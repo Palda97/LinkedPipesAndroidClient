@@ -86,4 +86,20 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
      * Gets a list of all active server instances.
      */
     suspend fun activeServers(): List<ServerInstance> = serverInstanceDao.activeServers()
+
+    /**
+     * Generate a server name that is not in database.
+     */
+    suspend fun nextAvailableName(domain: String): String {
+        val similar = serverInstanceDao.selectByNameStart(domain).map { it.name }
+        if (!similar.contains(domain))
+            return domain
+        tailrec fun loop(rank: Int = 2): String {
+            val name = "$domain ($rank)"
+            if (!similar.contains(name))
+                return name
+            return loop(rank + 1)
+        }
+        return loop()
+    }
 }
