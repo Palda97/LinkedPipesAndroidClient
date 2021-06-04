@@ -17,6 +17,7 @@ import cz.palda97.lpclient.SmartMutex
 import cz.palda97.lpclient.databinding.FragmentExecutionsBinding
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
+import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.ExecutionDetailActivity
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
 import cz.palda97.lpclient.view.ServerDropDownMagic.setUpWithServers
@@ -148,11 +149,23 @@ class ExecutionsFragment : Fragment() {
             })
         }
 
+        fun setUpAddServerButton() {
+            binding.addServerButton.setOnClickListener {
+                addServer()
+            }
+        }
+
         setUpNoServerWarning()
         setUpRefreshFab()
         setUpDropDown()
         setUpExecutionRecycler()
         setUpLaunchStatus()
+        setUpAddServerButton()
+    }
+
+    private fun addServer() {
+        settingsViewModel.addServer()
+        EditServerActivity.start(requireActivity())
     }
 
     private fun refreshExecutions() {

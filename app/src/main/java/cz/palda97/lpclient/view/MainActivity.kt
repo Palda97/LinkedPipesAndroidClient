@@ -15,11 +15,12 @@ import cz.palda97.lpclient.viewmodel.MainActivityViewModel
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainActivityViewModel
+    private lateinit var navView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        navView = findViewById(R.id.nav_view)
 
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
@@ -31,21 +32,21 @@ class MainActivity : AppCompatActivity() {
         ))*/
         //setupActionBarWithNavController(navController, appBarConfiguration)
 
-        setupNavigation(navView, navController)
+        navView.setupWithNavController(navController)
 
         viewModel = MainActivityViewModel.getInstance(this)
     }
 
-    private fun setupNavigation(navView: BottomNavigationView, navController: NavController) {
-        navView.setupWithNavController(navController)
-        startWithTheRightFragment(navView)
-    }
-
-    private fun startWithTheRightFragment(navView: BottomNavigationView) {
+    private fun startWithTheRightFragment() {
         switchToFragment?.let {
             navView.selectedItemId = it
         }
         switchToFragment = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startWithTheRightFragment()
     }
 
     companion object {

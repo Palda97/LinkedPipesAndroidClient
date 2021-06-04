@@ -136,4 +136,5 @@
     <string name="do_not_kill_info">If your phone manufacturer happens to be listed on <a href="https://dontkillmyapp.com/">this website</a>, it will probably try to mess with the execution monitoring. For the best functionality, open the application settings, allow the autostart option and disable the battery saver for this application.</string>
     <string name="android_manufacturers_killing_apps">Android manufacturers killing apps</string>
     <string name="open_settings">Open settings</string>
+    <string name="register_server">Register server</string>
 </resources>
