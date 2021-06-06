@@ -13,6 +13,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.SharedPreferencesFactory
 import cz.palda97.lpclient.model.SharedPreferencesFactory.liveData
 import cz.palda97.lpclient.model.repository.EditServerRepository
+import cz.palda97.lpclient.model.repository.ExecutionNoveltyRepository
 import cz.palda97.lpclient.model.repository.ServerRepository
 import cz.palda97.lpclient.model.services.ExecutionMonitorPeriodic
 import cz.palda97.lpclient.view.Notifications.NOTIFICATIONS
@@ -117,7 +118,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         set(value) {
             sharedPreferences.edit().putBoolean(NOTIFICATIONS, value).commit()
             when(value) {
-                true -> enqueueMonitor()
+                true -> {
+                    val currentTime = System.currentTimeMillis()
+                    sharedPreferences.edit()
+                        .putLong(ExecutionNoveltyRepository.NOTIFICATION_SINCE, currentTime)
+                        .putBoolean(ExecutionNoveltyRepository.SHOULD_RESET_RECENT_EXECUTIONS, true)
+                        .commit()
+                    enqueueMonitor()
+                }
                 false -> ExecutionMonitorPeriodic.cancel(getApplication())
             }
         }

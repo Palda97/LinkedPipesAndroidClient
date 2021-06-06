@@ -39,10 +39,14 @@ abstract class ExecutionNoveltyDao {
     @Query("update executionnovelty set hasBeenShown = 1 where id in (:ids)")
     abstract suspend fun resetRecentLimited(ids: List<String>)
 
-    suspend fun resetRecent(ids: List<String>) {
+    @Transaction
+    open suspend fun resetRecent(ids: List<String>) {
         val parts = ids.chunked(500)
         parts.forEach {
             resetRecentLimited(it)
         }
     }
+
+    @Query("update executionnovelty set hasBeenShown = 1")
+    abstract suspend fun resetAllRecent()
 }
