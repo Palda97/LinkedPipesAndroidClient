@@ -142,6 +142,10 @@ object Notifications {
             Intent(applicationContext, NotificationBroadcastReceiver::class.java),
             0
         )
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
         val notification = NotificationCompat.Builder(applicationContext, AppInit.CHANNEL_ID_FOREGROUND)
             .setContentTitle(title)
             .setTicker(title)
@@ -149,6 +153,7 @@ object Notifications {
             .setSmallIcon(R.mipmap.etl_icon_foreground)
             .setOngoing(true)
             .addAction(android.R.drawable.ic_delete, cancel, cancelIntent)
+            .setContentIntent(pendingIntent)
             .build()
         return ForegroundInfo(NOTIFICATION_ID_MIN_FOREGROUND, notification)
     }
