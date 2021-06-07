@@ -46,8 +46,10 @@ object ServerFactory {
         return server
     }
 
-    fun fromString(text: String?): ServerInstance? {
+    fun fromString(text: String?, name: String = ""): ServerInstance? {
         fromJson(text)?.let { return it }
-        return fromURL(text)
+        return fromURL(text)?.apply {
+            this.name = name
+        }
     }
 }

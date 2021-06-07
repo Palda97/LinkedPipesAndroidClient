@@ -76,7 +76,8 @@ class EditServerFragment : Fragment() {
     }
 
     private fun parseFromQrCode(json: String?) {
-        val server = ServerFactory.fromString(json)
+        val name: String = binding.name.editText!!.text.toString()
+        val server = ServerFactory.fromString(json, name)
         if (server == null) {
             Snackbar.make(binding.root, getString(R.string.server_not_parsed), Snackbar.LENGTH_LONG)
                 .setAnchorView(binding.editServerBottomButtons)

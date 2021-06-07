@@ -20,6 +20,7 @@ import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.repository.PipelineRepository
 import cz.palda97.lpclient.model.repository.RepositoryRoutines
 import cz.palda97.lpclient.view.EditPipelineActivity
+import cz.palda97.lpclient.view.EditServerActivity
 import cz.palda97.lpclient.view.FABCosmetics.hideOrShowSub
 import cz.palda97.lpclient.viewmodel.pipelines.PipelinesViewModel
 import cz.palda97.lpclient.viewmodel.settings.SettingsViewModel
@@ -180,6 +181,12 @@ class PipelinesFragment : Fragment() {
             })
         }
 
+        fun setUpAddServerButton() {
+            binding.addServerButton.setOnClickListener {
+                addServer()
+            }
+        }
+
         setUpNoServerWarning()
         setUpFAB()
         setUpRefreshFAB()
@@ -187,6 +194,12 @@ class PipelinesFragment : Fragment() {
         setUpPipelineRecycler()
         setUpLaunchStatus()
         setUpNewPipeline()
+        setUpAddServerButton()
+    }
+
+    private fun addServer() {
+        settingsViewModel.addServer()
+        EditServerActivity.start(requireActivity())
     }
 
     private fun createPipeline() {

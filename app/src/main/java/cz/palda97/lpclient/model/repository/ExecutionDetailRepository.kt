@@ -4,15 +4,18 @@ import androidx.lifecycle.MutableLiveData
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.db.dao.ExecutionDetailDao
+import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.execution.*
 import cz.palda97.lpclient.model.entities.pipeline.Component
 import cz.palda97.lpclient.model.entities.pipelineview.PipelineView
 import cz.palda97.lpclient.model.network.ExecutionRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.network.WebUrlGenerator
 import kotlinx.coroutines.*
 
 class ExecutionDetailRepository(
-    private val executionDao: ExecutionDetailDao
+    private val executionDao: ExecutionDetailDao,
+    private val serverDao: ServerInstanceDao
 ) {
 
     enum class ExecutionDetailRepositoryStatus {
@@ -34,17 +37,17 @@ class ExecutionDetailRepository(
 
     var currentExecutionId: String = ""
         private set
-    /*var currentServerId: Long = 0L
+    var currentServerId: Long = 0L
         private set
     var currentPipelineId: String = ""
-        private set*/
+        private set
     var currentPipelineName: String = ""
         private set
 
     private fun initIds(execution: Execution) {
         currentExecutionId = execution.id
-        /*currentServerId = execution.serverId
-        currentPipelineId = execution.pipelineId*/
+        currentServerId = execution.serverId
+        currentPipelineId = execution.pipelineId
         currentPipelineName = execution.pipelineName
     }
 
@@ -107,5 +110,19 @@ class ExecutionDetailRepository(
         val factory = ExecutionDetailFactory(json, execution.id, pipelineComponents)
         val components = factory.parse() ?: return Either.Left(ExecutionDetailRepositoryStatus.PARSING_ERROR)
         return Either.Right(components)
+    }
+
+    /**
+     * Generate web link for current execution.
+     * @return Web frontend URL for the execution.
+     * @see [WebUrlGenerator.execution]
+     */
+    suspend fun executionLink(): String? {
+        val server = serverDao.findById(currentServerId) ?: return null
+        return WebUrlGenerator.execution(server.frontendUrl, currentExecutionId, currentPipelineId)
+    }
+
+    companion object {
+        private val l = Injector.generateLogFunction(this)
     }
 }

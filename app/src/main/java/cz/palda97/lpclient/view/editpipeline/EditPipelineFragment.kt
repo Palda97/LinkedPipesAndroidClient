@@ -1,5 +1,8 @@
 package cz.palda97.lpclient.view.editpipeline
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -208,10 +211,45 @@ class EditPipelineFragment : Fragment() {
             })
         }
 
+        fun setUpOpenInBrowserButton() {
+            binding.openInBrowserButton.setOnClickListener {
+                openInBrowser()
+            }
+        }
+
         setUpCancelButton()
         setUpFAB()
         setUpSaveButton()
         setUpAddComponentErrors()
+        setUpOpenInBrowserButton()
+    }
+
+    private val openInBrowserMutex = SmartMutex()
+    private fun openInBrowser() {
+        l("openInBrowser")
+        openInBrowserMutex.syncScope(lifecycleScope) {
+            val url = viewModel.pipelineLink()
+            if (url == null) {
+                Snackbar
+                    .make(binding.root, R.string.internal_error, Snackbar.LENGTH_SHORT)
+                    .show()
+                return@syncScope
+            }
+            try {
+                done()
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (_: ActivityNotFoundException) {
+                reset()
+                Snackbar
+                    .make(binding.root, R.string.server_url_is_not_valid, Snackbar.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        openInBrowserMutex.reset()
+        super.onResume()
     }
 
     private fun disableScrollViewsForAWhile() {

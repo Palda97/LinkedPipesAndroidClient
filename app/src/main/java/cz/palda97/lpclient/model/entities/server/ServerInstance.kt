@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class ServerInstance(
-    val name: String = "",
+    var name: String = "",
     val url: String = "",
     var active: Boolean = true,
     val description: String = "",
@@ -19,10 +19,11 @@ data class ServerInstance(
     var frontend: Int? = null
     val frontendUrl: String
         get() {
+            val urlNoSlash = url.removeSuffix("/")
             frontend?.let {
-                return "${url.removeSuffix("/")}:$it"
+                return "$urlNoSlash:$it"
             }
-            return url
+            return urlNoSlash
         }
 
     var username: String = ""

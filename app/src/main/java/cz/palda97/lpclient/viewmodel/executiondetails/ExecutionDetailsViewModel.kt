@@ -13,11 +13,6 @@ class ExecutionDetailsViewModel(application: Application) : AndroidViewModel(app
 
     private val detailRepository = Injector.executionDetailRepository
 
-    private val retrofitScope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.IO)
-    private val dbScope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.IO)
-
     val liveDetail: LiveData<ExecutionDetailViewStructure>
         get() = detailRepository.liveDetail.map {
             ExecutionDetailViewStructure(it)
@@ -34,6 +29,11 @@ class ExecutionDetailsViewModel(application: Application) : AndroidViewModel(app
 
     val pipelineName
         get() = detailRepository.currentPipelineName
+
+    /** @see [ExecutionDetailRepository.executionLink] **/
+    suspend fun executionLink() = withContext(Dispatchers.IO) {
+        detailRepository.executionLink()
+    }
 
     companion object {
         private val l = Injector.generateLogFunction(this)

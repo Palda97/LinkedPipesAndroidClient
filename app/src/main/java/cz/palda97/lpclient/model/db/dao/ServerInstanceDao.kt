@@ -56,4 +56,7 @@ abstract class ServerInstanceDao {
 
     @Query("select * from serverinstance where active = 1 order by id asc")
     abstract suspend fun activeServers(): List<ServerInstance>
+
+    @Query("select * from serverinstance where name like :nameBeginning || '%'")
+    abstract suspend fun selectByNameStart(nameBeginning: String): List<ServerInstance>
 }

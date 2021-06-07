@@ -1,5 +1,6 @@
 package cz.palda97.lpclient.model.repository
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import cz.palda97.lpclient.Injector
@@ -21,7 +22,8 @@ import kotlinx.coroutines.coroutineScope
 class ExecutionNoveltyRepository(
     private val serverDao: ServerInstanceDao,
     private val noveltyDao: ExecutionNoveltyDao,
-    private val executionDao: ExecutionDao
+    private val executionDao: ExecutionDao,
+    private val sharedPreferences: SharedPreferences
 ) {
 
     private data class ServersExecutionsTombstones(
@@ -59,8 +61,20 @@ class ExecutionNoveltyRepository(
      * @return Executions which ended and are new to the application.
      */
     suspend fun cacheNovelties(executions: List<Execution>): List<Execution> {
-        val novelties = executions.areDone.map {
-            ExecutionNovelty(it.id)
+        val shouldReset = sharedPreferences.getBoolean(SHOULD_RESET_RECENT_EXECUTIONS, false)
+        if (shouldReset) {
+            noveltyDao.resetAllRecent()
+            sharedPreferences.edit().putBoolean(SHOULD_RESET_RECENT_EXECUTIONS, false).apply()
+        }
+        val notificationSince = sharedPreferences.getLong(NOTIFICATION_SINCE, 0)
+        val novelties = executions.areDone.mapNotNull {
+            it.end?.time?.let { endTime ->
+                if (endTime < notificationSince) {
+                    ExecutionNovelty(it.id, true, false)
+                } else {
+                    ExecutionNovelty(it.id)
+                }
+            }
         }
         return noveltyDao.filterReallyNew(novelties).mapNotNull { it.execution }
     }
@@ -127,12 +141,27 @@ class ExecutionNoveltyRepository(
     /**
      * Set the [hasBeenShown][ExecutionNovelty.hasBeenShown] to true.
      * @param ids Ids of execution novelties to be altered.
+     * If null, all novelties will be altered.
      */
-    suspend fun resetRecent(ids: List<String>) {
-        noveltyDao.resetRecent(ids)
+    suspend fun resetRecent(ids: List<String>? = null) {
+        if (ids == null) {
+            noveltyDao.resetAllRecent()
+        } else {
+            noveltyDao.resetRecent(ids)
+        }
     }
 
     companion object {
         private val l = Injector.generateLogFunction(this)
+
+        /**
+         * Long in SharedPreferences representing the last time the notifications were turned on.
+         */
+        const val NOTIFICATION_SINCE = "NOTIFICATION_SINCE"
+
+        /**
+         * Boolean in SharedPreferences representing if recent executions should be reset.
+         */
+        const val SHOULD_RESET_RECENT_EXECUTIONS = "SHOULD_RESET_RECENT_EXECUTIONS"
     }
 }

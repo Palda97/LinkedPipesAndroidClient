@@ -78,14 +78,30 @@
                     android:text="@string/no_pipelines"
                     android:visibility="@{noInstances &amp;&amp; noServer == false ? View.VISIBLE : View.GONE}" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:padding="16dp"
-                    android:textAppearance="@style/ta_regular16_primary"
-                    android:text="@string/no_servers_registered"
-                    android:visibility="@{noServer ? View.VISIBLE : View.GONE}" />
+                    android:gravity="center"
+                    android:visibility="@{noServer ? View.VISIBLE : View.GONE}"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="16dp"
+                        android:paddingBottom="8dp"
+                        android:textAppearance="@style/ta_regular16_primary"
+                        android:text="@string/no_servers_registered" />
+
+                    <Button
+                        android:id="@+id/add_server_button"
+                        app:icon="@drawable/ic_baseline_add_24"
+                        android:layout_marginHorizontal="8dp"
+                        android:text="@string/register_server"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
             </RelativeLayout>
 
             <LinearLayout
