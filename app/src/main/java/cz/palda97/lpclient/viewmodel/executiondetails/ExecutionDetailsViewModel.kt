@@ -30,6 +30,7 @@ class ExecutionDetailsViewModel(application: Application) : AndroidViewModel(app
     val pipelineName
         get() = detailRepository.currentPipelineName
 
+    /** @see [ExecutionDetailRepository.executionLink] **/
     suspend fun executionLink() = withContext(Dispatchers.IO) {
         detailRepository.executionLink()
     }

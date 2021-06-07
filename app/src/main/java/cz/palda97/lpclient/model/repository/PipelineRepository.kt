@@ -18,6 +18,7 @@ import cz.palda97.lpclient.model.entities.server.ServerInstance
 import cz.palda97.lpclient.model.network.PipelineRetrofit
 import cz.palda97.lpclient.model.network.PipelineRetrofit.Companion.pipelineRetrofit
 import cz.palda97.lpclient.model.network.RetrofitHelper
+import cz.palda97.lpclient.model.network.WebUrlGenerator
 import cz.palda97.lpclient.model.repository.PipelineRepository.CacheStatus.Companion.toStatus
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -358,6 +359,16 @@ class PipelineRepository(
      */
     suspend fun insertCurrentPipelineView() = currentPipelineView?.let {
         Injector.pipelineViewRepository.insertPipelineView(it)
+    }
+
+    /**
+     * Generate web link for current pipeline.
+     * @return Web frontend URL for the pipeline.
+     * @see [WebUrlGenerator.pipeline]
+     */
+    suspend fun pipelineLink(): String? {
+        val server = serverDao.findById(currentServerId) ?: return null
+        return WebUrlGenerator.pipeline(server.frontendUrl, currentPipelineId)
     }
 
     companion object {

@@ -121,6 +121,16 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/open_in_browser_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/open_in_browser"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            app:icon="@drawable/ic_baseline_open_in_browser_24"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
         <LinearLayout
             android:id="@+id/edit_pipeline_bottom_buttons"
             android:layout_width="match_parent"

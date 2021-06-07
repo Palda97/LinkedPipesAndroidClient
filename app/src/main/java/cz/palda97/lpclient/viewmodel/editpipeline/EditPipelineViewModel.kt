@@ -124,6 +124,11 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
         pipelineRepository.uploadPipeline()
     }
 
+    /** @see [PipelineRepository.pipelineLink] */
+    suspend fun pipelineLink() = withContext(Dispatchers.IO) {
+        pipelineRepository.pipelineLink()
+    }
+
     companion object {
         private val l = Injector.generateLogFunction(this)
 

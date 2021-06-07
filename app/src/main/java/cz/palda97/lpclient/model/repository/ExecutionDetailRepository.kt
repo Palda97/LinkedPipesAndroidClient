@@ -112,6 +112,11 @@ class ExecutionDetailRepository(
         return Either.Right(components)
     }
 
+    /**
+     * Generate web link for current execution.
+     * @return Web frontend URL for the execution.
+     * @see [WebUrlGenerator.execution]
+     */
     suspend fun executionLink(): String? {
         val server = serverDao.findById(currentServerId) ?: return null
         return WebUrlGenerator.execution(server.frontendUrl, currentExecutionId, currentPipelineId)
