@@ -137,4 +137,6 @@
     <string name="android_manufacturers_killing_apps">Android manufacturers killing apps</string>
     <string name="open_settings">Open settings</string>
     <string name="register_server">Register server</string>
+    <string name="server_url_is_not_valid">Server URL is not valid!</string>
+    <string name="open_in_browser">Open in browser</string>
 </resources>

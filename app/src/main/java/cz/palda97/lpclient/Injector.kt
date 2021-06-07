@@ -43,7 +43,7 @@ object Injector {
     }
     val executionDetailRepository: ExecutionDetailRepository by lazy {
         val db = AppDatabase.getInstance(context)
-        ExecutionDetailRepository(db.executionDetailDao())
+        ExecutionDetailRepository(db.executionDetailDao(), db.serverDao())
     }
     val executionNoveltyRepository: ExecutionNoveltyRepository by lazy {
         val db = AppDatabase.getInstance(context)

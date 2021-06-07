@@ -1,15 +1,18 @@
 package cz.palda97.lpclient.view.executiondetails
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.R
+import cz.palda97.lpclient.SmartMutex
 import cz.palda97.lpclient.databinding.FragmentExecutionDetailsBinding
 import cz.palda97.lpclient.model.repository.ExecutionDetailRepository
 import cz.palda97.lpclient.view.RecyclerViewCosmetics
@@ -74,5 +77,52 @@ class ExecutionDetailsFragment : Fragment() {
 
         setUpDetail()
         setUpUpdateError()
+    }
+
+    private val openExecutionInBrowserMutex = SmartMutex()
+    private fun openExecutionInBrowser() {
+        openExecutionInBrowserMutex.syncScope(lifecycleScope) {
+            val url = viewModel.executionLink()
+            if (url == null) {
+                Snackbar
+                    .make(binding.root, R.string.internal_error, Snackbar.LENGTH_SHORT)
+                    .show()
+                return@syncScope
+            }
+            try {
+                done()
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (_: ActivityNotFoundException) {
+                reset()
+                Snackbar
+                    .make(binding.root, R.string.server_url_is_not_valid, Snackbar.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        openExecutionInBrowserMutex.reset()
+        super.onResume()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.execution_detail, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.open_in_browser_item -> {
+                openExecutionInBrowser()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
