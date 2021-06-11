@@ -14,8 +14,8 @@ android {
         applicationId "cz.palda97.lpclient"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.2.1"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "cz.palda97.lpclient.NoApplicationRunner"

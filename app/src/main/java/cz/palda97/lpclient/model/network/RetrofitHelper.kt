@@ -62,7 +62,8 @@ object RetrofitHelper {
      */
     fun getBuilder(server: ServerInstance, url: String): Retrofit.Builder {
         val auth = server.credentials
-        return getBuilder(url).client(
+        val slashUrl = "${url.removeSuffix("/")}/"
+        return getBuilder(slashUrl).client(
             OkHttpClient.Builder()
                 .addInterceptor {
                     var request = it.request()
