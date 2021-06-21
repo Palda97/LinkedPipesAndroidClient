@@ -250,8 +250,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         suspend fun saveServerAndUpdate(server: ServerInstance) {
             Injector.serverRepository.insertServer(server)
-            if (server.active)
+            if (server.active) {
+                val currentTime = System.currentTimeMillis()
+                SharedPreferencesFactory.sharedPreferences(Injector.context).edit()
+                    .putLong(ExecutionNoveltyRepository.NOTIFICATION_SINCE, currentTime)
+                    .commit()
                 CoroutineScope(Dispatchers.IO).launch { CommonViewModel.updateAndNotify(server) }
+            }
         }
     }
 }
