@@ -61,17 +61,25 @@ object CoordinateConverter {
 
     /**
      * Gets the top left corner of group of components.
-     * @return Coordination to scroll to or null if the component list is empty.
+     * @return Top left coordinates or null if there are no components.
      */
-    fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
-        val density = density ?: DEFAULT_DENSITY
+    fun topLeftCoords(components: List<Component>): Pair<Int, Int>? {
         val minX = components.minBy {
             it.x
         }?.x ?: return null
         val minY = components.minBy {
             it.y
         }?.y ?: return null
+        return minX to minY
+    }
 
+    /**
+     * Gets the top left corner of group of components.
+     * @return Coordination to scroll to or null if the component list is empty.
+     */
+    fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
+        val density = density ?: DEFAULT_DENSITY
+        val (minX, minY) = topLeftCoords(components) ?: return null
         return (minX * XSCALE * density).roundToInt() to (minY * YSCALE * density).roundToInt()
     }
 }

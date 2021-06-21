@@ -47,11 +47,7 @@ class EditPipelineViewModel(application: Application) : AndroidViewModel(applica
 
     /** @see scroll */
     var shouldScroll: Boolean
-        get() {
-            val res = scroll
-            scroll = false
-            return res
-        }
+        get() = scroll
         set(value) {
             scroll = value
         }
