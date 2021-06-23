@@ -97,6 +97,39 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
     companion object {
         private val l = Injector.generateLogFunction(this)
 
+        /**
+         * Gets the top left corner of group of components or vertexes.
+         * @return Top left coordinates or null if there are no items.
+         */
+        fun topLeftCoords(components: List<Coords>): Pair<Int, Int>? {
+            val minX = components.minBy {
+                it.x
+            }?.x ?: return null
+            val minY = components.minBy {
+                it.y
+            }?.y ?: return null
+            return minX to minY
+        }
+
+        private fun fixNegativeCoords(components: List<Component>, vertexes: List<Vertex>) {
+            val (cMinX, cMinY) = topLeftCoords(components) ?: 0 to 0
+            val (vMinX, vMinY) = topLeftCoords(vertexes) ?: 0 to 0
+            val minX = if (cMinX < vMinX) cMinX else vMinX
+            val minY = if (cMinY < vMinY) cMinY else vMinY
+            val offsetX = if (minX < 0) - minX else 0
+            val offsetY = if (minY < 0) - minY else 0
+            if (offsetX == 0 && offsetY == 0)
+                return
+            components.forEach {
+                it.x += offsetX
+                it.y += offsetY
+            }
+            vertexes.forEach {
+                it.x += offsetX
+                it.y += offsetY
+            }
+        }
+
         private fun parsePipeline(
             server: ServerInstance,
             rootArrayList: ArrayList<*>
@@ -115,6 +148,7 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
 
             val pipeline = mutablePipeline.toPipeline()
                 ?: return Either.Left("mutable pipeline could not be converted to pipeline")
+            fixNegativeCoords(pipeline.components, pipeline.vertexes)
             return Either.Right(pipeline)
         }
 

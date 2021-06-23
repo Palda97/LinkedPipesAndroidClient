@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Vertex(
     val order: Int,
-    var x: Int, var y: Int,
+    override var x: Int,
+    override var y: Int,
     @PrimaryKey(autoGenerate = false) val id: String
-)
+): Coords

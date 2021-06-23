@@ -10,12 +10,12 @@ import androidx.room.PrimaryKey
 data class Component(
     var configurationId: String?,
     var templateId: String,
-    var x: Int,
-    var y: Int,
+    override var x: Int,
+    override var y: Int,
     var prefLabel: String,
     var description: String?,
     @PrimaryKey(autoGenerate = false) var id: String
-) {
+): Coords {
     constructor(
         x: Int,
         y: Int,
