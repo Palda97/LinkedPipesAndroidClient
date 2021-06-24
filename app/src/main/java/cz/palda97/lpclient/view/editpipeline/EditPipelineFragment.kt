@@ -113,8 +113,8 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun getCoords(): Pair<Int, Int> {
-        val x = binding.horizontalScrollView.scrollX
-        val y = binding.scrollView.scrollY
+        val x = binding.twoWayScrollView.scrollX
+        val y = binding.twoWayScrollView.scrollY
         val shift = resources.displayMetrics?.let {
             val denominator = 3.toDouble()
             val dimensions = CoordinateConverter.fromDisplay(it.widthPixels.toFloat(), it.heightPixels.toFloat(), it.density)
@@ -253,8 +253,7 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun disableScrollViewsForAWhile() {
-        binding.scrollView.requestDisallowInterceptTouchEvent(true)
-        binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
+        binding.twoWayScrollView.requestDisallowInterceptTouchEvent(true)
     }
 
     private val density: Float? by lazy {
@@ -307,8 +306,8 @@ class EditPipelineFragment : Fragment() {
             val (x, y) = it
             lifecycleScope.launch {
                 delay(50L)
-                binding.horizontalScrollView.scrollX = x
-                binding.scrollView.scrollY = y
+                binding.twoWayScrollView.scrollX = x
+                binding.twoWayScrollView.scrollY = y
             }
         }
     }

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "cz.palda97.lpclient"
-        minSdkVersion 21
+        minSdkVersion 22
         targetSdkVersion 29
         versionCode 6
         versionName "1.2.3"
@@ -149,4 +149,7 @@ dependencies {
 
     //Oss-Licenses
     implementation("com.google.android.gms:play-services-oss-licenses:17.0.0")
+
+    //Two way scroll view (min sdk 22)
+    implementation 'com.github.ultimate-deej:twowaynestedscrollview:0.1'
 }
