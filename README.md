@@ -1,5 +1,5 @@
 # LinkedPipes Android Client
-An android client for the ETL LinkedPipes system.
+An Android client for the ETL LinkedPipes system.
 ## Developer documentation
 Developer documentation including the javadoc documentation can be found [here](https://github.com/Palda97/AndroidEtlClientDeveloperDocumentation).
 ## System requirements
@@ -7,7 +7,7 @@ Developer documentation including the javadoc documentation can be found [here](
 - Android 5.0 or greater.
 - At least 40 MB of space.
 - Internet connection.
-- Optionally - camera for loading server information via QR code
+- Optionally - camera for loading server information via QR code.
 
 ## UI Documentation
 Manual to app's user interface.
@@ -33,7 +33,7 @@ Settings | Edit Server
 ![04](doc/ui/pics/04-settings.png)|![05](doc/ui/pics/05-editServer.png)
 
 <ul>
-	<li>10) The night mode option. You can turn night mode on, off and since android 10, you can select the "System default", so the night mode will be driven by the system settings.</li>
+	<li>10) The night mode option. You can turn night mode on, off and since Android 10, you can select the "System default", so the night mode will be driven by the system settings.</li>
 	<li>11) Turns notifications on or off.</li>
 	<li>12) Server instance item. Click to edit. Slide to delete. After sliding, the UNDO option will be visible for about 5 seconds.</li>
 	<li>13) The active switch. The app will not communicate with servers marked as not active.</li>
