@@ -42,6 +42,9 @@ class EditPipelineFragment : Fragment() {
         private val l = Injector.generateLogFunction(this)
         fun newInstance() =
             EditPipelineFragment()
+
+        private const val TWO_WAY_SCROLL_VIEW_X = "TWO_WAY_SCROLL_VIEW_X"
+        private const val TWO_WAY_SCROLL_VIEW_Y = "TWO_WAY_SCROLL_VIEW_Y"
     }
 
     private lateinit var viewModel: EditPipelineViewModel
@@ -88,7 +91,7 @@ class EditPipelineFragment : Fragment() {
                     mail.mailContent!!
                     currentPipeline = mail.mailContent
                     l("Pipeline is OK")
-                    l(currentPipeline.toString())
+                    //l(currentPipeline.toString())
                     displayPipeline()
                 }
             }
@@ -113,8 +116,8 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun getCoords(): Pair<Int, Int> {
-        val x = binding.horizontalScrollView.scrollX
-        val y = binding.scrollView.scrollY
+        val x = binding.twoWayScrollView.scrollX
+        val y = binding.twoWayScrollView.scrollY
         val shift = resources.displayMetrics?.let {
             val denominator = 3.toDouble()
             val dimensions = CoordinateConverter.fromDisplay(it.widthPixels.toFloat(), it.heightPixels.toFloat(), it.density)
@@ -253,8 +256,7 @@ class EditPipelineFragment : Fragment() {
     }
 
     private fun disableScrollViewsForAWhile() {
-        binding.scrollView.requestDisallowInterceptTouchEvent(true)
-        binding.horizontalScrollView.requestDisallowInterceptTouchEvent(true)
+        binding.twoWayScrollView.requestDisallowInterceptTouchEvent(true)
     }
 
     private val density: Float? by lazy {
@@ -307,8 +309,8 @@ class EditPipelineFragment : Fragment() {
             val (x, y) = it
             lifecycleScope.launch {
                 delay(50L)
-                binding.horizontalScrollView.scrollX = x
-                binding.scrollView.scrollY = y
+                binding.twoWayScrollView.scrollX = x
+                binding.twoWayScrollView.scrollY = y
             }
         }
     }
@@ -352,5 +354,24 @@ class EditPipelineFragment : Fragment() {
         }
         displayVertexes()
         binding.pipelineLayout.currentPipeline = currentPipeline
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        l("onSaveInstanceState: ${binding.twoWayScrollView.scrollX} - ${binding.twoWayScrollView.scrollY}")
+        outState.putInt(TWO_WAY_SCROLL_VIEW_X, binding.twoWayScrollView.scrollX)
+        outState.putInt(TWO_WAY_SCROLL_VIEW_Y, binding.twoWayScrollView.scrollY)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.let {
+            l("onViewStateRestored: ${it.getInt(TWO_WAY_SCROLL_VIEW_X)} - ${it.getInt(TWO_WAY_SCROLL_VIEW_Y)}")
+            lifecycleScope.launch {
+                delay(50L)
+                binding.twoWayScrollView.scrollX = it.getInt(TWO_WAY_SCROLL_VIEW_X)
+                binding.twoWayScrollView.scrollY = it.getInt(TWO_WAY_SCROLL_VIEW_Y)
+            }
+        }
     }
 }
