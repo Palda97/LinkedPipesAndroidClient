@@ -92,7 +92,7 @@ class ServerTest
 
     @Test
     fun frontendUrl() {
-        val defaultPortUrl = "https://demo.etl.linkedpipes.com/"
+        val defaultPortUrl = "https://demo.etl.linkedpipes.com"
         val serverDefaultPort = ServerInstance("serverDefaultPort", defaultPortUrl)
         val eightyEightyPortUrl = "http://192.168.1.50/"
         val server8080 = ServerInstance("serverDefaultPort", eightyEightyPortUrl).apply { frontend = 8080 }

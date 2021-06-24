@@ -342,26 +342,8 @@ class EditPipelineFragment : Fragment() {
         binding.pipelineLayout.vertexesAndButtons = vertexMap
     }
 
-    private fun fixNegativeCoords(components: List<Component>, vertexes: List<Vertex>) {
-        val (minX, minY) = CoordinateConverter.topLeftCoords(components) ?: return
-        val offsetX = if (minX < 0) - minX else 0
-        val offsetY = if (minY < 0) - minY else 0
-        if (offsetX == 0 && offsetY == 0)
-            return
-        components.forEach {
-            it.x += offsetX
-            it.y += offsetY
-        }
-        vertexes.forEach {
-            it.x += offsetX
-            it.y += offsetY
-        }
-    }
-
     private fun displayPipeline() {
         binding.pipelineLayout.removeAllViews()
-        if (viewModel.shouldScroll)
-            fixNegativeCoords(currentPipeline!!.components, currentPipeline!!.vertexes)
         binding.pipelineLayout.resize(currentPipeline!!.components)
         displayComponents()
         if (viewModel.shouldScroll) {

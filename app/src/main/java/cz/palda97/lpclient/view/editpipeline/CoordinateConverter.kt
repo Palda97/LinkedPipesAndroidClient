@@ -4,6 +4,7 @@ package cz.palda97.lpclient.view.editpipeline
 
 import android.view.ViewGroup
 import cz.palda97.lpclient.model.entities.pipeline.Component
+import cz.palda97.lpclient.model.entities.pipeline.PipelineFactory
 import kotlin.math.roundToInt
 
 /**
@@ -61,25 +62,11 @@ object CoordinateConverter {
 
     /**
      * Gets the top left corner of group of components.
-     * @return Top left coordinates or null if there are no components.
-     */
-    fun topLeftCoords(components: List<Component>): Pair<Int, Int>? {
-        val minX = components.minBy {
-            it.x
-        }?.x ?: return null
-        val minY = components.minBy {
-            it.y
-        }?.y ?: return null
-        return minX to minY
-    }
-
-    /**
-     * Gets the top left corner of group of components.
      * @return Coordination to scroll to or null if the component list is empty.
      */
     fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
         val density = density ?: DEFAULT_DENSITY
-        val (minX, minY) = topLeftCoords(components) ?: return null
+        val (minX, minY) = PipelineFactory.topLeftCoords(components) ?: return null
         return (minX * XSCALE * density).roundToInt() to (minY * YSCALE * density).roundToInt()
     }
 }
