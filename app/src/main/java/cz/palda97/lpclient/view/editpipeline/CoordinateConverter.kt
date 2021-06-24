@@ -61,12 +61,37 @@ object CoordinateConverter {
     }
 
     /**
-     * Gets the top left corner of group of components.
+     * Gets the coordination of component to scroll to.
      * @return Coordination to scroll to or null if the component list is empty.
      */
     fun coordsToScrollTo(components: List<Component>, density: Float?): Pair<Int, Int>? {
         val density = density ?: DEFAULT_DENSITY
-        val (minX, minY) = PipelineFactory.topLeftCoords(components) ?: return null
+        //val (minX, minY) = PipelineFactory.topLeftCoords(components) ?: return null
+        val (minX, minY) = mostLeftComponent(components) ?: return null
         return (minX * XSCALE * density).roundToInt() to (minY * YSCALE * density).roundToInt()
+    }
+
+    private fun mostLeftComponent(components: List<Component>): Pair<Int, Int>? {
+        var component = components.firstOrNull() ?: return null
+        components.forEach {
+            if (it.x < component.x) {
+                component = it
+            } else if (it.x == component.x && it.y < component.y) {
+                component = it
+            }
+        }
+        return component.x to component.y
+    }
+
+    private fun mostUpComponent(components: List<Component>): Pair<Int, Int>? {
+        var component = components.firstOrNull() ?: return null
+        components.forEach {
+            if (it.y < component.y) {
+                component = it
+            } else if (it.y == component.y && it.x < component.x) {
+                component = it
+            }
+        }
+        return component.x to component.y
     }
 }

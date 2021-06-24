@@ -43,32 +43,25 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <HorizontalScrollView
-                        android:id="@+id/horizontalScrollView"
+                    <us.gorges.my_package.TwoDScrollView
+                        android:id="@+id/two_way_scroll_view"
+                        android:scrollbars="horizontal|vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollbars="none">
+                        android:layout_height="match_parent">
 
-                        <ScrollView
-                            android:id="@+id/scrollView"
+                        <LinearLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:scrollbars="none">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
 
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
+                            <cz.palda97.lpclient.view.editpipeline.PipelineLayout
+                                android:id="@+id/pipelineLayout"
+                                android:layout_width="2000dp"
+                                android:layout_height="2000dp">
 
-                                <cz.palda97.lpclient.view.editpipeline.PipelineLayout
-                                    android:id="@+id/pipelineLayout"
-                                    android:layout_width="2000dp"
-                                    android:layout_height="2000dp">
-
-                                </cz.palda97.lpclient.view.editpipeline.PipelineLayout>
-                            </LinearLayout>
-                        </ScrollView>
-                    </HorizontalScrollView>
+                            </cz.palda97.lpclient.view.editpipeline.PipelineLayout>
+                        </LinearLayout>
+                    </us.gorges.my_package.TwoDScrollView>
                 </LinearLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
