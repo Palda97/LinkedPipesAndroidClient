@@ -1,5 +1,6 @@
 # LinkedPipes Android Client
-An Android client for the ETL LinkedPipes system.
+An Android client for the [ETL LinkedPipes](https://etl.linkedpipes.com/) system.
+Now available from [Google Play](https://play.google.com/store/apps/details?id=cz.palda97.lpclient).
 ## Developer documentation
 Developer documentation including the javadoc documentation can be found [here](https://github.com/Palda97/AndroidEtlClientDeveloperDocumentation).
 ## System requirements
