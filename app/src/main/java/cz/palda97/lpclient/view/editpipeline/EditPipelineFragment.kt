@@ -269,6 +269,9 @@ class EditPipelineFragment : Fragment() {
             val buttonBinding: DynamicButtonBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_button, null, false)
             buttonBinding.button.makeDraggable(
                 draggableListener = object : DraggableListener {
+                    override fun onLongPress(view: View) {
+                    }
+
                     override fun onPositionChanged(view: View) {
                         disableScrollViewsForAWhile()
                         val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y, density)
@@ -321,6 +324,9 @@ class EditPipelineFragment : Fragment() {
             val vertexBinding: DynamicImageviewBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dynamic_imageview, null, false)
             vertexBinding.imageView.makeDraggable(
                 draggableListener = object : DraggableListener {
+                    override fun onLongPress(view: View) {
+                    }
+
                     override fun onPositionChanged(view: View) {
                         disableScrollViewsForAWhile()
                         val (x, y) = CoordinateConverter.fromDisplay(view.x, view.y, density)

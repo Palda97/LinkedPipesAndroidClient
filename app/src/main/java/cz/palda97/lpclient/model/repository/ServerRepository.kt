@@ -1,10 +1,10 @@
 package cz.palda97.lpclient.model.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import cz.palda97.lpclient.model.MailPackage
 import cz.palda97.lpclient.model.db.dao.ServerInstanceDao
 import cz.palda97.lpclient.model.entities.server.ServerInstance
-import androidx.lifecycle.Transformations
 import cz.palda97.lpclient.Injector
 
 /**
@@ -44,7 +44,7 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
     /**
      * LiveData with all server instances.
      */
-    val liveServers: LiveData<MailPackage<List<ServerInstance>>> = Transformations.map(serverInstanceDao.serverList()) {
+    val liveServers: LiveData<MailPackage<List<ServerInstance>>> = serverInstanceDao.serverList().map {
         if (it == null)
             return@map MailPackage.loadingPackage<List<ServerInstance>>()
         return@map MailPackage(it)
@@ -53,7 +53,7 @@ class ServerRepository(private val serverInstanceDao: ServerInstanceDao) {
     /**
      * LiveData with all active server instances.
      */
-    val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>> = Transformations.map(serverInstanceDao.activeServersOnly()) {
+    val activeLiveServers: LiveData<MailPackage<List<ServerInstance>>> = serverInstanceDao.activeServersOnly().map {
         if (it == null)
             return@map MailPackage.loadingPackage<List<ServerInstance>>()
         return@map MailPackage(it)

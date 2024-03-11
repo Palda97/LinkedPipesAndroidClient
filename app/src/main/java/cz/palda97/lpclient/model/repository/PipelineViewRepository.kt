@@ -2,7 +2,7 @@ package cz.palda97.lpclient.model.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.*
 import cz.palda97.lpclient.model.db.dao.MarkForDeletionDao
@@ -38,7 +38,7 @@ class PipelineViewRepository(
         MediatorLiveData()
 
     private val livePipelineViews: LiveData<MailPackage<List<ServerWithPipelineViews>>> =
-        Transformations.map(dbMirror) {
+        dbMirror.map {
             return@map pipelineViewsFilterTransformation(it)
         }
 

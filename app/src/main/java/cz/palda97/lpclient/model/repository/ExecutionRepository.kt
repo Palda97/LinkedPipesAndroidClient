@@ -2,7 +2,7 @@ package cz.palda97.lpclient.model.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import cz.palda97.lpclient.Injector
 import cz.palda97.lpclient.model.Either
 import cz.palda97.lpclient.model.MailPackage
@@ -41,7 +41,7 @@ class ExecutionRepository(
     private val dbMirror = serverDao.activeServerListWithExecutions()
 
     private val filteredLiveExecutions: LiveData<MailPackage<List<ServerWithExecutions>>> =
-        Transformations.map(dbMirror) {
+        dbMirror.map {
             return@map executionFilterTransformation(it)
         }
 

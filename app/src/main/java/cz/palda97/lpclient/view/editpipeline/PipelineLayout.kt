@@ -47,7 +47,7 @@ class PipelineLayout @JvmOverloads constructor(
         style = Paint.Style.STROKE
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas ?: return
 

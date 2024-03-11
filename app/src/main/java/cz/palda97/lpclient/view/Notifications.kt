@@ -1,10 +1,13 @@
 package cz.palda97.lpclient.view
 
+import android.Manifest
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -69,7 +72,8 @@ object Notifications {
         val intent = Intent(context, RecentExecutionActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, AppInit.CHANNEL_ID)
             //.setSmallIcon(R.drawable.ic_baseline_refresh_24)
@@ -99,7 +103,21 @@ object Notifications {
 
         val notificationId = getNotificationId(context)
         with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+            } else {
+                notify(notificationId, builder.build())
+            }
         }
     }
 
@@ -140,12 +158,13 @@ object Notifications {
             applicationContext,
             0,
             Intent(applicationContext, NotificationBroadcastReceiver::class.java),
-            0
+            PendingIntent.FLAG_IMMUTABLE
         )
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE)
         val notification = NotificationCompat.Builder(applicationContext, AppInit.CHANNEL_ID_FOREGROUND)
             .setContentTitle(title)
             .setTicker(title)

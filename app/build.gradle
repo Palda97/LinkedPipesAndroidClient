@@ -123,7 +123,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-vision:20.1.0'
 
     //Work Manager
-    def work_version = "2.4.0"
+    def work_version = "2.9.0"
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     //DraggableView
