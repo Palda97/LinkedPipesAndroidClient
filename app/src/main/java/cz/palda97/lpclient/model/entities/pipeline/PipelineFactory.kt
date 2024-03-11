@@ -102,12 +102,12 @@ class PipelineFactory(private val server: ServerInstance?, private val string: S
          * @return Top left coordinates or null if there are no items.
          */
         fun topLeftCoords(components: List<Coords>): Pair<Int, Int>? {
-            val minX = components.minBy {
+            val minX = components.minOfOrNull {
                 it.x
-            }?.x ?: return null
-            val minY = components.minBy {
+            } ?: return null
+            val minY = components.minOfOrNull {
                 it.y
-            }?.y ?: return null
+            } ?: return null
             return minX to minY
         }
 
