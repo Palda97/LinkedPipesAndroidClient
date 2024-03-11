@@ -7,15 +7,15 @@ apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'org.jetbrains.dokka-android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 34
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "cz.palda97.lpclient"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 7
-        versionName "1.3"
+        targetSdkVersion 34
+        versionCode 8
+        versionName "1.3.1"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "cz.palda97.lpclient.NoApplicationRunner"
@@ -41,11 +41,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
