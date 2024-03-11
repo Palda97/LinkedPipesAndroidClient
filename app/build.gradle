@@ -1,14 +1,16 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+//apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'com.github.jk1.dependency-license-report'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'org.jetbrains.dokka-android'
 
 android {
-    compileSdkVersion 34
-    buildToolsVersion "29.0.3"
+    compileSdk 34
+
+    namespace "cz.palda97.lpclient"
 
     defaultConfig {
         applicationId "cz.palda97.lpclient"
@@ -87,9 +89,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //Room
-    def room_version = "2.2.5"
+    def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
     // Test helpers
@@ -125,7 +127,7 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     //DraggableView
-    implementation 'com.github.hyuwah:DraggableView:0.5.0'
+    implementation 'com.github.hyuwah:DraggableView:1.0.1'
 
     //HTML parser
     implementation 'org.jsoup:jsoup:1.13.1'

@@ -1,6 +1,7 @@
 package cz.palda97.lpclient.model.entities.server
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -8,14 +9,22 @@ import androidx.room.PrimaryKey
  * @property frontendUrl Url containing the [frontend] port.
  */
 @Entity
-data class ServerInstance(
+data class ServerInstance @Ignore constructor(
     var name: String = "",
-    val url: String = "",
+    var url: String = "",
     var active: Boolean = true,
-    val description: String = "",
-    val auth: Boolean = false,
+    var description: String = "",
+    var auth: Boolean = false,
     var changedSince: Long? = null
 ) {
+    constructor() : this(
+        name = "",
+        url = "",
+        active = true,
+        description = "",
+        auth = false,
+        changedSince = null,
+    )
     var frontend: Int? = null
     val frontendUrl: String
         get() {
